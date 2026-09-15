@@ -35,17 +35,17 @@ extern int yylineno;
 %%
 
 P 
-    : VAR_DECL METHOD_DECL
+    : DECLS
     ;
 
-VAR_DECL
-    : VAR VAR_DECL
-    | 
-    ;
-
-METHOD_DECL
-    : METHOD METHOD_DECL
+DECLS
+    : DECL DECLS
     |
+    ;
+
+DECL
+    : VAR
+    | METHOD
     ;
 
 VAR
