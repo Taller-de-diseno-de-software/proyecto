@@ -1,3 +1,11 @@
+/*
+ * Analizador léxico desarrollado con Flex.
+ *
+ * Reconoce palabras reservadas, identificadores, constantes,
+ * operadores y delimitadores y agrupa estas cadenas en TOKENS
+ *
+ */
+
 %option noyywrap
 %option yylineno
 
@@ -123,7 +131,7 @@ FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
                 }
 
 "!"             {
-                   printf("NEG  %s\n", yytext); 
+                   printf("OP_NEG  %s\n", yytext); 
                 }
 
 ";"             {
@@ -134,6 +142,9 @@ FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
                    printf("COMA  %s\n", yytext); 
                 }
 
+"="             {
+                    printf("OP_ASIG  %s\n", yytext);
+}
 [ \t\r\n]+  { }
 
 .           { printf("ERROR linea %d: caracter no reconocido '%s'\n", yylineno, yytext); }
