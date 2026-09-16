@@ -20,7 +20,31 @@ ID            {ALPHA}{ALPHA_NUM}*
 INT_LITERAL   {DIGIT}{DIGIT}*
 FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
 
+%x COMENTARIO
+
 %%
+
+"//".*          {
+                    printf("COMENTARIO_LINEA  %s\n", yytext);
+                }
+
+"/*"            {
+                    printf("COMENTARIO_ABRE  %s\n", yytext);
+                    BEGIN(COMENTARIO);
+                }
+
+<COMENTARIO>"*/"            {
+                    printf("COMENTARIO_CIERRA  %s\n", yytext);
+                    BEGIN(INITIAL);
+                }
+
+<COMENTARIO>\n  {
+                    // Saltar de línea siguiendo en modo comentario.
+                }
+
+<COMENTARIO>.   {
+                    // Ignorar cualquier otro carácter dentro del comentario.
+                }>
 
 "boolean"       {
                     printf("BOOLEAN    %s\n", yytext);
@@ -175,6 +199,11 @@ FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
 "="             {
                     printf("OP_ASIG  %s\n", yytext);
                     return OP_ASIG;
+                }
+                
+\n              {
+                    printf("FIN_LINEA  %s\n", yytext);
+                    return FIN_LINEA;
                 }
 [ \t\r\n]+  { }
 

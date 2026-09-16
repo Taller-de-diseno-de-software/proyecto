@@ -14,3 +14,5 @@ DIA 1: Analizador léxico en conjunto por ds, usando el del pre-proyecto cómo r
 
 DIA 2:
     Se cambió el while para que acepte expresiones dentro de parentesis
+
+    Investigamos cómo resolver el tema de los comentarios. Lo pudimos resolver en el Analizador Léxico con el uso de lo que llamamos "modos de lectura" o "ambiente" <COMENTARIO>. Estando en "modo" comentario, ignoramos todo hasta encontrar */ y volvemos al "modo normal" <INITIAL>
