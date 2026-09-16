@@ -161,3 +161,20 @@ LITERAL
     | CTE_LOGICA
     | CTE_FLOAT
     ;
+
+%%
+
+int main(int argc, char **argv) {
+    extern FILE *yyin;
+    if (argc > 1) {
+        yyin = fopen(argv[1], "r");
+        if (!yyin) {
+            printf("No se pudo abrir %s\n", argv[1]);
+            return 1;
+        }
+    }
+    if (yyparse() == 0) {
+        printf("Programa aceptado\n");
+    }
+    return 0;
+}
