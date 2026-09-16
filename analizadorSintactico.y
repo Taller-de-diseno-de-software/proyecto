@@ -6,7 +6,6 @@
  * Producto resultante: El AST
  *
  */
-
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,6 +85,11 @@ PARAM
 
 BLOQUE
     : LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER
+    ;
+
+VAR_DECL
+    : VAR VAR_DECL
+    | 
     ;
 
 STATEMENTS
