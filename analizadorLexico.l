@@ -11,6 +11,7 @@
 
 %{
     #include <stdio.h>
+    #include "analizadorSintactico.tab.h"
 %}
 
 ALPHA_NUM     {ALPHA}|{DIGIT}|_
@@ -44,7 +45,7 @@ FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
 
 <COMENTARIO>.   {
                     // Ignorar cualquier otro carácter dentro del comentario.
-                }>
+                }
 
 "boolean"       {
                     printf("BOOLEAN    %s\n", yytext);
@@ -57,12 +58,12 @@ FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
                 }
 
 "true"          {
-                    printf("CTE_LOGICA"  %s\n", yytext); 
+                    printf("CTE_LOGICA  %s\n", yytext);
                     return CTE_LOGICA;
                 }
 
 "false"         {
-                    printf("CTE_LOGICA"  %s\n", yytext); 
+                    printf("CTE_LOGICA  %s\n", yytext);
                     return CTE_LOGICA;
                 }
 
@@ -201,10 +202,6 @@ FLOAT_LITERAL {DIGIT}{DIGIT}*.{DIGIT}{DIGIT}*
                     return OP_ASIG;
                 }
                 
-\n              {
-                    printf("FIN_LINEA  %s\n", yytext);
-                    return FIN_LINEA;
-                }
 [ \t\r\n]+  { }
 
 .           { printf("ERROR linea %d: caracter no reconocido '%s'\n", yylineno, yytext); }

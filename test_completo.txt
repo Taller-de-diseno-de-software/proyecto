@@ -1,0 +1,87 @@
+// ================================================
+// Test exhaustivo para analizadorSintactico.y
+// ================================================
+
+/* Declaraciones globales de variables,
+   con multiples identificadores por tipo */
+int a, b, c;
+float x, y;
+boolean flag;
+
+// Metodo con un solo parametro, retorna int
+int cuadrado(int n) {
+    return n * n;
+}
+
+// Metodo con varios parametros de distinto tipo
+int suma(int p1, int p2, float p3) {
+    int resultado;
+    resultado = p1 + p2;
+    return resultado;
+}
+
+/* Metodo void.
+   Nota: la gramatica actual exige al menos un parametro,
+   no soporta lista vacia en PARAMS */
+void saludar(int veces) {
+    boolean local1;
+    local1 = true;
+    return;
+}
+
+/* Metodo principal:
+   ejercita todos los statements, expresiones y comentarios */
+int main(int argc) {
+    int i, j;
+    float f;
+    boolean b1, b2;
+
+    i = 0;
+    j = 10;
+    f = 3.14;
+    b1 = true;
+    b2 = false;
+
+    ;   // sentencia vacia
+
+    if (i < j) {
+        i = i + 1;
+    } else {
+        i = i - 1;
+    }
+
+    if (i > j) {
+        ;
+    } else {
+        ;
+    }
+
+    if (i == j) {
+        ;
+    }
+
+    while (i < j) {
+        i = i + 1;
+        j = j - 1;
+    }
+
+    if (b1 && b2 || !b1) {
+        i = cuadrado(i);
+    }
+
+    i = -i;
+    f = -f + 2;
+    b1 = !b2;
+
+    i = (i + j) * cuadrado(2) / suma(1, 2, f);
+    i = i % j;
+
+    {
+        int k;
+        k = i + j;
+    }
+
+    saludar(1);
+
+    return i;
+}

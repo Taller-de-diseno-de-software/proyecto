@@ -20,9 +20,10 @@ extern int yylineno;
 %token OP_SUMA OP_PROD OP_RESTA OP_DIV OP_DIVENT OP_MENOR OP_MAYOR OP_EQ OP_AND OP_OR OP_NEG OP_ASIG   //Operaciones
 %token PUNTO_COMA PAR_IZQ PAR_DER LLAVE_IZQ LLAVE_DER COMA  //Caracteres 
 
-%left OP_OR
 %left OP_AND
+%left OP_OR
 %left OP_EQ
+%nonassoc OP_MENOR OP_MAYOR OP_EQ
 %left OP_MENOR OP_MAYOR
 %left OP_SUMA OP_RESTA
 %left OP_PROD OP_DIV OP_DIVENT
@@ -47,11 +48,6 @@ DECL
     | METHOD
     ;
 
-DECL_PRIMA 
-    : ID_PRIMA PUNTO_COMA
-    | PAR_IZQ PARAMS PAR_DER BLOQUE
-    ;
-
 VAR
     : TYPE IDS PUNTO_COMA
     ;
@@ -68,6 +64,8 @@ ID_PRIMA
 METHOD
     : TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE
     | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE
+    | TYPE ID PAR_IZQ PAR_DER BLOQUE
+    | VOID ID PAR_IZQ PAR_DER BLOQUE
     ;
 
 PARAMS
@@ -167,6 +165,10 @@ LITERAL
     ;
 
 %%
+
+void yyerror(const char *s) {
+    printf("Error sintáctico en la línea %d: %s\n", yylineno, s);
+}
 
 int main(int argc, char **argv) {
     extern FILE *yyin;
