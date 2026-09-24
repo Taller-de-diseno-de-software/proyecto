@@ -114,62 +114,62 @@ STATEMENT
     | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE
     | WHILE PAR_IZQ EXPR PAR_DER BLOQUE
     | RETURN OPTIONAL_EXPR PUNTO_COMA
-    | PUNTO_COMA
-    | BLOQUE
+    | PUNTO_COMA 
+    | BLOQUE {$$ = crearNodo(NODO_BLOQUE, NULL, $1, NULL, NULL, NULL);}
     ;
 
 OPTIONAL_ELSE
-    : ELSE BLOQUE
-    |
+    : ELSE BLOQUE {$$ = crearNodo(NODO_ELSE, NULL, $2, NULL, NULL, NULL);}
+    | {$$ = NULL;}
     ;
 
 OPTIONAL_EXPR
-    : EXPR
-    |
+    : EXPR {$$ = crearNodo(NODO_EXPR, NULL, $1, NULL, NULL, NULL);}
+    | {$$ = NULL;}
     ;
 
 METHOD_CALL 
-    : ID PAR_IZQ ARGS PAR_DER
-    | ID PAR_IZQ PAR_DER
+    : ID PAR_IZQ ARGS PAR_DER {$$ = crearNodo(NODO_ARGUMENTS_CALL, $1, $3, NULL, NULL, NULL);}
+    | ID PAR_IZQ PAR_DER {$$ = crearNodo(NODO_NO_ARGUMENTS_CALL, $1, NULL, NULL, NULL, NULL);}
     ;
 
 ARGS
-    : ARG ARGS_PRIMA
+    : ARG ARGS_PRIMA {$$ = crearNodo(NODO_ARG, NULL, $1, $2, NULL, NULL);}
     ;
 
 ARGS_PRIMA
-    : COMA ARGS
-    | 
+    : COMA ARGS {$$ = crearNodo(NODO_ARGS, NULL, $2, NULL, NULL, NULL);}
+    | {$$ = NULL;}
     ;
 
 ARG
-    : EXPR
+    : EXPR {$$ = crearNodo(NODO_EXPR, NULL, $1, NULL, NULL, NULL);}
     ;
 
 EXPR
-    : ID
-    | METHOD_CALL
-    | LITERAL
-    | EXPR OP_SUMA EXPR //ARITH_OP
-    | EXPR OP_RESTA EXPR //ARITH_OP
-    | EXPR OP_PROD EXPR //ARITH_OP
-    | EXPR OP_DIV EXPR //ARITH_OP
-    | EXPR OP_DIVENT EXPR //ARITH_OP
-    | EXPR OP_MENOR EXPR //REL_OP
-    | EXPR OP_MAYOR EXPR //REL_OP
-    | EXPR OP_EQ EXPR //REL_OP
-    | EXPR OP_AND EXPR //COND_OP
-    | EXPR OP_OR EXPR //COND_OP
-    | OP_RESTA EXPR %prec SIGNO_MENOS  
-    | OP_NEG EXPR
-    | PAR_IZQ EXPR PAR_DER
+    : ID {$$ = crearNodo(NODO_ID, NULL, $1, NULL, NULL, NULL);}
+    | METHOD_CALL {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL, NULL);}
+    | LITERAL {$$ = crearNodo(NODO_LITERAL, NULL, $1, NULL, NULL, NULL);} 
+    | EXPR OP_SUMA EXPR {$$ = crearNodo(NODO_SUMA, NULL, $1, $3, NULL, NULL);}//ARITH_OP
+    | EXPR OP_RESTA EXPR {$$ = crearNodo(NODO_RESTA, NULL, $1, $3, NULL, NULL);}//ARITH_OP
+    | EXPR OP_PROD EXPR {$$ = crearNodo(NODO_PROD, NULL, $1, $3, NULL, NULL);}//ARITH_OP
+    | EXPR OP_DIV EXPR {$$ = crearNodo(NODO_DIV, NULL, $1, $3, NULL, NULL);}//ARITH_OP
+    | EXPR OP_DIVENT EXPR {$$ = crearNodo(NODO_DIVENT, NULL, $1, $3, NULL, NULL);}//ARITH_OP
+    | EXPR OP_MENOR EXPR {$$ = crearNodo(NODO_MENOR, NULL, $1, $3, NULL, NULL);}//REL_OP
+    | EXPR OP_MAYOR EXPR {$$ = crearNodo(NODO_MAYOR, NULL, $1, $3, NULL, NULL);}//REL_OP
+    | EXPR OP_EQ EXPR {$$ = crearNodo(NODO_EQ, NULL, $1, $3, NULL, NULL);}//REL_OP
+    | EXPR OP_AND EXPR {$$ = crearNodo(NODO_AND, NULL, $1, $3, NULL, NULL);}//COND_OP
+    | EXPR OP_OR EXPR {$$ = crearNodo(NODO_OR, NULL, $1, $3, NULL, NULL);}//COND_OP
+    | OP_RESTA EXPR %prec SIGNO_MENOS { $$ = crearNodo(NODO_SIGNO_MENOS, NULL, $2, NULL, NULL, NULL);}  
+    | OP_NEG EXPR {$$ = crearNodo(NODO_NEG, NULL, $2, NULL, NULL, NULL);} 
+    | PAR_IZQ EXPR PAR_DER {$$ = $2;} 
     ;
 
 
 LITERAL
-    : CTE_ENTERA
-    | CTE_LOGICA
-    | CTE_FLOAT
+    : CTE_ENTERA {$$ = crearNodo(NODO_CTE_ENTERA, $1, NULL, NULL, NULL, NULL);} 
+    | CTE_LOGICA {$$ = crearNodo(NODO_CTE_LOGICA, $1, NULL, NULL, NULL, NULL);} 
+    | CTE_FLOAT {$$ = crearNodo(NODO_CTE_FLOAT, $1, NULL, NULL, NULL, NULL);} 
     ;
 
 %%
