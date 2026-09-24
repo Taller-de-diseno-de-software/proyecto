@@ -42,50 +42,50 @@ extern int yylineno;
 %%
 
 P 
-    : DECLS
+    : DECLS {$$ = crearNodo(NODO_DECLS, NULL, $1, NULL, NULL, NULL);}
     ;
 
 DECLS 
-    : DECL DECLS
-    |
+    : DECL DECLS {$$ = crearNodo(NODO_DECLS, NULL, $1, $2, NULL, NULL);}
+    | {$$ = NULL;}
     ;
 
 DECL
-    : VAR
-    | METHOD
+    : VAR {$$ = $1;}
+    | METHOD {$$ = $1;}
     ;
 
 VAR
-    : TYPE IDS PUNTO_COMA
+    : TYPE IDS PUNTO_COMA {$$ = crearNodo(NODO_VAR, NULL, $1, $2, NULL, NULL)}
     ;
 
 IDS
-    : ID ID_PRIMA   
+    : ID ID_PRIMA {$$ = crearNodo(NODO_IDS, NULL, $1, $2, NULL, NULL)}
     ;
 
 ID_PRIMA
-    : COMA IDS  //Multiples id
-    | 
+    : COMA IDS {$$ = crearNodo(NODO_IDS, NULL, $2, NULL, NULL, NULL);} //Multiples id
+    | {$$ = NULL;} //Un solo id
     ;
 
 METHOD
-    : TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE
-    | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE
-    | TYPE ID PAR_IZQ PAR_DER BLOQUE
-    | VOID ID PAR_IZQ PAR_DER BLOQUE
+    : TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
+    | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
+    | TYPE ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
+    | VOID ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
     ;
 
 PARAMS
-    : PARAM PARAMS_PRIMA
+    : PARAM PARAMS_PRIMA {$$ = crearNodo(NODO_PARAMS, NULL, $1, $2, NULL, NULL)}
     ;
 
 PARAMS_PRIMA
-    : COMA PARAMS
+    : COMA PARAMS {$$ = crearNodo(NODO_PARAMS, NULL, $2, NULL, NULL, NULL);}
     | 
     ;
 
 PARAM 
-    : TYPE ID
+    : TYPE ID {$$ = crearNodo(NODO_PARAM, NULL, $1, $2, NULL, NULL)}
     ;
 
 BLOQUE
