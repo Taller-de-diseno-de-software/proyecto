@@ -89,32 +89,32 @@ PARAM
     ;
 
 BLOQUE
-    : LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER
+    : LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER {$$ = crearNodo(NODO_LLAVE, NULL, $2, $3, NULL, NULL)}
     ;
 
 VAR_DECL
-    : VAR VAR_DECL
-    | 
+    : VAR VAR_DECL {$$ = crearNodo(NODO_VAR, NULL, $1, $2, NULL, NULL);}
+    | {$$ = NULL;}
     ;
 
 STATEMENTS
-    : STATEMENT STATEMENTS
-    | 
+    : STATEMENT STATEMENTS {$$ = crearNodo(NODO_STATEMENT, NULL, $1, $2, NULL, NULL);}
+    | {$$ = NULL;} 
     ;
 
 TYPE
-    : INT
-    | FLOAT
-    | BOOLEAN
+    : INT {$$ = crearNodo(NODO_TYPE, "int", NULL, NULL, NULL, NULL);}
+    | FLOAT {$$ = crearNodo(NODO_TYPE, "float", NULL, NULL, NULL, NULL);}
+    | BOOLEAN {$$ = crearNodo(NODO_TYPE, "boolean", NULL, NULL, NULL, NULL);}
     ;
 
 STATEMENT 
-    : ID OP_ASIG EXPR PUNTO_COMA
-    | METHOD_CALL PUNTO_COMA
-    | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE
-    | WHILE PAR_IZQ EXPR PAR_DER BLOQUE
-    | RETURN OPTIONAL_EXPR PUNTO_COMA
-    | PUNTO_COMA 
+    : ID OP_ASIG EXPR PUNTO_COMA {$$ = crearNodo(NODO_OP_ASIG, $1, $3, NULL, NULL);}
+    | METHOD_CALL PUNTO_COMA {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL);}
+    | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE {$$ = crearNodo(NODO_IF, NULL, $3, $5, $6);}
+    | WHILE PAR_IZQ EXPR PAR_DER BLOQUE {$$ = crearNodo(NODO_WHILE, NULL, $3, $5, NULL);}
+    | RETURN OPTIONAL_EXPR PUNTO_COMA {$$ = crearNodo(NODO_RETURN, NULL, $2, NULL, NULL);}
+    | PUNTO_COMA {$$ = NULL}
     | BLOQUE {$$ = crearNodo(NODO_BLOQUE, NULL, $1, NULL, NULL, NULL);}
     ;
 
@@ -167,9 +167,9 @@ EXPR
 
 
 LITERAL
-    : CTE_ENTERA {$$ = crearNodo(NODO_CTE_ENTERA, $1, NULL, NULL, NULL, NULL);} 
-    | CTE_LOGICA {$$ = crearNodo(NODO_CTE_LOGICA, $1, NULL, NULL, NULL, NULL);} 
-    | CTE_FLOAT {$$ = crearNodo(NODO_CTE_FLOAT, $1, NULL, NULL, NULL, NULL);} 
+    : CTE_ENTERA {$$ = crearNodo(NODO_LITERAL, $1, NULL, NULL, NULL, NULL);} 
+    | CTE_LOGICA {$$ = crearNodo(NODO_LITERAL, $1, NULL, NULL, NULL, NULL);} 
+    | CTE_FLOAT {$$ = crearNodo(NODO_LITERAL, $1, NULL, NULL, NULL, NULL);} 
     ;
 
 %%
