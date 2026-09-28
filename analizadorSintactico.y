@@ -56,11 +56,11 @@ DECL
     ;
 
 VAR
-    : TYPE IDS PUNTO_COMA {$$ = crearNodo(NODO_VAR, NULL, $1, $2, NULL, NULL)}
+    : TYPE IDS PUNTO_COMA {$$ = crearNodo(NODO_VAR, NULL, $1, $2, NULL, NULL);}
     ;
 
 IDS
-    : ID ID_PRIMA {$$ = crearNodo(NODO_IDS, NULL, $1, $2, NULL, NULL)}
+    : ID ID_PRIMA {$$ = crearNodo(NODO_IDS, $1, $2, NULL, NULL, NULL);}
     ;
 
 ID_PRIMA
@@ -69,14 +69,14 @@ ID_PRIMA
     ;
 
 METHOD
-    : TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
-    | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
-    | TYPE ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
-    | VOID ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, NULL, $1, $2, $3, $4);}
+    : TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $4, $6, NULL);}
+    | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $4, $6, NULL);}
+    | TYPE ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $5, NULL, NULL);}
+    | VOID ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $5, NULL, NULL);}
     ;
 
 PARAMS
-    : PARAM PARAMS_PRIMA {$$ = crearNodo(NODO_PARAMS, NULL, $1, $2, NULL, NULL)}
+    : PARAM PARAMS_PRIMA {$$ = crearNodo(NODO_PARAMS, NULL, $1, $2, NULL, NULL);}
     ;
 
 PARAMS_PRIMA
@@ -85,15 +85,15 @@ PARAMS_PRIMA
     ;
 
 PARAM 
-    : TYPE ID {$$ = crearNodo(NODO_PARAM, NULL, $1, $2, NULL, NULL)}
+    : TYPE ID {$$ = crearNodo(NODO_PARAM, $2, $1, NULL, NULL, NULL);}
     ;
 
 BLOQUE
-    : LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER {$$ = crearNodo(NODO_LLAVE, NULL, $2, $3, NULL, NULL)}
+    : LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER {$$ = crearNodo(NODO_LLAVE, NULL, $2, $3, NULL, NULL);}
     ;
 
 VAR_DECL
-    : VAR VAR_DECL {$$ = crearNodo(NODO_VAR, NULL, $1, $2, NULL, NULL);}
+    : VAR VAR_DECL {$$ = crearNodo(NODO_VAR_DECL, NULL, $1, $2, NULL, NULL);}
     | {$$ = NULL;}
     ;
 
@@ -109,12 +109,12 @@ TYPE
     ;
 
 STATEMENT 
-    : ID OP_ASIG EXPR PUNTO_COMA {$$ = crearNodo(NODO_OP_ASIG, $1, $3, NULL, NULL);}
-    | METHOD_CALL PUNTO_COMA {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL);}
-    | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE {$$ = crearNodo(NODO_IF, NULL, $3, $5, $6);}
-    | WHILE PAR_IZQ EXPR PAR_DER BLOQUE {$$ = crearNodo(NODO_WHILE, NULL, $3, $5, NULL);}
+    : ID OP_ASIG EXPR PUNTO_COMA {$$ = crearNodo(NODO_OP_ASIG, $1, $3, NULL, NULL, NULL);}
+    | METHOD_CALL PUNTO_COMA {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL, NULL);}
+    | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE {$$ = crearNodo(NODO_IF, NULL, $3, $5, $6, NULL);}
+    | WHILE PAR_IZQ EXPR PAR_DER BLOQUE {$$ = crearNodo(NODO_WHILE, NULL, $3, $5, NULL, NULL);}
     | RETURN OPTIONAL_EXPR PUNTO_COMA {$$ = crearNodo(NODO_RETURN, NULL, $2, NULL, NULL);}
-    | PUNTO_COMA {$$ = NULL}
+    | PUNTO_COMA {$$ = NULL;}
     | BLOQUE {$$ = crearNodo(NODO_BLOQUE, NULL, $1, NULL, NULL, NULL);}
     ;
 
@@ -147,7 +147,7 @@ ARG
     ;
 
 EXPR
-    : ID {$$ = crearNodo(NODO_ID, NULL, $1, NULL, NULL, NULL);}
+    : ID {$$ = crearNodo(NODO_ID, $1, NULL, NULL, NULL, NULL);}
     | METHOD_CALL {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL, NULL);}
     | LITERAL {$$ = crearNodo(NODO_LITERAL, NULL, $1, NULL, NULL, NULL);} 
     | EXPR OP_SUMA EXPR {$$ = crearNodo(NODO_SUMA, NULL, $1, $3, NULL, NULL);}//ARITH_OP
