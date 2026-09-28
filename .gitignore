@@ -1,1 +1,5 @@
 fixes.md
+*.tab.c
+*.tab.h
+lexx.yy.c
+parser
