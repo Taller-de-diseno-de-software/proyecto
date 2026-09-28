@@ -6,6 +6,10 @@
  * Producto resultante: El AST
  *
  */
+%code requires {
+#include "ast.h"
+}
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +18,8 @@
 int yylex(void);
 void yyerror(const char *s);
 extern int yylineno;
+
+nodoAST *raiz;
 %}
 
 %union {
@@ -31,7 +37,6 @@ extern int yylineno;
 
 %left OP_OR
 %left OP_AND
-%left OP_EQ
 %nonassoc OP_MENOR OP_MAYOR OP_EQ
 %left OP_SUMA OP_RESTA
 %left OP_PROD OP_DIV OP_DIVENT
@@ -42,8 +47,8 @@ extern int yylineno;
 
 %%
 
-P 
-    : DECLS {$$ = crearNodo(NODO_DECLS, NULL, $1, NULL, NULL, NULL);}
+P
+    : DECLS {$$ = crearNodo(NODO_DECLS, NULL, $1, NULL, NULL, NULL); raiz = $$;}
     ;
 
 DECLS 
@@ -71,9 +76,9 @@ ID_PRIMA
 
 METHOD
     : TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $4, $6, NULL);}
-    | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $4, $6, NULL);}
+    | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, NULL, $4, $6, NULL);}
     | TYPE ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $5, NULL, NULL);}
-    | VOID ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, $1, $5, NULL, NULL);}
+    | VOID ID PAR_IZQ PAR_DER BLOQUE {$$ = crearNodo(NODO_METHOD, $2, NULL, $5, NULL, NULL);}
     ;
 
 PARAMS
@@ -82,7 +87,7 @@ PARAMS
 
 PARAMS_PRIMA
     : COMA PARAMS {$$ = crearNodo(NODO_PARAMS, NULL, $2, NULL, NULL, NULL);}
-    | 
+    | {$$ = NULL;}
     ;
 
 PARAM 
@@ -114,7 +119,7 @@ STATEMENT
     | METHOD_CALL PUNTO_COMA {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL, NULL);}
     | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE {$$ = crearNodo(NODO_IF, NULL, $3, $5, $6, NULL);}
     | WHILE PAR_IZQ EXPR PAR_DER BLOQUE {$$ = crearNodo(NODO_WHILE, NULL, $3, $5, NULL, NULL);}
-    | RETURN OPTIONAL_EXPR PUNTO_COMA {$$ = crearNodo(NODO_RETURN, NULL, $2, NULL, NULL);}
+    | RETURN OPTIONAL_EXPR PUNTO_COMA {$$ = crearNodo(NODO_RETURN, NULL, $2, NULL, NULL, NULL);}
     | PUNTO_COMA {$$ = NULL;}
     | BLOQUE {$$ = crearNodo(NODO_BLOQUE, NULL, $1, NULL, NULL, NULL);}
     ;

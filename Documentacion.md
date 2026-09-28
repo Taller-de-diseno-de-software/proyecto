@@ -119,3 +119,16 @@ En el lexer se incorporó el estado `COMENTARIO` de Flex:
 
 No hubo problemas detectados durante el Día 2.
 
+## Día 3
+### Trabajo Realizado
+  Primero completamos el analizador sintáctico, corregimos errores sintácticos.
+  Implementamos crearNodo e imprimirArbol.
+  Creamos el enum de los tipos de nodo y tipoNodoNombre para los nombres a imprimir.
+
+### Problemas Detectados
+  Reemplacé el tipo del tipo de nodo en el perfil de crearNodo sin cambiar que fuera un puntero y no compilaba.
+  Notamos que la gramática acepta BLOQUE sueltos sin nada más. EJ:
+  {
+    i = 2;
+  }
+
