@@ -135,3 +135,5 @@ No hubo problemas detectados durante el Día 2.
     i = 2;
   }
 
+  Podríamos usar la flag para diferenciar variables locales de globales.
+  En el símbolo se podría agregar el campo parámetros para simplificar el uso de la tabla de símbolos.
