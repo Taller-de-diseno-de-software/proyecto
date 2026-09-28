@@ -1,0 +1,13 @@
+// TS_ERROR_03: Uso de variable no declarada
+//
+// Error esperado (semántico): buscarSimbolo("z") retorna NULL
+//   'z' nunca fue insertada en ningún nivel. El analizador semántico
+//   debe reportar "Identificador no declarado" (o equivalente) al recibir NULL.
+//
+// Nota: el parser acepta esto sintácticamente porque ID es un token válido.
+
+int main() {
+    int x;
+    x = z + 1;
+    return x;
+}

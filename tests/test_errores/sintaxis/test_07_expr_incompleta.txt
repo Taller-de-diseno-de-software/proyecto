@@ -1,0 +1,6 @@
+// ERROR: Expresión incompleta — operador binario sin operando derecho
+// Se espera: Error sintáctico en la línea 4
+int main() {
+    int x;
+    x = 3 +;
+}

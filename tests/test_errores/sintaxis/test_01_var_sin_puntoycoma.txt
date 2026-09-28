@@ -1,0 +1,3 @@
+// ERROR: Falta punto y coma en declaración de variable global
+// Se espera: Error sintáctico en la línea 3
+int x

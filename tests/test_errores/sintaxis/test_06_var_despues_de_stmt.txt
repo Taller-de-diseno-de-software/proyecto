@@ -1,0 +1,10 @@
+// ERROR: Declaración de variable después de sentencias dentro de un bloque
+// La gramática requiere que todas las VAR_DECL vayan antes de los STATEMENTS.
+// Se espera: Error sintáctico en la línea 6
+int main() {
+    int x;
+    x = 1;
+    int y;
+    y = 2;
+    return x;
+}

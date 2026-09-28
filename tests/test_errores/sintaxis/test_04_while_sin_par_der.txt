@@ -1,0 +1,9 @@
+// ERROR: Falta ')' en la condición del while
+// Se espera: Error sintáctico en la línea 5
+int main() {
+    int x;
+    x = 5;
+    while (x > 0 {
+        x = x - 1;
+    }
+}

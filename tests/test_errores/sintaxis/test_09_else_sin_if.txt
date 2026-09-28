@@ -1,0 +1,9 @@
+// ERROR: else sin if previo
+// Se espera: Error sintáctico en la línea 5
+int main() {
+    int x;
+    x = 0;
+    else {
+        x = 1;
+    }
+}

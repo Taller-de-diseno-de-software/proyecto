@@ -1,0 +1,17 @@
+// TS_ERROR_05: Redeclaración de parámetro como variable local en el mismo nivel
+//
+// Error esperado (semántico): "Identificador redeclarado!!!"
+//   El parámetro 'n' se inserta como FLAG_PARAMETRO al abrir el nivel del método.
+//   La declaración 'int n;' dentro del cuerpo intenta insertarlo de nuevo
+//   en el mismo nivel, y insertarSimbolo detecta la colisión.
+//
+// Nota: el parser acepta esto sintácticamente.
+
+int doble(int n) {
+    int n;
+    return n + n;
+}
+
+int main() {
+    return doble(5);
+}

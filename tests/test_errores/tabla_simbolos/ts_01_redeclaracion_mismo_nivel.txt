@@ -1,0 +1,12 @@
+// TS_ERROR: Redeclaración de variable en el mismo nivel
+//
+// Error esperado (semántico): "Identificador redeclarado!!!"
+//   insertarSimbolo("x") en el nivel de main detecta que 'x' ya existe
+//   en ese mismo nivel y reporta el error.
+
+int main() {
+    int x;
+    int x;
+    x = 5;
+    return x;
+}

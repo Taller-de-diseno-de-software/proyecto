@@ -1,0 +1,22 @@
+// TS_CORRECTO_04: Parámetros formales registrados en el nivel del método
+//
+// Qué valida la tabla de símbolos:
+//   - Al abrir el nivel de 'sumar', se insertan 'a' y 'b' como FLAG_PARAMETRO.
+//   - buscarSimbolo los encuentra cuando se usan en el cuerpo del método.
+//   - Al cerrar el nivel de 'sumar', 'a' y 'b' dejan de ser visibles.
+//   - En 'main', buscarSimbolo para 'a' o 'b' ya no debe encontrarlos
+//     (el main usa sus propias variables 'p' y 'q').
+
+int sumar(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    int p;
+    int q;
+    int resultado;
+    p = 3;
+    q = 7;
+    resultado = sumar(p, q);
+    return resultado;
+}

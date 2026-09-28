@@ -1,0 +1,18 @@
+// TS_CORRECTO_05: Mismo nombre en distintos niveles sin conflicto
+//
+// Qué valida la tabla de símbolos:
+//   - 'n' existe como parámetro en 'doble' y también como variable local en 'main'.
+//   - insertarSimbolo no debe reportar redeclaración porque están en niveles distintos.
+//   - cerrarNivel al salir de 'doble' elimina ese 'n'; insertarSimbolo en main
+//     abre un nivel nuevo y lo inserta limpiamente.
+//   - Verifica que la pila de niveles aísla correctamente los contextos.
+
+int doble(int n) {
+    return n + n;
+}
+
+int main() {
+    int n;
+    n = 4;
+    return doble(n);
+}

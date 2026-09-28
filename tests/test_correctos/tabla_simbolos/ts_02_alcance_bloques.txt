@@ -1,0 +1,20 @@
+// TS_CORRECTO_02: Alcance de bloques — variable local oculta a la global
+//
+// Qué valida la tabla de símbolos:
+//   - abrirNivel() al entrar al bloque de main y al bloque interior.
+//   - La 'x' del bloque interior (nivel 2) es distinta de la 'x' de main (nivel 1).
+//   - buscarSimbolo desde el bloque interior encuentra primero la 'x' local
+//     y no confunde con la global.
+//   - cerrarNivel() al salir de cada bloque descarta correctamente los símbolos.
+
+int x;
+
+int main() {
+    int x;
+    x = 10;
+    {
+        int x;
+        x = 99;
+    }
+    return x;
+}

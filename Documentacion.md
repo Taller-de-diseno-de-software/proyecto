@@ -68,6 +68,17 @@ continuar con la alternativa correspondiente.
 - Incorporar el manejo de comentarios de una línea (`//`) y multilínea
   (`/* ... */`) en el analizador léxico.
 
+### Comandos usados hasta este momento
+
+En esta etapa se generaban el analizador léxico y el analizador sintáctico con:
+
+```bash
+flex analizadorLexico.l
+bison -d analizadorSintactico.y
+```
+
+Todavía no había un ejecutable completo para correr los tests.
+
 ## Día 2
 
 ### Trabajo realizado
@@ -119,11 +130,33 @@ En el lexer se incorporó el estado `COMENTARIO` de Flex:
 
 No hubo problemas detectados durante el Día 2.
 
+### Comandos usados hasta este momento
+
+Se regeneraban los archivos del lexer y del parser con los mismos comandos:
+
+```bash
+flex analizadorLexico.l
+bison -d analizadorSintactico.y
+```
+
+El ejecutable completo todavía no incluía el AST.
+
 ## Día 3
 ### Trabajo Realizado
   Primero completamos el analizador sintáctico, corregimos errores sintácticos.
   Implementamos crearNodo e imprimirArbol.
   Creamos el enum de los tipos de nodo y tipoNodoNombre para los nombres a imprimir.
+  Se organizaron los test correctos y se crearon los test con errores para analizar gramatica: puntos y coma, alcance, bloques, etc-
+  Se hicieron test especificamente para dejar listas las pruebas para la tabla de simbolos
+
+### Comando para ejecutar todo lo realizado
+
+```bash
+flex analizadorLexico.l
+bison -d analizadorSintactico.y
+gcc analizadorSintactico.tab.c lex.yy.c ast.c -o parser
+./parser tests/test_correctos/test_simple.txt
+```
 
 ### Problemas Detectados
   Reemplacé el tipo del tipo de nodo en el perfil de crearNodo sin cambiar que fuera un puntero y no compilaba.
@@ -131,4 +164,7 @@ No hubo problemas detectados durante el Día 2.
   {
     i = 2;
   }
+
+### Pendientes
+  Eliminar notas de los test de test_errores/tabla_simbolos test_correctos/tabla_simbolos y probar estos tests con el analizador semantico.
 

@@ -1,0 +1,18 @@
+// TS_ERROR_06: Uso de parámetro de otro método (no visible en el nivel actual)
+//
+// Error esperado (semántico): buscarSimbolo("valor") retorna NULL
+//   'valor' es parámetro de 'obtener', insertado en su nivel.
+//   Al entrar a 'main', ese nivel ya fue cerrado con cerrarNivel().
+//   buscarSimbolo("valor") desde main recorre la pila sin encontrarlo.
+//
+// Nota: el parser acepta esto sintácticamente.
+
+int obtener(int valor) {
+    return valor;
+}
+
+int main() {
+    int r;
+    r = valor + 1;
+    return r;
+}

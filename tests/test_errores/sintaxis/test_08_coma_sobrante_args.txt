@@ -1,0 +1,9 @@
+// ERROR: Coma sobrante al final de los argumentos de una llamada
+// Se espera: Error sintáctico en la línea 7
+int foo(int a, int b) {
+    return a;
+}
+int main() {
+    int r;
+    r = foo(1, 2,);
+}

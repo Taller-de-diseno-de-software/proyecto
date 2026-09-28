@@ -1,0 +1,18 @@
+// TS_ERROR_04: Uso de variable fuera de su alcance (después del cierre de bloque)
+//
+// Error esperado (semántico): buscarSimbolo("local") retorna NULL
+//   'local' fue declarada dentro del bloque { } y pertenece a ese nivel.
+//   Al cerrar el bloque con cerrarNivel(), ese nivel se descarta.
+//   El intento de usar 'local' después del bloque ya no la encuentra.
+//
+// Nota: el parser acepta esto sintácticamente.
+
+int main() {
+    int resultado;
+    {
+        int local;
+        local = 42;
+    }
+    resultado = local;
+    return resultado;
+}

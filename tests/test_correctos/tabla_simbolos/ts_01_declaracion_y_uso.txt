@@ -1,0 +1,15 @@
+// TS_CORRECTO_01: Declaración y uso básico de variables
+//
+// Qué valida la tabla de símbolos:
+//   - insertarSimbolo registra 'x' e 'y' en el nivel global.
+//   - buscarSimbolo encuentra 'x' e 'y' cuando se usan en las expresiones.
+//   - No hay redeclaraciones ni usos de identificadores no declarados.
+
+int x;
+int y;
+
+int main() {
+    x = 5;
+    y = x + 1;
+    return y;
+}

@@ -1,0 +1,6 @@
+// ERROR: Falta '{' al inicio del cuerpo del método
+// Se espera: Error sintáctico en la línea 3
+int foo()
+    int x;
+    return x;
+}

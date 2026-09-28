@@ -1,0 +1,21 @@
+// TS_CORRECTO_03: Acceso a variable de nivel superior desde bloque anidado
+//
+// Qué valida la tabla de símbolos:
+//   - buscarSimbolo recorre la pila hacia arriba: no encuentra 'total' en el
+//     nivel del while, sube al nivel de main y lo encuentra allí.
+//   - El mismo recorrido se usa para 'i' y 'limite'.
+//   - Demuestra que la búsqueda léxica (scope estático) funciona correctamente.
+
+int main() {
+    int i;
+    int total;
+    int limite;
+    i = 0;
+    total = 0;
+    limite = 10;
+    while (i < limite) {
+        total = total + i;
+        i = i + 1;
+    }
+    return total;
+}

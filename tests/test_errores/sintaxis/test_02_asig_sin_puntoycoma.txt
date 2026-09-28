@@ -1,0 +1,6 @@
+// ERROR: Asignación sin punto y coma
+// Se espera: Error sintáctico en la línea 5
+int main() {
+    int x;
+    x = 5
+}

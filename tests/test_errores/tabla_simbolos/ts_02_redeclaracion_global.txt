@@ -1,0 +1,15 @@
+// TS_ERROR_02: Redeclaración de variable global
+//
+// Error esperado (semántico): "Identificador redeclarado!!!"
+//   Ambas declaraciones de 'total' están en el nivel global (nivel 0).
+//   insertarSimbolo detecta que 'total' ya fue registrado en ese nivel.
+//
+// Nota: el parser acepta esto sintácticamente.
+
+int total;
+int total;
+
+int main() {
+    total = 0;
+    return total;
+}

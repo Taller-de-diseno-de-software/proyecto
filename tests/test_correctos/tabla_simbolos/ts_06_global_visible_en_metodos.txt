@@ -1,0 +1,21 @@
+// TS_CORRECTO_06: Variable global visible desde múltiples métodos
+//
+// Qué valida la tabla de símbolos:
+//   - 'contador' se inserta en el nivel global (nivel 0).
+//   - buscarSimbolo lo encuentra desde el nivel de 'incrementar' y desde el de 'main',
+//     porque la búsqueda sube por toda la pila hasta el nivel 0.
+//   - Verifica que el nivel global no se cierra entre métodos.
+
+int contador;
+
+void incrementar(int delta) {
+    contador = contador + delta;
+    return;
+}
+
+int main() {
+    contador = 0;
+    incrementar(1);
+    incrementar(2);
+    return contador;
+}
