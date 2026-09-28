@@ -870,266 +870,297 @@ YY_RULE_SETUP
 #line 50 "analizadorLexico.l"
 {
                     printf("BOOLEAN    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return BOOLEAN;
                 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 55 "analizadorLexico.l"
+#line 56 "analizadorLexico.l"
 {
                     printf("ELSE    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return ELSE;
                 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 60 "analizadorLexico.l"
+#line 62 "analizadorLexico.l"
 {
                     printf("CTE_LOGICA  %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return CTE_LOGICA;
                 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 65 "analizadorLexico.l"
+#line 68 "analizadorLexico.l"
 {
                     printf("CTE_LOGICA  %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return CTE_LOGICA;
                 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 70 "analizadorLexico.l"
+#line 74 "analizadorLexico.l"
 {
                     printf("IF    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return IF;
                 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 75 "analizadorLexico.l"
+#line 80 "analizadorLexico.l"
 {
                     printf("INT    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return INT;
                 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 80 "analizadorLexico.l"
+#line 86 "analizadorLexico.l"
 {
                     printf("RETURN    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return RETURN;
                 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 85 "analizadorLexico.l"
+#line 92 "analizadorLexico.l"
 {
                     printf("VOID    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return VOID;
                 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 90 "analizadorLexico.l"
+#line 98 "analizadorLexico.l"
 {
                     printf("WHILE    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return WHILE;
                 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 95 "analizadorLexico.l"
+#line 104 "analizadorLexico.l"
 {
                     printf("FLOAT    %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return FLOAT;
                 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 100 "analizadorLexico.l"
+#line 110 "analizadorLexico.l"
 {
-                    printf("CTE_ENTERA  %s\n", yytext); 
+                    printf("CTE_ENTERA  %s\n", yytext);
+                    yylval.str = strdup(yytext); 
                     return CTE_ENTERA;
                 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 105 "analizadorLexico.l"
+#line 116 "analizadorLexico.l"
 {
-                    printf("CTE_FLOAT  %s\n", yytext); 
+                    printf("CTE_FLOAT  %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return CTE_FLOAT;
                 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 110 "analizadorLexico.l"
+#line 122 "analizadorLexico.l"
 {
-                    printf("ID  %s\n", yytext); 
+                    printf("ID  %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return ID;
                 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 115 "analizadorLexico.l"
+#line 128 "analizadorLexico.l"
 {
                     printf("OP_SUMA  %s\n", yytext); 
+                    yylval.str = strdup(yytext);
                     return OP_SUMA;
                 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 120 "analizadorLexico.l"
+#line 134 "analizadorLexico.l"
 {
                     printf("OP_PROD  %s\n", yytext); 
+                    yylval.str = strdup(yytext);
                     return OP_PROD;
                 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 125 "analizadorLexico.l"
+#line 140 "analizadorLexico.l"
 {
                     printf("OP_RESTA  %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return OP_RESTA; 
                 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 130 "analizadorLexico.l"
+#line 146 "analizadorLexico.l"
 {
                    printf("OP_DIV  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return OP_DIV;
                 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 135 "analizadorLexico.l"
+#line 152 "analizadorLexico.l"
 {
                    printf("OP_DIVENT  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return OP_DIVENT;
                 }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 140 "analizadorLexico.l"
+#line 158 "analizadorLexico.l"
 {
                    printf("OP_MENOR  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return OP_MENOR;
                 }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 145 "analizadorLexico.l"
+#line 164 "analizadorLexico.l"
 {
                    printf("OP_MAYOR  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return OP_MAYOR;
                 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 150 "analizadorLexico.l"
+#line 170 "analizadorLexico.l"
 {
                    printf("OP_EQ  %s\n", yytext);
+                   yylval.str = strdup(yytext);
                    return OP_EQ; 
                 }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 155 "analizadorLexico.l"
+#line 176 "analizadorLexico.l"
 {
                    printf("OP_AND  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return OP_AND;
                 }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 160 "analizadorLexico.l"
+#line 182 "analizadorLexico.l"
 {
                    printf("OP_OR  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return OP_OR;
                 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 165 "analizadorLexico.l"
+#line 188 "analizadorLexico.l"
 {
                    printf("PAR_IZQ  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return PAR_IZQ;
                 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 170 "analizadorLexico.l"
+#line 194 "analizadorLexico.l"
 {
                    printf("PAR_DER  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return PAR_DER;
                 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 175 "analizadorLexico.l"
+#line 200 "analizadorLexico.l"
 {
                    printf("LLAVE_IZQ  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return LLAVE_IZQ;
                 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 180 "analizadorLexico.l"
+#line 206 "analizadorLexico.l"
 {
                    printf("LLAVE_DER  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return LLAVE_DER;
                 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 185 "analizadorLexico.l"
+#line 212 "analizadorLexico.l"
 {
                    printf("OP_NEG  %s\n", yytext);
+                   yylval.str = strdup(yytext);
                    return OP_NEG;
                 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 190 "analizadorLexico.l"
+#line 218 "analizadorLexico.l"
 {
                    printf("PUNTO_COMA  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return PUNTO_COMA;
                 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 195 "analizadorLexico.l"
+#line 224 "analizadorLexico.l"
 {
                    printf("COMA  %s\n", yytext); 
+                   yylval.str = strdup(yytext);
                    return COMA;
                 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 200 "analizadorLexico.l"
+#line 230 "analizadorLexico.l"
 {
                     printf("OP_ASIG  %s\n", yytext);
+                    yylval.str = strdup(yytext);
                     return OP_ASIG;
                 }
 	YY_BREAK
 case 37:
 /* rule 37 can match eol */
 YY_RULE_SETUP
-#line 205 "analizadorLexico.l"
+#line 236 "analizadorLexico.l"
 { }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 207 "analizadorLexico.l"
+#line 238 "analizadorLexico.l"
 { printf("ERROR linea %d: caracter no reconocido '%s'\n", yylineno, yytext); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 209 "analizadorLexico.l"
+#line 240 "analizadorLexico.l"
 ECHO;
 	YY_BREAK
-#line 1133 "lex.yy.c"
+#line 1164 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMENTARIO):
 	yyterminate();
@@ -2147,5 +2178,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 209 "analizadorLexico.l"
+#line 240 "analizadorLexico.l"
 

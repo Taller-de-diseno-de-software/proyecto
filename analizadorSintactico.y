@@ -9,6 +9,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "ast.h"
 
 int yylex(void);
 void yyerror(const char *s);
@@ -189,6 +190,7 @@ int main(int argc, char **argv) {
     }
     if (yyparse() == 0) {
         printf("Programa aceptado\n");
+        imprimirArbol(raiz, 0); // Imprimir el AST
     }
     return 0;
 }
