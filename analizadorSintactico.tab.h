@@ -44,6 +44,12 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 9 "analizadorSintactico.y"
+
+#include "ast.h"
+
+#line 53 "analizadorSintactico.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -91,7 +97,18 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 25 "analizadorSintactico.y"
+
+    nodoAST *nodo;
+    char *str;
+    
+
+#line 109 "analizadorSintactico.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
