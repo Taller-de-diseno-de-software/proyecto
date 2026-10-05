@@ -232,7 +232,24 @@ static void visitarSentencia(nodoAST *sentencia){
     }else if(sentencia->tipo == NODO_WHILE){
         // TODO: hijos[0]=EXPR debe ser bool; hijos[1]=BLOQUE
     }else if(sentencia->tipo == NODO_RETURN){
-        // TODO: comparar con tipoRetornoActual (void no admite expresión)
+        nodoAST *envoltorioExpr = sentencia->hijos[0];
+
+        if(!envoltorioExpr){
+            if(tipoRetornoActual != TIPO_VOID){
+                fprintf(stderr,"Error semántico: el método debe retornar un valor\n");
+                errorSemantico = 1;
+            }
+        }else if(tipoRetornoActual == TIPO_VOID){
+            fprintf(stderr,"Error semántico: un método void no puede retornar un valor\n");
+            errorSemantico = 1;
+        }else{
+            TipoDato tipoExpr = visitarExpresion(envoltorioExpr->hijos[0]);
+
+            if(tipoExpr != TIPO_INDEFINIDO && tipoExpr != tipoRetornoActual){
+                fprintf(stderr,"Error semántico: el tipo retornado no coincide con el del método\n");
+                errorSemantico = 1;
+            }
+        }
     }else if(sentencia->tipo == NODO_BLOQUE){
         visitarBloque(sentencia->hijos[0]); // Bloque anidado: hijos[0]=NODO_LLAVE
     }else{
