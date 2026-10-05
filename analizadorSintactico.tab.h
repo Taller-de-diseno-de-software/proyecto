@@ -99,7 +99,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 25 "analizadorSintactico.y"
+#line 26 "analizadorSintactico.y"
 
     nodoAST *nodo;
     char *str;

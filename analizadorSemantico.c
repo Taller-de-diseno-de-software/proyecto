@@ -257,7 +257,7 @@ static void visitarSentencia(nodoAST *sentencia){
         }
         visitarBloque(sentencia->hijos[1]);
         if(sentencia->hijos[2]){
-            visitarBloque(sentencia->hijos[2]);
+            visitarBloque(sentencia->hijos[2]->hijos[0]); // NODO_ELSE -> hijos[0] = BLOQUE (NODO_LLAVE)
         }
     }else if(sentencia->tipo == NODO_WHILE){
         // TODO: hijos[0]=EXPR debe ser bool; hijos[1]=BLOQUE
@@ -339,15 +339,109 @@ static TipoDato visitarLlamada(nodoAST *llamada){
     return funcion->tipo;
 }
 
+static int esNumerico(TipoDato tipo){
+    return tipo == TIPO_INT || tipo == TIPO_FLOAT;
+}
+
+// EXPR(LITERAL) -> hijos[0] es el literal con el texto de la constante
+static TipoDato tipoDeLiteral(nodoAST *expresion){
+    nodoAST *literal = expresion->hijos[0] ? expresion->hijos[0] : expresion;
+    if(!literal->valor){
+        return TIPO_INDEFINIDO;
+    }
+    if(strcmp(literal->valor, "true") == 0 || strcmp(literal->valor, "false") == 0){
+        return TIPO_BOOL;
+    }
+    if(strpbrk(literal->valor, ".eE")){
+        return TIPO_FLOAT;
+    }
+    return TIPO_INT;
+}
+
+// + - * / % : operandos numéricos; el resultado es float si alguno lo es
+static TipoDato tipoAritmetico(nodoAST *expresion){
+    TipoDato izq = visitarExpresion(expresion->hijos[0]);
+    TipoDato der = visitarExpresion(expresion->hijos[1]);
+    if(izq == TIPO_INDEFINIDO || der == TIPO_INDEFINIDO){
+        return TIPO_INDEFINIDO;
+    }
+    if(!esNumerico(izq) || !esNumerico(der)){
+        fprintf(stderr,"Error semántico: operandos no numéricos en una operación aritmética\n");
+        errorSemantico = 1;
+        return TIPO_INDEFINIDO;
+    }
+    return (izq == TIPO_FLOAT || der == TIPO_FLOAT) ? TIPO_FLOAT : TIPO_INT;
+}
+
+// < > == : dos numéricos, o (solo para ==) dos del mismo tipo; el resultado es bool
+static TipoDato tipoRelacional(nodoAST *expresion){
+    TipoDato izq = visitarExpresion(expresion->hijos[0]);
+    TipoDato der = visitarExpresion(expresion->hijos[1]);
+    if(izq == TIPO_INDEFINIDO || der == TIPO_INDEFINIDO){
+        return TIPO_INDEFINIDO;
+    }
+    int valido = (esNumerico(izq) && esNumerico(der))
+              || (expresion->tipo == NODO_EQ && izq == der && izq != TIPO_VOID);
+    if(!valido){
+        fprintf(stderr,"Error semántico: operandos incompatibles en una comparación\n");
+        errorSemantico = 1;
+        return TIPO_INDEFINIDO;
+    }
+    return TIPO_BOOL;
+}
+
+// && || : operandos booleanos; el resultado es bool
+static TipoDato tipoLogico(nodoAST *expresion){
+    TipoDato izq = visitarExpresion(expresion->hijos[0]);
+    TipoDato der = visitarExpresion(expresion->hijos[1]);
+    if(izq == TIPO_INDEFINIDO || der == TIPO_INDEFINIDO){
+        return TIPO_INDEFINIDO;
+    }
+    if(izq != TIPO_BOOL || der != TIPO_BOOL){
+        fprintf(stderr,"Error semántico: los operandos de && y || deben ser booleanos\n");
+        errorSemantico = 1;
+        return TIPO_INDEFINIDO;
+    }
+    return TIPO_BOOL;
+}
+
 static TipoDato visitarExpresion(nodoAST *expresion){
     if(!expresion){
         return TIPO_INDEFINIDO;
     }
 
-    // TODO: devolver el tipo de la expresión; TIPO_INDEFINIDO si hay error (evita errores en cascada)
-    //   NODO_ID / NODO_LITERAL / NODO_METHOD_CALL / aritméticos / relacionales / AND, OR / SIGNO_MENOS / NEG
-    // OJO: el parser crea NODO_LITERAL igual para int, float y bool; con eso no se puede tipar
-    //      una constante. Hace falta distinguirlas en el AST (como NODO_CTE_ENTERA del pre-proyecto).
+    // Devuelve el tipo de la expresión; TIPO_INDEFINIDO si hay error (evita errores en cascada).
+    // Los operandos se visitan siempre, antes de comprobar nada, para reportar los errores que contengan.
+    switch(expresion->tipo){
+    case NODO_LITERAL:
+        return tipoDeLiteral(expresion);
+    case NODO_SUMA: case NODO_RESTA: case NODO_PROD: case NODO_DIV: case NODO_DIVENT:
+        return tipoAritmetico(expresion);
+    case NODO_MENOR: case NODO_MAYOR: case NODO_EQ:
+        return tipoRelacional(expresion);
+    case NODO_AND: case NODO_OR:
+        return tipoLogico(expresion);
+    case NODO_SIGNO_MENOS: {
+        TipoDato tipo = visitarExpresion(expresion->hijos[0]);
+        if(tipo != TIPO_INDEFINIDO && !esNumerico(tipo)){
+            fprintf(stderr,"Error semántico: el signo menos exige un operando numérico\n");
+            errorSemantico = 1;
+            return TIPO_INDEFINIDO;
+        }
+        return tipo;
+    }
+    case NODO_NEG: {
+        TipoDato tipo = visitarExpresion(expresion->hijos[0]);
+        if(tipo != TIPO_INDEFINIDO && tipo != TIPO_BOOL){
+            fprintf(stderr,"Error semántico: la negación exige un operando booleano\n");
+            errorSemantico = 1;
+            return TIPO_INDEFINIDO;
+        }
+        return tipo;
+    }
+    default:
+        break;
+    }
 
     if(expresion->tipo == NODO_ID){
         Simbolo *simbolo = buscarSimbolo(expresion->valor);

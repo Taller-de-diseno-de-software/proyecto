@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
+#include "analizadorSemantico.h"
 
 int yylex(void);
 void yyerror(const char *s);
@@ -194,6 +195,11 @@ int main(int argc, char **argv) {
         }
     }
     if (yyparse() == 0) {
+        analizarSemantica(raiz); // Analizar semánticamente el AST
+        if (huboErrorSemantico()) {
+            printf("Programa rechazado por errores semánticos\n");
+            return 1;
+        }
         printf("Programa aceptado\n");
         imprimirArbol(raiz, 0); // Imprimir el AST
     }

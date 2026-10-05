@@ -72,6 +72,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
+#include "analizadorSemantico.h"
 
 int yylex(void);
 void yyerror(const char *s);
@@ -79,7 +80,7 @@ extern int yylineno;
 
 nodoAST *raiz;
 
-#line 83 "analizadorSintactico.tab.c"
+#line 84 "analizadorSintactico.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -553,13 +554,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    51,    51,    55,    56,    60,    61,    65,    69,    73,
-      74,    78,    79,    80,    81,    85,    89,    90,    94,    98,
-     102,   103,   107,   108,   112,   113,   114,   118,   119,   120,
-     121,   122,   123,   124,   128,   129,   133,   134,   138,   139,
-     143,   147,   148,   152,   156,   157,   158,   159,   160,   161,
-     162,   163,   164,   165,   166,   167,   168,   169,   170,   171,
-     176,   177,   178
+       0,    52,    52,    56,    57,    61,    62,    66,    70,    74,
+      75,    79,    80,    81,    82,    86,    90,    91,    95,    99,
+     103,   104,   108,   109,   113,   114,   115,   119,   120,   121,
+     122,   123,   124,   125,   129,   130,   134,   135,   139,   140,
+     144,   148,   149,   153,   157,   158,   159,   160,   161,   162,
+     163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
+     177,   178,   179
 };
 #endif
 
@@ -1209,373 +1210,373 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* P: DECLS  */
-#line 51 "analizadorSintactico.y"
+#line 52 "analizadorSintactico.y"
             {(yyval.nodo) = crearNodo(NODO_DECLS, NULL, (yyvsp[0].nodo), NULL, NULL, NULL); raiz = (yyval.nodo);}
-#line 1215 "analizadorSintactico.tab.c"
+#line 1216 "analizadorSintactico.tab.c"
     break;
 
   case 3: /* DECLS: DECL DECLS  */
-#line 55 "analizadorSintactico.y"
+#line 56 "analizadorSintactico.y"
                  {(yyval.nodo) = crearNodo(NODO_DECLS, NULL, (yyvsp[-1].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1221 "analizadorSintactico.tab.c"
+#line 1222 "analizadorSintactico.tab.c"
     break;
 
   case 4: /* DECLS: %empty  */
-#line 56 "analizadorSintactico.y"
+#line 57 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1227 "analizadorSintactico.tab.c"
+#line 1228 "analizadorSintactico.tab.c"
     break;
 
   case 5: /* DECL: VAR  */
-#line 60 "analizadorSintactico.y"
+#line 61 "analizadorSintactico.y"
           {(yyval.nodo) = (yyvsp[0].nodo);}
-#line 1233 "analizadorSintactico.tab.c"
+#line 1234 "analizadorSintactico.tab.c"
     break;
 
   case 6: /* DECL: METHOD  */
-#line 61 "analizadorSintactico.y"
+#line 62 "analizadorSintactico.y"
              {(yyval.nodo) = (yyvsp[0].nodo);}
-#line 1239 "analizadorSintactico.tab.c"
+#line 1240 "analizadorSintactico.tab.c"
     break;
 
   case 7: /* VAR: TYPE IDS PUNTO_COMA  */
-#line 65 "analizadorSintactico.y"
+#line 66 "analizadorSintactico.y"
                           {(yyval.nodo) = crearNodo(NODO_VAR, NULL, (yyvsp[-2].nodo), (yyvsp[-1].nodo), NULL, NULL);}
-#line 1245 "analizadorSintactico.tab.c"
+#line 1246 "analizadorSintactico.tab.c"
     break;
 
   case 8: /* IDS: ID ID_PRIMA  */
-#line 69 "analizadorSintactico.y"
+#line 70 "analizadorSintactico.y"
                   {(yyval.nodo) = crearNodo(NODO_IDS, (yyvsp[-1].str), (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1251 "analizadorSintactico.tab.c"
+#line 1252 "analizadorSintactico.tab.c"
     break;
 
   case 9: /* ID_PRIMA: COMA IDS  */
-#line 73 "analizadorSintactico.y"
+#line 74 "analizadorSintactico.y"
                {(yyval.nodo) = crearNodo(NODO_IDS, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1257 "analizadorSintactico.tab.c"
+#line 1258 "analizadorSintactico.tab.c"
     break;
 
   case 10: /* ID_PRIMA: %empty  */
-#line 74 "analizadorSintactico.y"
+#line 75 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1263 "analizadorSintactico.tab.c"
+#line 1264 "analizadorSintactico.tab.c"
     break;
 
   case 11: /* METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE  */
-#line 78 "analizadorSintactico.y"
+#line 79 "analizadorSintactico.y"
                                             {(yyval.nodo) = crearNodo(NODO_METHOD, (yyvsp[-4].str), (yyvsp[-5].nodo), (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL);}
-#line 1269 "analizadorSintactico.tab.c"
+#line 1270 "analizadorSintactico.tab.c"
     break;
 
   case 12: /* METHOD: VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE  */
-#line 79 "analizadorSintactico.y"
+#line 80 "analizadorSintactico.y"
                                             {(yyval.nodo) = crearNodo(NODO_METHOD, (yyvsp[-4].str), NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL);}
-#line 1275 "analizadorSintactico.tab.c"
+#line 1276 "analizadorSintactico.tab.c"
     break;
 
   case 13: /* METHOD: TYPE ID PAR_IZQ PAR_DER BLOQUE  */
-#line 80 "analizadorSintactico.y"
+#line 81 "analizadorSintactico.y"
                                      {(yyval.nodo) = crearNodo(NODO_METHOD, (yyvsp[-3].str), (yyvsp[-4].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1281 "analizadorSintactico.tab.c"
+#line 1282 "analizadorSintactico.tab.c"
     break;
 
   case 14: /* METHOD: VOID ID PAR_IZQ PAR_DER BLOQUE  */
-#line 81 "analizadorSintactico.y"
+#line 82 "analizadorSintactico.y"
                                      {(yyval.nodo) = crearNodo(NODO_METHOD, (yyvsp[-3].str), NULL, (yyvsp[0].nodo), NULL, NULL);}
-#line 1287 "analizadorSintactico.tab.c"
+#line 1288 "analizadorSintactico.tab.c"
     break;
 
   case 15: /* PARAMS: PARAM PARAMS_PRIMA  */
-#line 85 "analizadorSintactico.y"
+#line 86 "analizadorSintactico.y"
                          {(yyval.nodo) = crearNodo(NODO_PARAMS, NULL, (yyvsp[-1].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1293 "analizadorSintactico.tab.c"
+#line 1294 "analizadorSintactico.tab.c"
     break;
 
   case 16: /* PARAMS_PRIMA: COMA PARAMS  */
-#line 89 "analizadorSintactico.y"
+#line 90 "analizadorSintactico.y"
                   {(yyval.nodo) = crearNodo(NODO_PARAMS, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1299 "analizadorSintactico.tab.c"
+#line 1300 "analizadorSintactico.tab.c"
     break;
 
   case 17: /* PARAMS_PRIMA: %empty  */
-#line 90 "analizadorSintactico.y"
+#line 91 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1305 "analizadorSintactico.tab.c"
+#line 1306 "analizadorSintactico.tab.c"
     break;
 
   case 18: /* PARAM: TYPE ID  */
-#line 94 "analizadorSintactico.y"
+#line 95 "analizadorSintactico.y"
               {(yyval.nodo) = crearNodo(NODO_PARAM, (yyvsp[0].str), (yyvsp[-1].nodo), NULL, NULL, NULL);}
-#line 1311 "analizadorSintactico.tab.c"
+#line 1312 "analizadorSintactico.tab.c"
     break;
 
   case 19: /* BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER  */
-#line 98 "analizadorSintactico.y"
+#line 99 "analizadorSintactico.y"
                                               {(yyval.nodo) = crearNodo(NODO_LLAVE, NULL, (yyvsp[-2].nodo), (yyvsp[-1].nodo), NULL, NULL);}
-#line 1317 "analizadorSintactico.tab.c"
+#line 1318 "analizadorSintactico.tab.c"
     break;
 
   case 20: /* VAR_DECL: VAR VAR_DECL  */
-#line 102 "analizadorSintactico.y"
+#line 103 "analizadorSintactico.y"
                    {(yyval.nodo) = crearNodo(NODO_VAR_DECL, NULL, (yyvsp[-1].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1323 "analizadorSintactico.tab.c"
+#line 1324 "analizadorSintactico.tab.c"
     break;
 
   case 21: /* VAR_DECL: %empty  */
-#line 103 "analizadorSintactico.y"
+#line 104 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1329 "analizadorSintactico.tab.c"
+#line 1330 "analizadorSintactico.tab.c"
     break;
 
   case 22: /* STATEMENTS: STATEMENT STATEMENTS  */
-#line 107 "analizadorSintactico.y"
+#line 108 "analizadorSintactico.y"
                            {(yyval.nodo) = crearNodo(NODO_STATEMENT, NULL, (yyvsp[-1].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1335 "analizadorSintactico.tab.c"
+#line 1336 "analizadorSintactico.tab.c"
     break;
 
   case 23: /* STATEMENTS: %empty  */
-#line 108 "analizadorSintactico.y"
+#line 109 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1341 "analizadorSintactico.tab.c"
+#line 1342 "analizadorSintactico.tab.c"
     break;
 
   case 24: /* TYPE: INT  */
-#line 112 "analizadorSintactico.y"
+#line 113 "analizadorSintactico.y"
           {(yyval.nodo) = crearNodo(NODO_TYPE, "int", NULL, NULL, NULL, NULL);}
-#line 1347 "analizadorSintactico.tab.c"
+#line 1348 "analizadorSintactico.tab.c"
     break;
 
   case 25: /* TYPE: FLOAT  */
-#line 113 "analizadorSintactico.y"
+#line 114 "analizadorSintactico.y"
             {(yyval.nodo) = crearNodo(NODO_TYPE, "float", NULL, NULL, NULL, NULL);}
-#line 1353 "analizadorSintactico.tab.c"
+#line 1354 "analizadorSintactico.tab.c"
     break;
 
   case 26: /* TYPE: BOOLEAN  */
-#line 114 "analizadorSintactico.y"
+#line 115 "analizadorSintactico.y"
               {(yyval.nodo) = crearNodo(NODO_TYPE, "boolean", NULL, NULL, NULL, NULL);}
-#line 1359 "analizadorSintactico.tab.c"
+#line 1360 "analizadorSintactico.tab.c"
     break;
 
   case 27: /* STATEMENT: ID OP_ASIG EXPR PUNTO_COMA  */
-#line 118 "analizadorSintactico.y"
+#line 119 "analizadorSintactico.y"
                                  {(yyval.nodo) = crearNodo(NODO_OP_ASIG, (yyvsp[-3].str), (yyvsp[-1].nodo), NULL, NULL, NULL);}
-#line 1365 "analizadorSintactico.tab.c"
+#line 1366 "analizadorSintactico.tab.c"
     break;
 
   case 28: /* STATEMENT: METHOD_CALL PUNTO_COMA  */
-#line 119 "analizadorSintactico.y"
+#line 120 "analizadorSintactico.y"
                              {(yyval.nodo) = crearNodo(NODO_METHOD_CALL, NULL, (yyvsp[-1].nodo), NULL, NULL, NULL);}
-#line 1371 "analizadorSintactico.tab.c"
+#line 1372 "analizadorSintactico.tab.c"
     break;
 
   case 29: /* STATEMENT: IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE  */
-#line 120 "analizadorSintactico.y"
+#line 121 "analizadorSintactico.y"
                                                    {(yyval.nodo) = crearNodo(NODO_IF, NULL, (yyvsp[-3].nodo), (yyvsp[-1].nodo), (yyvsp[0].nodo), NULL);}
-#line 1377 "analizadorSintactico.tab.c"
+#line 1378 "analizadorSintactico.tab.c"
     break;
 
   case 30: /* STATEMENT: WHILE PAR_IZQ EXPR PAR_DER BLOQUE  */
-#line 121 "analizadorSintactico.y"
+#line 122 "analizadorSintactico.y"
                                         {(yyval.nodo) = crearNodo(NODO_WHILE, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1383 "analizadorSintactico.tab.c"
+#line 1384 "analizadorSintactico.tab.c"
     break;
 
   case 31: /* STATEMENT: RETURN OPTIONAL_EXPR PUNTO_COMA  */
-#line 122 "analizadorSintactico.y"
+#line 123 "analizadorSintactico.y"
                                       {(yyval.nodo) = crearNodo(NODO_RETURN, NULL, (yyvsp[-1].nodo), NULL, NULL, NULL);}
-#line 1389 "analizadorSintactico.tab.c"
+#line 1390 "analizadorSintactico.tab.c"
     break;
 
   case 32: /* STATEMENT: PUNTO_COMA  */
-#line 123 "analizadorSintactico.y"
+#line 124 "analizadorSintactico.y"
                  {(yyval.nodo) = NULL;}
-#line 1395 "analizadorSintactico.tab.c"
+#line 1396 "analizadorSintactico.tab.c"
     break;
 
   case 33: /* STATEMENT: BLOQUE  */
-#line 124 "analizadorSintactico.y"
+#line 125 "analizadorSintactico.y"
              {(yyval.nodo) = crearNodo(NODO_BLOQUE, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1401 "analizadorSintactico.tab.c"
+#line 1402 "analizadorSintactico.tab.c"
     break;
 
   case 34: /* OPTIONAL_ELSE: ELSE BLOQUE  */
-#line 128 "analizadorSintactico.y"
+#line 129 "analizadorSintactico.y"
                   {(yyval.nodo) = crearNodo(NODO_ELSE, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1407 "analizadorSintactico.tab.c"
+#line 1408 "analizadorSintactico.tab.c"
     break;
 
   case 35: /* OPTIONAL_ELSE: %empty  */
-#line 129 "analizadorSintactico.y"
+#line 130 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1413 "analizadorSintactico.tab.c"
+#line 1414 "analizadorSintactico.tab.c"
     break;
 
   case 36: /* OPTIONAL_EXPR: EXPR  */
-#line 133 "analizadorSintactico.y"
+#line 134 "analizadorSintactico.y"
            {(yyval.nodo) = crearNodo(NODO_EXPR, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1419 "analizadorSintactico.tab.c"
+#line 1420 "analizadorSintactico.tab.c"
     break;
 
   case 37: /* OPTIONAL_EXPR: %empty  */
-#line 134 "analizadorSintactico.y"
+#line 135 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1425 "analizadorSintactico.tab.c"
+#line 1426 "analizadorSintactico.tab.c"
     break;
 
   case 38: /* METHOD_CALL: ID PAR_IZQ ARGS PAR_DER  */
-#line 138 "analizadorSintactico.y"
+#line 139 "analizadorSintactico.y"
                               {(yyval.nodo) = crearNodo(NODO_ARGUMENTS_CALL, (yyvsp[-3].str), (yyvsp[-1].nodo), NULL, NULL, NULL);}
-#line 1431 "analizadorSintactico.tab.c"
+#line 1432 "analizadorSintactico.tab.c"
     break;
 
   case 39: /* METHOD_CALL: ID PAR_IZQ PAR_DER  */
-#line 139 "analizadorSintactico.y"
+#line 140 "analizadorSintactico.y"
                          {(yyval.nodo) = crearNodo(NODO_NO_ARGUMENTS_CALL, (yyvsp[-2].str), NULL, NULL, NULL, NULL);}
-#line 1437 "analizadorSintactico.tab.c"
+#line 1438 "analizadorSintactico.tab.c"
     break;
 
   case 40: /* ARGS: ARG ARGS_PRIMA  */
-#line 143 "analizadorSintactico.y"
+#line 144 "analizadorSintactico.y"
                      {(yyval.nodo) = crearNodo(NODO_ARG, NULL, (yyvsp[-1].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1443 "analizadorSintactico.tab.c"
+#line 1444 "analizadorSintactico.tab.c"
     break;
 
   case 41: /* ARGS_PRIMA: COMA ARGS  */
-#line 147 "analizadorSintactico.y"
+#line 148 "analizadorSintactico.y"
                 {(yyval.nodo) = crearNodo(NODO_ARGS, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1449 "analizadorSintactico.tab.c"
+#line 1450 "analizadorSintactico.tab.c"
     break;
 
   case 42: /* ARGS_PRIMA: %empty  */
-#line 148 "analizadorSintactico.y"
+#line 149 "analizadorSintactico.y"
       {(yyval.nodo) = NULL;}
-#line 1455 "analizadorSintactico.tab.c"
+#line 1456 "analizadorSintactico.tab.c"
     break;
 
   case 43: /* ARG: EXPR  */
-#line 152 "analizadorSintactico.y"
+#line 153 "analizadorSintactico.y"
            {(yyval.nodo) = crearNodo(NODO_EXPR, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1461 "analizadorSintactico.tab.c"
+#line 1462 "analizadorSintactico.tab.c"
     break;
 
   case 44: /* EXPR: ID  */
-#line 156 "analizadorSintactico.y"
+#line 157 "analizadorSintactico.y"
          {(yyval.nodo) = crearNodo(NODO_ID, (yyvsp[0].str), NULL, NULL, NULL, NULL);}
-#line 1467 "analizadorSintactico.tab.c"
+#line 1468 "analizadorSintactico.tab.c"
     break;
 
   case 45: /* EXPR: METHOD_CALL  */
-#line 157 "analizadorSintactico.y"
+#line 158 "analizadorSintactico.y"
                   {(yyval.nodo) = crearNodo(NODO_METHOD_CALL, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1473 "analizadorSintactico.tab.c"
+#line 1474 "analizadorSintactico.tab.c"
     break;
 
   case 46: /* EXPR: LITERAL  */
-#line 158 "analizadorSintactico.y"
+#line 159 "analizadorSintactico.y"
               {(yyval.nodo) = crearNodo(NODO_LITERAL, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1479 "analizadorSintactico.tab.c"
+#line 1480 "analizadorSintactico.tab.c"
     break;
 
   case 47: /* EXPR: EXPR OP_SUMA EXPR  */
-#line 159 "analizadorSintactico.y"
+#line 160 "analizadorSintactico.y"
                         {(yyval.nodo) = crearNodo(NODO_SUMA, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1485 "analizadorSintactico.tab.c"
+#line 1486 "analizadorSintactico.tab.c"
     break;
 
   case 48: /* EXPR: EXPR OP_RESTA EXPR  */
-#line 160 "analizadorSintactico.y"
+#line 161 "analizadorSintactico.y"
                          {(yyval.nodo) = crearNodo(NODO_RESTA, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1491 "analizadorSintactico.tab.c"
+#line 1492 "analizadorSintactico.tab.c"
     break;
 
   case 49: /* EXPR: EXPR OP_PROD EXPR  */
-#line 161 "analizadorSintactico.y"
+#line 162 "analizadorSintactico.y"
                         {(yyval.nodo) = crearNodo(NODO_PROD, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1497 "analizadorSintactico.tab.c"
+#line 1498 "analizadorSintactico.tab.c"
     break;
 
   case 50: /* EXPR: EXPR OP_DIV EXPR  */
-#line 162 "analizadorSintactico.y"
+#line 163 "analizadorSintactico.y"
                        {(yyval.nodo) = crearNodo(NODO_DIV, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1503 "analizadorSintactico.tab.c"
+#line 1504 "analizadorSintactico.tab.c"
     break;
 
   case 51: /* EXPR: EXPR OP_DIVENT EXPR  */
-#line 163 "analizadorSintactico.y"
+#line 164 "analizadorSintactico.y"
                           {(yyval.nodo) = crearNodo(NODO_DIVENT, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1509 "analizadorSintactico.tab.c"
+#line 1510 "analizadorSintactico.tab.c"
     break;
 
   case 52: /* EXPR: EXPR OP_MENOR EXPR  */
-#line 164 "analizadorSintactico.y"
+#line 165 "analizadorSintactico.y"
                          {(yyval.nodo) = crearNodo(NODO_MENOR, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1515 "analizadorSintactico.tab.c"
+#line 1516 "analizadorSintactico.tab.c"
     break;
 
   case 53: /* EXPR: EXPR OP_MAYOR EXPR  */
-#line 165 "analizadorSintactico.y"
+#line 166 "analizadorSintactico.y"
                          {(yyval.nodo) = crearNodo(NODO_MAYOR, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1521 "analizadorSintactico.tab.c"
+#line 1522 "analizadorSintactico.tab.c"
     break;
 
   case 54: /* EXPR: EXPR OP_EQ EXPR  */
-#line 166 "analizadorSintactico.y"
+#line 167 "analizadorSintactico.y"
                       {(yyval.nodo) = crearNodo(NODO_EQ, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1527 "analizadorSintactico.tab.c"
+#line 1528 "analizadorSintactico.tab.c"
     break;
 
   case 55: /* EXPR: EXPR OP_AND EXPR  */
-#line 167 "analizadorSintactico.y"
+#line 168 "analizadorSintactico.y"
                        {(yyval.nodo) = crearNodo(NODO_AND, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1533 "analizadorSintactico.tab.c"
+#line 1534 "analizadorSintactico.tab.c"
     break;
 
   case 56: /* EXPR: EXPR OP_OR EXPR  */
-#line 168 "analizadorSintactico.y"
+#line 169 "analizadorSintactico.y"
                       {(yyval.nodo) = crearNodo(NODO_OR, NULL, (yyvsp[-2].nodo), (yyvsp[0].nodo), NULL, NULL);}
-#line 1539 "analizadorSintactico.tab.c"
+#line 1540 "analizadorSintactico.tab.c"
     break;
 
   case 57: /* EXPR: OP_RESTA EXPR  */
-#line 169 "analizadorSintactico.y"
+#line 170 "analizadorSintactico.y"
                                       { (yyval.nodo) = crearNodo(NODO_SIGNO_MENOS, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1545 "analizadorSintactico.tab.c"
+#line 1546 "analizadorSintactico.tab.c"
     break;
 
   case 58: /* EXPR: OP_NEG EXPR  */
-#line 170 "analizadorSintactico.y"
+#line 171 "analizadorSintactico.y"
                   {(yyval.nodo) = crearNodo(NODO_NEG, NULL, (yyvsp[0].nodo), NULL, NULL, NULL);}
-#line 1551 "analizadorSintactico.tab.c"
+#line 1552 "analizadorSintactico.tab.c"
     break;
 
   case 59: /* EXPR: PAR_IZQ EXPR PAR_DER  */
-#line 171 "analizadorSintactico.y"
+#line 172 "analizadorSintactico.y"
                            {(yyval.nodo) = (yyvsp[-1].nodo);}
-#line 1557 "analizadorSintactico.tab.c"
+#line 1558 "analizadorSintactico.tab.c"
     break;
 
   case 60: /* LITERAL: CTE_ENTERA  */
-#line 176 "analizadorSintactico.y"
+#line 177 "analizadorSintactico.y"
                  {(yyval.nodo) = crearNodo(NODO_LITERAL, (yyvsp[0].str), NULL, NULL, NULL, NULL);}
-#line 1563 "analizadorSintactico.tab.c"
+#line 1564 "analizadorSintactico.tab.c"
     break;
 
   case 61: /* LITERAL: CTE_LOGICA  */
-#line 177 "analizadorSintactico.y"
+#line 178 "analizadorSintactico.y"
                  {(yyval.nodo) = crearNodo(NODO_LITERAL, (yyvsp[0].str), NULL, NULL, NULL, NULL);}
-#line 1569 "analizadorSintactico.tab.c"
+#line 1570 "analizadorSintactico.tab.c"
     break;
 
   case 62: /* LITERAL: CTE_FLOAT  */
-#line 178 "analizadorSintactico.y"
+#line 179 "analizadorSintactico.y"
                 {(yyval.nodo) = crearNodo(NODO_LITERAL, (yyvsp[0].str), NULL, NULL, NULL, NULL);}
-#line 1575 "analizadorSintactico.tab.c"
+#line 1576 "analizadorSintactico.tab.c"
     break;
 
 
-#line 1579 "analizadorSintactico.tab.c"
+#line 1580 "analizadorSintactico.tab.c"
 
       default: break;
     }
@@ -1768,7 +1769,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 181 "analizadorSintactico.y"
+#line 182 "analizadorSintactico.y"
 
 
 void yyerror(const char *s) {
@@ -1785,6 +1786,11 @@ int main(int argc, char **argv) {
         }
     }
     if (yyparse() == 0) {
+        analizarSemantica(raiz); // Analizar semánticamente el AST
+        if (huboErrorSemantico()) {
+            printf("Programa rechazado por errores semánticos\n");
+            return 1;
+        }
         printf("Programa aceptado\n");
         imprimirArbol(raiz, 0); // Imprimir el AST
     }
