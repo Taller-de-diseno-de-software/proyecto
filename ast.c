@@ -50,7 +50,8 @@ nodoAST *crearNodo(TipoNodo tipo, char *valor, nodoAST *hijo1, nodoAST *hijo2, n
     nodoAST *nuevoNodo = malloc(sizeof(nodoAST));
     nuevoNodo->tipo = tipo;
     nuevoNodo->valor = valor;
-    
+    nuevoNodo->simbolo = NULL;
+
     nuevoNodo->hijos[0] = hijo1;
     nuevoNodo->hijos[1] = hijo2;
     nuevoNodo->hijos[2] = hijo3;

@@ -11,10 +11,13 @@ typedef enum {
 } TipoNodo;
 
 
+struct simbolo; // Declaración adelantada: el AST no incluye tablaSimbolos.h
+
 struct nodoAST {
     TipoNodo tipo;
     char *valor;
     struct nodoAST *hijos[4];
+    struct simbolo *simbolo; // Lo completa el analizador semántico (decoración del árbol)
 };
 
 typedef struct nodoAST nodoAST;
