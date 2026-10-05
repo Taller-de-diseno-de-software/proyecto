@@ -125,6 +125,26 @@ static void visitarMetodos(nodoAST *declaraciones){
     visitarMetodos(declaracionesAux);
 }
 
+// Inserta los parámetros en el nivel actual (el del método). Recorre la misma cadena
+// PARAMS anidada que recogerTiposParametros. insertarSimbolo ya avisa si un nombre se repite.
+static void insertarParametros(nodoAST *params){
+    if(!params){
+        return;
+    }
+    if(params->tipo == NODO_PARAM){
+        Simbolo *simbolo = insertarSimbolo(FLAG_PARAMETRO, params->valor, tipoDeNodo(params->hijos[0]));
+        if(!simbolo){
+            errorSemantico = 1;
+        }else{
+            simbolo->inicializado = 1; // El parámetro llega con valor desde la llamada
+        }
+        params->simbolo = simbolo;
+        return;
+    }
+    insertarParametros(params->hijos[0]);
+    insertarParametros(params->hijos[1]);
+}
+
 static void visitarMetodo(nodoAST *metodo){
     // Con parámetros: hijos[1]=PARAMS, hijos[2]=BLOQUE. Sin parámetros: hijos[1]=BLOQUE.
     nodoAST *params = metodo->hijos[1]->tipo == NODO_PARAMS ? metodo->hijos[1] : NULL;
@@ -133,9 +153,7 @@ static void visitarMetodo(nodoAST *metodo){
     tipoRetornoActual = tipoDeNodo(metodo->hijos[0]);
 
     abrirNivel(); // Los parámetros y las variables de primer nivel comparten nivel
-    // TODO: insertar parámetros (NODO_PARAM: valor=id, hijos[0]=TYPE; FLAG_PARAMETRO),
-    //       recorriendo la cadena PARAMS (hijos[1] es otro PARAMS o NULL)
-    (void)params;
+    insertarParametros(params);
     visitarContenidoBloque(bloque);
     cerrarNivel();
 }
@@ -211,26 +229,44 @@ static void visitarSentencia(nodoAST *sentencia){
     }
 
     if(sentencia->tipo == NODO_OP_ASIG){
-        nodoAST *id = sentencia->hijos[0];
-        if(id->tipo == NODO_ID && id->simbolo){
-            TipoDato tipoId = id->simbolo->tipo;
-            TipoDato tipoExpr = visitarExpresion(sentencia->hijos[1]);
-            if(tipoId != tipoExpr && tipoExpr != TIPO_INDEFINIDO){
+        // OP_ASIG: valor=id destino, hijos[0]=EXPR
+        Simbolo *destino = buscarSimbolo(sentencia->valor);
+        TipoDato tipoExpr = visitarExpresion(sentencia->hijos[0]); // Se visita siempre para detectar errores dentro de la expresión
+        if(!destino){
+            fprintf(stderr,"Error semántico: asignación a '%s', que no está declarado\n", sentencia->valor);
+            errorSemantico = 1;
+        }else if(destino->flag == FLAG_FUNCION){
+            fprintf(stderr,"Error semántico: no se puede asignar a la función '%s'\n", sentencia->valor);
+            errorSemantico = 1;
+        }else{
+            sentencia->simbolo = destino;
+            if(destino->tipo != tipoExpr && tipoExpr != TIPO_INDEFINIDO){
                 fprintf(stderr,"Error semántico: asignación de tipos incompatibles\n");
                 errorSemantico = 1;
-            } else {
-                id->simbolo->inicializado = 1;
+            }else{
+                destino->inicializado = 1;
             }
-        } else {
-            fprintf(stderr,"Error semántico: asignación a identificador no declarado o no válido\n");
-            errorSemantico = 1;
         }
     }else if(sentencia->tipo == NODO_METHOD_CALL){
         visitarLlamada(sentencia->hijos[0]); // hijos[0]=ARGUMENTS_CALL o NO_ARGUMENTS_CALL
     }else if(sentencia->tipo == NODO_IF){
-        // TODO: hijos[0]=EXPR debe ser bool; hijos[1]=BLOQUE; hijos[2]=ELSE (opcional)
+        TipoDato tipoCond = visitarExpresion(sentencia->hijos[0]);
+        if(tipoCond != TIPO_BOOL && tipoCond != TIPO_INDEFINIDO){
+            fprintf(stderr,"Error semántico: la condición del if debe ser booleana\n");
+            errorSemantico = 1;
+        }
+        visitarBloque(sentencia->hijos[1]);
+        if(sentencia->hijos[2]){
+            visitarBloque(sentencia->hijos[2]);
+        }
     }else if(sentencia->tipo == NODO_WHILE){
         // TODO: hijos[0]=EXPR debe ser bool; hijos[1]=BLOQUE
+        TipoDato tipoCond = visitarExpresion(sentencia->hijos[0]);
+        if(tipoCond != TIPO_BOOL && tipoCond != TIPO_INDEFINIDO){
+            fprintf(stderr,"Error semántico: la condición del while debe ser booleana\n");
+            errorSemantico = 1;
+        }
+        visitarBloque(sentencia->hijos[1]);
     }else if(sentencia->tipo == NODO_RETURN){
         nodoAST *envoltorioExpr = sentencia->hijos[0];
 
@@ -314,9 +350,14 @@ static TipoDato visitarExpresion(nodoAST *expresion){
     //      una constante. Hace falta distinguirlas en el AST (como NODO_CTE_ENTERA del pre-proyecto).
 
     if(expresion->tipo == NODO_ID){
-        if(expresion->simbolo){
-            return expresion->simbolo->tipo;
+        Simbolo *simbolo = buscarSimbolo(expresion->valor);
+        if(!simbolo){
+            fprintf(stderr,"Error semántico: '%s' no está declarado\n", expresion->valor);
+            errorSemantico = 1;
+            return TIPO_INDEFINIDO;
         }
+        expresion->simbolo = simbolo; // Decora el árbol
+        return simbolo->tipo;
     }else if(expresion->tipo == NODO_METHOD_CALL){
         return visitarLlamada(expresion->hijos[0]);
     }
