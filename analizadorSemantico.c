@@ -410,6 +410,7 @@ static TipoDato visitarExpresion(nodoAST *expresion){
         return TIPO_INDEFINIDO;
     }
 
+<<<<<<< HEAD
     // Devuelve el tipo de la expresión; TIPO_INDEFINIDO si hay error (evita errores en cascada).
     // Los operandos se visitan siempre, antes de comprobar nada, para reportar los errores que contengan.
     switch(expresion->tipo){
@@ -443,6 +444,8 @@ static TipoDato visitarExpresion(nodoAST *expresion){
         break;
     }
 
+=======
+>>>>>>> ff6f84ccafbf99bc4df17671b914853a58b0e4c4
     if(expresion->tipo == NODO_ID){
         Simbolo *simbolo = buscarSimbolo(expresion->valor);
         if(!simbolo){
