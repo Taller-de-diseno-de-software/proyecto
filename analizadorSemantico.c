@@ -344,11 +344,6 @@ static TipoDato visitarExpresion(nodoAST *expresion){
         return TIPO_INDEFINIDO;
     }
 
-    // TODO: devolver el tipo de la expresión; TIPO_INDEFINIDO si hay error (evita errores en cascada)
-    //   NODO_ID / NODO_LITERAL / NODO_METHOD_CALL / aritméticos / relacionales / AND, OR / SIGNO_MENOS / NEG
-    // OJO: el parser crea NODO_LITERAL igual para int, float y bool; con eso no se puede tipar
-    //      una constante. Hace falta distinguirlas en el AST (como NODO_CTE_ENTERA del pre-proyecto).
-
     if(expresion->tipo == NODO_ID){
         Simbolo *simbolo = buscarSimbolo(expresion->valor);
         if(!simbolo){
