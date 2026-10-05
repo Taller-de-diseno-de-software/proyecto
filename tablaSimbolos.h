@@ -21,6 +21,8 @@
 
 /*ESTRUCTURA DE LOS SIMBOLOS*/
 
+#define MAX_PARAMS 16 // Maximo de parametros formales que admite una funcion
+
 //Enumerado de flags
 typedef enum {
     FLAG_VARIABLE,
@@ -44,6 +46,8 @@ typedef struct simbolo{
     TipoDato tipo;
     int valor; //Solo lo voy a usar para crear constantes porque la tabla de simbolos no debe actualizar ni guardar valores, solo direcciones y nombres
     int inicializado; //1 si ya hubo una asignacion previa a la variable; lo usa el analisis semantico
+    int numParams; //Solo FLAG_FUNCION: cantidad de parametros formales
+    TipoDato tiposParams[MAX_PARAMS]; //Solo FLAG_FUNCION: tipo de cada parametro, en orden
 } Simbolo;
 
 // Convierte el texto del token de tipo ("int"/"bool"/"void"/"float") al enum correspondiente

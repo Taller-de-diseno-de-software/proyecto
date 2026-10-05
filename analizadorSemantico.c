@@ -14,6 +14,7 @@
 #include "tablaSimbolos.h"
 #include "analizadorSemantico.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int errorSemantico = 0;
@@ -33,6 +34,7 @@ static void visitarSentencias(nodoAST *sentencias);
 static void visitarDeclaracion(nodoAST *declaracion);
 static void visitarSentencia(nodoAST *sentencia);
 static TipoDato visitarExpresion(nodoAST *expresion);
+static TipoDato visitarLlamada(nodoAST *llamada);
 
 // NODO_TYPE -> TipoDato. NULL es void (así lo genera el parser en METHOD).
 static TipoDato tipoDeNodo(nodoAST *tipo){
@@ -44,6 +46,32 @@ static TipoDato tipoDeNodo(nodoAST *tipo){
         return TIPO_BOOL;
     }
     return tipoDesdeTexto(tipo->valor);
+}
+
+// La cadena PARAMS anida wrappers: PARAMS(PARAM, PARAMS(PARAMS(PARAM, ...))).
+// Un recorrido en preorden por hijos[0], hijos[1] visita los PARAM en orden.
+static void recogerTiposParametros(nodoAST *params, TipoDato *tipos, int *cantidad){
+    if(!params){
+        return;
+    }
+    if(params->tipo == NODO_PARAM){
+        if(*cantidad >= MAX_PARAMS){
+            fprintf(stderr,"Error semántico: una función admite como máximo %d parámetros\n", MAX_PARAMS);
+            errorSemantico = 1;
+            return;
+        }
+        tipos[(*cantidad)++] = tipoDeNodo(params->hijos[0]);
+        return;
+    }
+    recogerTiposParametros(params->hijos[0], tipos, cantidad);
+    recogerTiposParametros(params->hijos[1], tipos, cantidad);
+}
+
+// Guarda en el Simbolo de la función la firma (cantidad y tipos de parámetros)
+static void guardarParametros(Simbolo *funcion, nodoAST *params){
+    int cantidad = 0;
+    recogerTiposParametros(params, funcion->tiposParams, &cantidad);
+    funcion->numParams = cantidad;
 }
 
 /* ---------- Primera pasada: declaraciones globales ---------- */
@@ -63,10 +91,11 @@ static void visitarDeclaracionesGlobales(nodoAST *declaraciones){
         if(declaracion->tipo == NODO_VAR){
             visitarDeclaracion(declaracion);
         }else if(declaracion->tipo == NODO_METHOD){
-            // TODO: Simbolo no guarda los parámetros del método; hace falta para validar llamadas
             Simbolo *simbolo = insertarSimbolo(FLAG_FUNCION, declaracion->valor, tipoDeNodo(declaracion->hijos[0]));
             if(!simbolo){
                 errorSemantico = 1;
+            }else if(declaracion->hijos[1] && declaracion->hijos[1]->tipo == NODO_PARAMS){
+                guardarParametros(simbolo, declaracion->hijos[1]);
             }
             declaracion->simbolo = simbolo;
         }else{
@@ -182,10 +211,22 @@ static void visitarSentencia(nodoAST *sentencia){
     }
 
     if(sentencia->tipo == NODO_OP_ASIG){
-        // TODO: buscar el id (hijos: valor=id, hijos[0]=EXPR), verificar que no sea función,
-        //       visitarExpresion y comparar tipos; decorar el nodo e inicializado = 1
+        nodoAST *id = sentencia->hijos[0];
+        if(id->tipo == NODO_ID && id->simbolo){
+            TipoDato tipoId = id->simbolo->tipo;
+            TipoDato tipoExpr = visitarExpresion(sentencia->hijos[1]);
+            if(tipoId != tipoExpr && tipoExpr != TIPO_INDEFINIDO){
+                fprintf(stderr,"Error semántico: asignación de tipos incompatibles\n");
+                errorSemantico = 1;
+            } else {
+                id->simbolo->inicializado = 1;
+            }
+        } else {
+            fprintf(stderr,"Error semántico: asignación a identificador no declarado o no válido\n");
+            errorSemantico = 1;
+        }
     }else if(sentencia->tipo == NODO_METHOD_CALL){
-        // TODO: validar la llamada (existe, es función, cantidad y tipos de argumentos)
+        visitarLlamada(sentencia->hijos[0]); // hijos[0]=ARGUMENTS_CALL o NO_ARGUMENTS_CALL
     }else if(sentencia->tipo == NODO_IF){
         // TODO: hijos[0]=EXPR debe ser bool; hijos[1]=BLOQUE; hijos[2]=ELSE (opcional)
     }else if(sentencia->tipo == NODO_WHILE){
@@ -200,6 +241,51 @@ static void visitarSentencia(nodoAST *sentencia){
     }
 }
 
+// Recorre la cadena de argumentos (ARG(EXPR, ARGS(ARG(EXPR, ...)))) en orden y compara
+// cada uno con el parámetro formal de la misma posición. *indice termina con la cantidad pasada.
+static void visitarArgumentos(nodoAST *args, Simbolo *funcion, int *indice){
+    if(!args){
+        return;
+    }
+    if(args->tipo == NODO_EXPR){
+        TipoDato tipoArg = visitarExpresion(args->hijos[0]);
+        if(*indice < funcion->numParams && tipoArg != TIPO_INDEFINIDO
+           && tipoArg != funcion->tiposParams[*indice]){
+            fprintf(stderr,"Error semántico: el argumento %d de '%s' tiene un tipo incompatible\n", *indice + 1, funcion->nombre);
+            errorSemantico = 1;
+        }
+        (*indice)++;
+        return;
+    }
+    visitarArgumentos(args->hijos[0], funcion, indice);
+    visitarArgumentos(args->hijos[1], funcion, indice);
+}
+
+// Valida una llamada (existe, es función, cantidad y tipos de argumentos).
+// Devuelve el tipo de retorno de la función, o TIPO_INDEFINIDO si la llamada es inválida.
+static TipoDato visitarLlamada(nodoAST *llamada){
+    Simbolo *funcion = buscarSimbolo(llamada->valor);
+    if(!funcion){
+        fprintf(stderr,"Error semántico: llamada a '%s', que no está declarada\n", llamada->valor);
+        errorSemantico = 1;
+        return TIPO_INDEFINIDO;
+    }
+    if(funcion->flag != FLAG_FUNCION){
+        fprintf(stderr,"Error semántico: '%s' no es una función\n", llamada->valor);
+        errorSemantico = 1;
+        return TIPO_INDEFINIDO;
+    }
+    llamada->simbolo = funcion;
+
+    int pasados = 0;
+    visitarArgumentos(llamada->hijos[0], funcion, &pasados); // NULL si no hay argumentos
+    if(pasados != funcion->numParams){
+        fprintf(stderr,"Error semántico: '%s' espera %d argumento(s) pero recibió %d\n", funcion->nombre, funcion->numParams, pasados);
+        errorSemantico = 1;
+    }
+    return funcion->tipo;
+}
+
 static TipoDato visitarExpresion(nodoAST *expresion){
     if(!expresion){
         return TIPO_INDEFINIDO;
@@ -209,7 +295,24 @@ static TipoDato visitarExpresion(nodoAST *expresion){
     //   NODO_ID / NODO_LITERAL / NODO_METHOD_CALL / aritméticos / relacionales / AND, OR / SIGNO_MENOS / NEG
     // OJO: el parser crea NODO_LITERAL igual para int, float y bool; con eso no se puede tipar
     //      una constante. Hace falta distinguirlas en el AST (como NODO_CTE_ENTERA del pre-proyecto).
+
+    if(expresion->tipo == NODO_ID){
+        if(expresion->simbolo){
+            return expresion->simbolo->tipo;
+        }
+    }else if(expresion->tipo == NODO_METHOD_CALL){
+        return visitarLlamada(expresion->hijos[0]);
+    }
+
     return TIPO_INDEFINIDO;
+}
+
+static void exigirMain(){
+    Simbolo *main = buscarSimbolo("main");
+    if(!main){
+        fprintf(stderr,"Error semántico: no se encontró la función main\n");
+        errorSemantico = 1;
+    }
 }
 
 //Punto de entrada del analisis semantico: recibe la raiz del AST
@@ -224,6 +327,7 @@ void analizarSemantica(nodoAST *raiz){
 
     visitarDeclaracionesGlobales(raiz);
     // TODO: reglas globales (p. ej. exigir un método main, según la especificación del lenguaje)
+    exigirMain();
     visitarMetodos(raiz);
 
     cerrarNivel();

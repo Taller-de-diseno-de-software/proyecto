@@ -103,7 +103,8 @@ Simbolo* insertarSimbolo(FlagSimbolo flag, char *nombre, TipoDato tipo) {
     nuevoSimbolo->valor = 0; //Nota amadeo: Es 0 porque a la hora de insertar un simbolo no sabemos su valor...
     nuevoSimbolo->inicializado = 0; //recien declarada, todavia sin asignar
     nuevoSimbolo->tipo = tipo;
-    
+    nuevoSimbolo->numParams = 0;
+
     // Creamos el nodo para insertarlo en la lista enlazada del nivel
     EntradaSimbolo *nuevoNodo = (EntradaSimbolo *)malloc(sizeof(EntradaSimbolo));
     nuevoNodo->simbolo = nuevoSimbolo;
