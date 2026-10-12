@@ -182,26 +182,7 @@ LITERAL
 %%
 
 void yyerror(const char *s) {
-    printf("Error sintáctico en la línea %d: %s\n", yylineno, s);
+    fprintf(stderr, "Error sintáctico en la línea %d: %s\n", yylineno, s);
 }
 
-int main(int argc, char **argv) {
-    extern FILE *yyin;
-    if (argc > 1) {
-        yyin = fopen(argv[1], "r");
-        if (!yyin) {
-            printf("No se pudo abrir %s\n", argv[1]);
-            return 1;
-        }
-    }
-    if (yyparse() == 0) {
-        analizarSemantica(raiz); // Analizar semánticamente el AST
-        if (huboErrorSemantico()) {
-            printf("Programa rechazado por errores semánticos\n");
-            return 1;
-        }
-        printf("Programa aceptado\n");
-        imprimirArbol(raiz, 0); // Imprimir el AST
-    }
-    return 0;
-}
+/* El programa principal (linea de comandos y orden de las etapas) esta en main.c */
