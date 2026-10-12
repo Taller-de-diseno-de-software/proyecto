@@ -137,3 +137,20 @@ No hubo problemas detectados durante el Día 2.
 
   Podríamos usar la flag para diferenciar variables locales de globales.
   En el símbolo se podría agregar el campo parámetros para simplificar el uso de la tabla de símbolos.
+
+## Día 4
+### Trabajo Realizado
+  Implementamos el analizador semántico y lo conectamos con el parser: el main llama a analizarSemantica y rechaza el programa si huboErrorSemantico.
+  Se guardan en el símbolo de cada función la cantidad y los tipos de sus parámetros (numParams y tiposParams, con un máximo de MAX_PARAMS).
+  Los parámetros se insertan en el mismo nivel que las variables del primer bloque del método, así que se detecta que se redeclaren.
+  Se validan las llamadas: que la función exista, que sea una función, la cantidad de argumentos y el tipo de cada uno.
+  visitarExpresion ahora devuelve el tipo de identificadores, literales, llamadas y operadores (aritméticos, relacionales, lógicos, signo menos y negación).
+  Se validan las asignaciones, las condiciones de if y while y el return contra el tipo del método.
+  Armamos la carpeta tests con casos correctos y con errores sintácticos y de tabla de símbolos.
+
+### Problemas Detectados
+  Los operadores no se visitaban, así que en x = z + 1; nunca se llegaba a z y no se avisaba que no estaba declarada.
+  El bloque del else se pasaba a visitarBloque como NODO_ELSE y no como su hijo, y todo if con else terminaba en segmentation fault.
+  Al principio el main ignoraba el resultado del análisis y aceptaba programas con errores semánticos.
+  Los literales se tipan por su texto (true/false, con punto, entero) porque el parser crea el mismo nodo para los tres.
+  Los tipos se comparan de forma exacta: float f; f = 5; da error porque 5 es int. Hay que decidir si se permite esa conversión.
