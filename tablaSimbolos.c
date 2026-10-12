@@ -90,7 +90,7 @@ Simbolo* insertarSimbolo(FlagSimbolo flag, char *nombre, TipoDato tipo) {
     while (actual != NULL) {
         //Verifico si el nombre del simbolo ya existe en el nivel actual
         if (strcmp(actual->simbolo->nombre, nombre) == 0) {
-            printf("Identificador redeclarado!!!\n"); // Mensaje exacto de tus diapositivas
+            fprintf(stderr, "Identificador redeclarado!!!\n");
             return NULL; 
         }
         actual = actual->siguiente;
