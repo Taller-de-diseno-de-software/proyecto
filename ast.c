@@ -60,20 +60,24 @@ nodoAST *crearNodo(TipoNodo tipo, char *valor, nodoAST *hijo1, nodoAST *hijo2, n
     return nuevoNodo;
 }
 
-void imprimirArbol(nodoAST *nodo, int nivel){
+void imprimirArbolEn(FILE *out, nodoAST *nodo, int nivel){
     if (!nodo) return;
     for (int i = 0; i < nivel; i++){
-        printf("  ");
-    } 
-    
-    printf("%s", tipoNodoNombre(nodo->tipo));
+        fprintf(out, "  ");
+    }
+
+    fprintf(out, "%s", tipoNodoNombre(nodo->tipo));
     if (nodo->valor) {
-        printf(" : %s\n", nodo->valor);
+        fprintf(out, " : %s\n", nodo->valor);
     } else {
-        printf("\n");
+        fprintf(out, "\n");
     }
-    
+
     for (int i = 0; i < nHijos; i++) {
-        imprimirArbol(nodo->hijos[i], nivel + 1);
+        imprimirArbolEn(out, nodo->hijos[i], nivel + 1);
     }
+}
+
+void imprimirArbol(nodoAST *nodo, int nivel){
+    imprimirArbolEn(stdout, nodo, nivel);
 }

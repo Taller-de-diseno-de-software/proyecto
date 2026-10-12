@@ -1,6 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include <stdio.h>
+
 typedef enum {
     NODO_DECLS, NODO_VAR, NODO_IDS, NODO_METHOD, NODO_PARAMS, NODO_PARAM,
     NODO_LLAVE, NODO_VAR_DECL, NODO_STATEMENT, NODO_TYPE, NODO_OP_ASIG,
@@ -24,6 +26,7 @@ typedef struct nodoAST nodoAST;
 
 nodoAST *crearNodo(TipoNodo tipo, char *valor, nodoAST *hijo1, nodoAST *hijo2, nodoAST *hijo3, nodoAST *hijo4);
 void imprimirArbol(nodoAST *nodo, int nivel);
+void imprimirArbolEn(FILE *out, nodoAST *nodo, int nivel); // igual que imprimirArbol, a un archivo
 const char *tipoNodoNombre(TipoNodo tipo);
 
 
