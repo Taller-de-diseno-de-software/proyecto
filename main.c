@@ -15,6 +15,7 @@
  * Sin -debug una compilacion exitosa no imprime nada; los errores van a stderr.
  * El codigo de retorno es distinto de 0 si alguna etapa falla.
  * 
+ * Compilacion:
  * bison -d -v analizadorSintactico.y
  * flex analizadorLexico.l
  * gcc -Wall -g -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c analizadorSintactico.tab.c lex.yy.c

@@ -1,0 +1,32 @@
+enter main
+x = 7
+y = x
+t1 = y * 2
+t2 = x + t1
+a = t2
+t3 = x + y
+t4 = t3 * 2
+b = t4
+t5 = -a
+t6 = b % 3
+t7 = t5 + t6
+t8 = y / 2
+t9 = t7 - t8
+x = t9
+t10 = x < y
+p = t10
+t11 = x > 3
+t12 = !p
+t13 = t11 && t12
+q = t13
+t14 = q == 1
+t15 = p || t14
+ok = t15
+t16 = x == y
+t17 = !t16
+t18 = a > b
+t19 = t18 || p
+t20 = t17 && t19
+ok = t20
+return
+leave

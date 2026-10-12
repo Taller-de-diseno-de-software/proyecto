@@ -1,0 +1,103 @@
+DECLS
+  DECLS
+    VAR
+      TYPE : int
+      IDS : a
+    DECLS
+      VAR
+        TYPE : int
+        IDS : b
+      DECLS
+        VAR
+          TYPE : boolean
+          IDS : ok
+        DECLS
+          METHOD : main
+            BLOQUE
+              VAR_DECL
+                VAR
+                  TYPE : int
+                  IDS : x
+                VAR_DECL
+                  VAR
+                    TYPE : int
+                    IDS : y
+                  VAR_DECL
+                    VAR
+                      TYPE : boolean
+                      IDS : p
+                    VAR_DECL
+                      VAR
+                        TYPE : boolean
+                        IDS : q
+              STATEMENT
+                OP_ASIG : x
+                  LITERAL
+                    LITERAL : 7
+                STATEMENT
+                  OP_ASIG : y
+                    ID : x
+                  STATEMENT
+                    OP_ASIG : a
+                      SUMA
+                        ID : x
+                        PROD
+                          ID : y
+                          LITERAL
+                            LITERAL : 2
+                    STATEMENT
+                      OP_ASIG : b
+                        PROD
+                          SUMA
+                            ID : x
+                            ID : y
+                          LITERAL
+                            LITERAL : 2
+                      STATEMENT
+                        OP_ASIG : x
+                          RESTA
+                            SUMA
+                              SIGNO_MENOS
+                                ID : a
+                              DIVENT
+                                ID : b
+                                LITERAL
+                                  LITERAL : 3
+                            DIV
+                              ID : y
+                              LITERAL
+                                LITERAL : 2
+                        STATEMENT
+                          OP_ASIG : p
+                            MENOR
+                              ID : x
+                              ID : y
+                          STATEMENT
+                            OP_ASIG : q
+                              AND
+                                MAYOR
+                                  ID : x
+                                  LITERAL
+                                    LITERAL : 3
+                                NEG
+                                  ID : p
+                            STATEMENT
+                              OP_ASIG : ok
+                                OR
+                                  ID : p
+                                  EQ
+                                    ID : q
+                                    LITERAL
+                                      LITERAL : true
+                              STATEMENT
+                                OP_ASIG : ok
+                                  AND
+                                    NEG
+                                      EQ
+                                        ID : x
+                                        ID : y
+                                    OR
+                                      MAYOR
+                                        ID : a
+                                        ID : b
+                                      ID : p
