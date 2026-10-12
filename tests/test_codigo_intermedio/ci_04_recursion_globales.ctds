@@ -1,0 +1,29 @@
+// Recursion (simple y doble), variables globales, variable local que oculta
+// una global, varios metodos con main al final
+int g;
+int h;
+
+int fact(int n) {
+    if (n < 2) { return 1; }
+    return n * fact(n - 1);
+}
+
+int fib(int n) {
+    if (n < 2) { return n; }
+    return fib(n - 1) + fib(n - 2);
+}
+
+void setear() {
+    int g;
+    g = 5;
+    h = g;
+}
+
+void main() {
+    int r;
+
+    g = 1;
+    setear();
+    r = fact(5) + fib(6);
+    g = g + r;
+}

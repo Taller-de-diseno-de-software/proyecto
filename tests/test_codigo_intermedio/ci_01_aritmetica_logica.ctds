@@ -1,0 +1,22 @@
+// Asignaciones, aritmetica con precedencia y parentesis, signo menos,
+// relacionales y logicos (&&, ||, !, ==)
+int a;
+int b;
+boolean ok;
+
+void main() {
+    int x;
+    int y;
+    boolean p;
+    boolean q;
+
+    x = 7;
+    y = x;
+    a = x + y * 2;
+    b = (x + y) * 2;
+    x = -a + b % 3 - y / 2;
+    p = x < y;
+    q = x > 3 && !p;
+    ok = p || q == true;
+    ok = !(x == y) && (a > b || p);
+}

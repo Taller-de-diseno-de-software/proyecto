@@ -1,0 +1,32 @@
+// if sin else, if/else, if anidado, while simple y anidado,
+// sentencia vacia y bloque suelto
+void main() {
+    int i;
+    int j;
+    int s;
+
+    s = 0;
+    i = 0;
+
+    if (i < 10) { s = 1; }
+
+    if (s == 1) { s = 2; } else { s = 3; }
+
+    if (i < 5) {
+        if (s > 2) { s = 4; } else { s = 5; }
+    } else {
+        s = 6;
+    }
+
+    while (i < 3) {
+        j = 0;
+        while (j < i) {
+            s = s + j;
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+
+    ;
+    { s = 0; }
+}
