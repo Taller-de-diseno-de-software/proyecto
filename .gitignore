@@ -3,3 +3,4 @@ fixes.md
 *.tab.h
 lex.yy.c
 parser
+*.ci
