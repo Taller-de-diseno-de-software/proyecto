@@ -125,8 +125,6 @@ static const char *simboloBinario(OperadorIR op) {
         case IR_MULT: return "*";
         case IR_DIV:  return "/";
         case IR_MOD:  return "%";
-        case IR_AND:  return "&&";
-        case IR_OR:   return "||";
         case IR_LT:   return "<";
         case IR_GT:   return ">";
         case IR_EQ:   return "==";
@@ -284,6 +282,33 @@ static Operando genUnaria(OperadorIR op, nodoAST *e) {
     return t;
 }
 
+static void emitirSalto(OperadorIR op, Operando condicion, Operando destino);
+static void emitirEtiqueta(Operando etiqueta);
+
+// && y || con cortocircuito: el resultado vive en un temporal y el segundo operando
+// solo se evalua si el primero no decide el valor.
+//   &&:  t = a; ifFalse t goto fin; t = b; fin:
+//   ||:  t = a; n = !t; ifFalse n goto fin; t = b; fin:      (ifFalse n salta cuando a es true)
+static Operando genCortocircuito(int esAnd, nodoAST *e) {
+    Operando resultado = nuevoTemp();
+    Operando fin = nuevaEtiqueta();
+
+    Operando a = genExpr(e->hijos[0]);
+    emitir(listaActual, IR_ASSIGN, a, operandoNone(), resultado);
+    if (esAnd) {
+        emitirSalto(IR_JMPF, resultado, fin);
+    } else {
+        Operando negado = nuevoTemp();
+        emitir(listaActual, IR_NOT, resultado, operandoNone(), negado);
+        emitirSalto(IR_JMPF, negado, fin);
+    }
+
+    Operando b = genExpr(e->hijos[1]);
+    emitir(listaActual, IR_ASSIGN, b, operandoNone(), resultado);
+    emitirEtiqueta(fin);
+    return resultado;
+}
+
 // Devuelve el operando donde queda el valor de la expresion. Las hojas (constantes y
 // variables) no emiten codigo: se usan directamente como operando.
 static Operando genExpr(nodoAST *e) {
@@ -300,8 +325,8 @@ static Operando genExpr(nodoAST *e) {
         case NODO_MENOR:       return genBinaria(IR_LT, e);
         case NODO_MAYOR:       return genBinaria(IR_GT, e);
         case NODO_EQ:          return genBinaria(IR_EQ, e);
-        case NODO_AND:         return genBinaria(IR_AND, e);
-        case NODO_OR:          return genBinaria(IR_OR, e);
+        case NODO_AND:         return genCortocircuito(1, e);
+        case NODO_OR:          return genCortocircuito(0, e);
         case NODO_SIGNO_MENOS: return genUnaria(IR_NEG, e);
         case NODO_NEG:         return genUnaria(IR_NOT, e);
         default:

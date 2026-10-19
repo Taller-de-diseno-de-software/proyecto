@@ -48,6 +48,9 @@ typedef struct simbolo{
     int inicializado; //1 si ya hubo una asignacion previa a la variable; lo usa el analisis semantico
     int numParams; //Solo FLAG_FUNCION: cantidad de parametros formales
     TipoDato tiposParams[MAX_PARAMS]; //Solo FLAG_FUNCION: tipo de cada parametro, en orden
+    struct simbolo *params[MAX_PARAMS]; //Solo FLAG_FUNCION: simbolo de cada parametro formal, en orden (lo usa el generador de codigo objeto)
+    int esGlobal; //1 si se declaro en el nivel global (variables y funciones)
+    int offset; //Solo variables y parametros locales: desplazamiento respecto de %rbp; lo asigna el generador de codigo objeto
 } Simbolo;
 
 // Convierte el texto del token de tipo ("int"/"bool"/"void"/"float") al enum correspondiente

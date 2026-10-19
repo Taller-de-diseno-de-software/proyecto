@@ -184,3 +184,15 @@ No hubo problemas detectados durante el Día 2.
   Los temporales se piden después de generar los operandos para que el subresultado tome el número menor (t1 = i < 10, no al revés).
   Los argumentos están limitados a MAX_PARAMS por llamada; si se supera se avisa por stderr y se ignoran los sobrantes.
   Las variables globales no tienen código propio: solo aparecen como operando de las instrucciones que las usan.
+
+
+## Día 6
+### Trabajo Realizado
+  Empezamos la preparación para el generador de código objeto corrigiendo el código intermedio y la tabla de símbolos.
+  Cortocircuito: la especificación exige que && y || no evalúen el segundo operando si el primero ya decide el resultado. Se eliminaron las instrucciones AND y OR y genCortocircuito las traduce con saltos: el resultado queda en un temporal, y el operando derecho se evalúa solo si hace falta (a && b: t = a; ifFalse t goto L; t = b; L:). Para || se niega el temporal antes del ifFalse, así no hace falta una instrucción de salto si verdadero.
+  El Simbolo ahora guarda esGlobal (se calcula al insertar, según si está en el primer nivel de la pila), offset (desplazamiento respecto de %rbp, lo asigna el generador de código objeto) y params (los símbolos de los parámetros formales de una función, en orden). El analizador semántico completa params en insertarParametros. Se necesitan para copiar %rdi, %rsi... a sus lugares en el prólogo de cada función, y para distinguir globales (van en .data/.bss) de locales (van en el stack).
+  Se agregó el caso ci_05_cortocircuito con llamadas con efecto sobre una global en el lado derecho, y se regeneró ci_01 porque usa && y ||.
+
+### Problemas Detectados
+  El cortocircuito del Día 5 figuraba como problema conocido y queda resuelto.
+  Los .ci están en el .gitignore, así que solo se versionan los que ya estaban agregados.

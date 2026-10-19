@@ -127,7 +127,8 @@ static void visitarMetodos(nodoAST *declaraciones){
 
 // Inserta los parámetros en el nivel actual (el del método). Recorre la misma cadena
 // PARAMS anidada que recogerTiposParametros. insertarSimbolo ya avisa si un nombre se repite.
-static void insertarParametros(nodoAST *params){
+// Además guarda cada Simbolo en la función (funcion->params), en orden, para el código objeto.
+static void insertarParametros(nodoAST *params, Simbolo *funcion, int *indice){
     if(!params){
         return;
     }
@@ -139,10 +140,14 @@ static void insertarParametros(nodoAST *params){
             simbolo->inicializado = 1; // El parámetro llega con valor desde la llamada
         }
         params->simbolo = simbolo;
+        if(funcion && *indice < MAX_PARAMS){
+            funcion->params[*indice] = simbolo;
+        }
+        (*indice)++;
         return;
     }
-    insertarParametros(params->hijos[0]);
-    insertarParametros(params->hijos[1]);
+    insertarParametros(params->hijos[0], funcion, indice);
+    insertarParametros(params->hijos[1], funcion, indice);
 }
 
 static void visitarMetodo(nodoAST *metodo){
@@ -153,7 +158,8 @@ static void visitarMetodo(nodoAST *metodo){
     tipoRetornoActual = tipoDeNodo(metodo->hijos[0]);
 
     abrirNivel(); // Los parámetros y las variables de primer nivel comparten nivel
-    insertarParametros(params);
+    int indiceParam = 0;
+    insertarParametros(params, metodo->simbolo, &indiceParam);
     visitarContenidoBloque(bloque);
     cerrarNivel();
 }

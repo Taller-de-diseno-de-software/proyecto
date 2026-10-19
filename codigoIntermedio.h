@@ -16,9 +16,7 @@ typedef enum {
     IR_NEG,
 
 
-    //LÃ³gicas
-    IR_AND,
-    IR_OR,
+    //Logica (&& y || no tienen instruccion: se generan con saltos, por el cortocircuito)
     IR_NOT,
 
 

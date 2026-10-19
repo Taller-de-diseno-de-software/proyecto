@@ -1,0 +1,19 @@
+// Cortocircuito: el operando derecho de && y || (aqui una llamada con efecto
+// sobre la global g) solo se evalua si el izquierdo no decide el resultado
+int g;
+
+boolean tocar() {
+    g = g + 1;
+    return true;
+}
+
+void main() {
+    boolean r;
+
+    g = 0;
+    r = false && tocar();
+    r = true || tocar();
+    r = true && tocar();
+    r = false || tocar();
+    if (g > 0 && tocar() || !r) { g = 0; }
+}
