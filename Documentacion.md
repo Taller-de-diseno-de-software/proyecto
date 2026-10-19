@@ -196,3 +196,21 @@ No hubo problemas detectados durante el Día 2.
 ### Problemas Detectados
   El cortocircuito del Día 5 figuraba como problema conocido y queda resuelto.
   Los .ci están en el .gitignore, así que solo se versionan los que ya estaban agregados.
+
+
+## Día 7
+### Trabajo Realizado
+  Implementamos el generador de código objeto (codigoObjeto.c y codigoObjeto.h): traduce la lista de cuádruplas a assembly x86-64 (sintaxis AT&T, ABI System V), sin optimizaciones.
+  Decisiones: todo valor (variable, parámetro o temporal) ocupa un slot de 8 bytes y las operaciones son de 64 bits; los booleanos son 0 o 1. Las globales van en .bss (inicializadas en cero) y se acceden como nombre(%rip). Las locales y temporales viven en el frame; no hay asignación de registros, las operaciones usan %r10 y %r11.
+  Por cada función (entre ENTER y LEAVE) se arma el frame: los primeros 6 parámetros llegan en %rdi, %rsi, %rdx, %rcx, %r8 y %r9 y se copian a un slot; del séptimo en adelante se leen donde los dejó el llamador (16(%rbp), 24(%rbp)...). El tamaño del frame se redondea a múltiplo de 16 para que la pila quede alineada en cada call.
+  Cada cuádrupla se traduce una a una. Los PARAM se acumulan hasta el CALL; los argumentos de pila se empujan en orden inverso, con un slot de relleno si son una cantidad impar. La división usa cqto e idiv, las comparaciones cmp y cmov.
+  Agregamos extern a la gramática (indicación del docente): extern tipo id(parámetros); sin cuerpo. Se registra como función global (esExterna en el Simbolo) y no genera código. Al llamarla se pone %rax en 0 (printInt tiene argumentos variables) y, si devuelve un valor, se hace cltq porque C devuelve el int en 32 bits y nosotros usamos 64. libtds.c define get_int y printInt, y el compilador la busca junto a su ejecutable.
+  main.c: sin -target compila hasta el ejecutable (.out): genera el .ass y lo enlaza con gcc y libtds.c; -o renombra el ejecutable y el .ass se borra salvo con -debug. -target assembly deja el .ass.
+  Cambios a etapas anteriores: el IR ahora hace cortocircuito en && y || (sin las instrucciones AND y OR); el Simbolo guarda esGlobal, offset, params y esExterna; el léxico tenía el punto de FLOAT_LITERAL sin escapar y leía 1,2 o 1+2 como un float, ahora es DIGIT+ \. DIGIT+.
+  Tests en tests/test_codigo_objeto: co_01 (funciones llamadas desde un main en C), co_02 a co_04 (programas completos con entrada y salida esperada). Se corren con correr_tests.sh en Linux o WSL.
+
+### Problemas Detectados
+  El assembly es de Linux: en Windows hay que probarlo con WSL. El ejecutable c-tds versionado hay que recompilarlo en Linux.
+  Las variables locales no se inicializan, valen lo que haya en la pila.
+  El float sigue sin soportarse en el código objeto (el IR lo trunca a int).
+  Nuestro printInt imprime con salto de línea; si la biblioteca de la cátedra difiere, hay que usar la suya.

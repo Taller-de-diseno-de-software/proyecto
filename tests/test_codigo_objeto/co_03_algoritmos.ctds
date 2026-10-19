@@ -1,0 +1,50 @@
+// Algoritmos con while/if, booleanos, aritmetica con negativos y precedencia,
+// entrada con get_int y salida con printInt. Entrada: 20
+extern int get_int();
+extern void printInt(int x);
+
+boolean impar(int n) { return n % 2 == 1; }
+
+int mcd(int a, int b) {
+    int t;
+    while (b > 0) {
+        t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+
+boolean esPrimo(int n) {
+    int d;
+    if (n < 2) { return false; }
+    d = 2;
+    while (d * d < n + 1) {
+        if (n % d == 0) { return false; }
+        d = d + 1;
+    }
+    return true;
+}
+
+void main() {
+    int n;
+    int cuenta;
+    int i;
+
+    n = get_int();
+    cuenta = 0;
+    i = 0;
+    while (i < n + 1) {
+        if (esPrimo(i)) { cuenta = cuenta + 1; }
+        i = i + 1;
+    }
+    printInt(cuenta);        // primos hasta 20: 2 3 5 7 11 13 17 19
+    printInt(mcd(48, 18));
+    printInt(mcd(17, 5));
+    if (impar(n)) { printInt(1); } else { printInt(0); }
+    printInt(-n + 3);
+    printInt(-7 / 2);        // se trunca hacia cero
+    printInt(-7 % 3);        // el resto toma el signo del dividendo
+    printInt(7 - 3 - 2);     // asocia a izquierda
+    printInt(2 + 3 * 4);     // precedencia
+}

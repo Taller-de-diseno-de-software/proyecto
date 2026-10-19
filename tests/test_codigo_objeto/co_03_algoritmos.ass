@@ -1,0 +1,270 @@
+	.text
+
+impar:
+	enter $32, $0
+	mov %rdi, -8(%rbp)
+	mov -8(%rbp), %rax
+	mov $2, %r10
+	cqto
+	idiv %r10
+	mov %rdx, -16(%rbp)
+	mov -16(%rbp), %r10
+	mov $1, %r11
+	cmp %r11, %r10
+	mov $0, %r11
+	mov $1, %r10
+	cmove %r10, %r11
+	mov %r11, -24(%rbp)
+	mov -24(%rbp), %rax
+	leave
+	ret
+	leave
+	ret
+
+mcd:
+	enter $48, $0
+	mov %rdi, -8(%rbp)
+	mov %rsi, -16(%rbp)
+.L1:
+	mov -16(%rbp), %r10
+	mov $0, %r11
+	cmp %r11, %r10
+	mov $0, %r11
+	mov $1, %r10
+	cmovg %r10, %r11
+	mov %r11, -24(%rbp)
+	mov -24(%rbp), %r10
+	cmp $0, %r10
+	je .L2
+	mov -8(%rbp), %rax
+	mov -16(%rbp), %r10
+	cqto
+	idiv %r10
+	mov %rdx, -32(%rbp)
+	mov -32(%rbp), %r10
+	mov %r10, -40(%rbp)
+	mov -16(%rbp), %r10
+	mov %r10, -8(%rbp)
+	mov -40(%rbp), %r10
+	mov %r10, -16(%rbp)
+	jmp .L1
+.L2:
+	mov -8(%rbp), %rax
+	leave
+	ret
+	leave
+	ret
+
+esPrimo:
+	enter $80, $0
+	mov %rdi, -8(%rbp)
+	mov -8(%rbp), %r10
+	mov $2, %r11
+	cmp %r11, %r10
+	mov $0, %r11
+	mov $1, %r10
+	cmovl %r10, %r11
+	mov %r11, -16(%rbp)
+	mov -16(%rbp), %r10
+	cmp $0, %r10
+	je .L3
+	mov $0, %rax
+	leave
+	ret
+.L3:
+	mov $2, %r10
+	mov %r10, -24(%rbp)
+.L4:
+	mov -24(%rbp), %r10
+	mov -24(%rbp), %r11
+	imul %r11, %r10
+	mov %r10, -32(%rbp)
+	mov -8(%rbp), %r10
+	mov $1, %r11
+	add %r11, %r10
+	mov %r10, -40(%rbp)
+	mov -32(%rbp), %r10
+	mov -40(%rbp), %r11
+	cmp %r11, %r10
+	mov $0, %r11
+	mov $1, %r10
+	cmovl %r10, %r11
+	mov %r11, -48(%rbp)
+	mov -48(%rbp), %r10
+	cmp $0, %r10
+	je .L5
+	mov -8(%rbp), %rax
+	mov -24(%rbp), %r10
+	cqto
+	idiv %r10
+	mov %rdx, -56(%rbp)
+	mov -56(%rbp), %r10
+	mov $0, %r11
+	cmp %r11, %r10
+	mov $0, %r11
+	mov $1, %r10
+	cmove %r10, %r11
+	mov %r11, -64(%rbp)
+	mov -64(%rbp), %r10
+	cmp $0, %r10
+	je .L6
+	mov $0, %rax
+	leave
+	ret
+.L6:
+	mov -24(%rbp), %r10
+	mov $1, %r11
+	add %r11, %r10
+	mov %r10, -72(%rbp)
+	mov -72(%rbp), %r10
+	mov %r10, -24(%rbp)
+	jmp .L4
+.L5:
+	mov $1, %rax
+	leave
+	ret
+	leave
+	ret
+
+	.globl main
+main:
+	enter $176, $0
+	mov $0, %rax
+	call get_int
+	cltq
+	mov %rax, -8(%rbp)
+	mov -8(%rbp), %r10
+	mov %r10, -16(%rbp)
+	mov $0, %r10
+	mov %r10, -24(%rbp)
+	mov $0, %r10
+	mov %r10, -32(%rbp)
+.L7:
+	mov -16(%rbp), %r10
+	mov $1, %r11
+	add %r11, %r10
+	mov %r10, -40(%rbp)
+	mov -32(%rbp), %r10
+	mov -40(%rbp), %r11
+	cmp %r11, %r10
+	mov $0, %r11
+	mov $1, %r10
+	cmovl %r10, %r11
+	mov %r11, -48(%rbp)
+	mov -48(%rbp), %r10
+	cmp $0, %r10
+	je .L8
+	mov -32(%rbp), %rdi
+	call esPrimo
+	mov %rax, -56(%rbp)
+	mov -56(%rbp), %r10
+	cmp $0, %r10
+	je .L9
+	mov -24(%rbp), %r10
+	mov $1, %r11
+	add %r11, %r10
+	mov %r10, -64(%rbp)
+	mov -64(%rbp), %r10
+	mov %r10, -24(%rbp)
+.L9:
+	mov -32(%rbp), %r10
+	mov $1, %r11
+	add %r11, %r10
+	mov %r10, -72(%rbp)
+	mov -72(%rbp), %r10
+	mov %r10, -32(%rbp)
+	jmp .L7
+.L8:
+	mov -24(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $48, %rdi
+	mov $18, %rsi
+	call mcd
+	mov %rax, -80(%rbp)
+	mov -80(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $17, %rdi
+	mov $5, %rsi
+	call mcd
+	mov %rax, -88(%rbp)
+	mov -88(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov -16(%rbp), %rdi
+	call impar
+	mov %rax, -96(%rbp)
+	mov -96(%rbp), %r10
+	cmp $0, %r10
+	je .L10
+	mov $1, %rdi
+	mov $0, %rax
+	call printInt
+	jmp .L11
+.L10:
+	mov $0, %rdi
+	mov $0, %rax
+	call printInt
+.L11:
+	mov -16(%rbp), %r10
+	neg %r10
+	mov %r10, -104(%rbp)
+	mov -104(%rbp), %r10
+	mov $3, %r11
+	add %r11, %r10
+	mov %r10, -112(%rbp)
+	mov -112(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $7, %r10
+	neg %r10
+	mov %r10, -120(%rbp)
+	mov -120(%rbp), %rax
+	mov $2, %r10
+	cqto
+	idiv %r10
+	mov %rax, -128(%rbp)
+	mov -128(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $7, %r10
+	neg %r10
+	mov %r10, -136(%rbp)
+	mov -136(%rbp), %rax
+	mov $3, %r10
+	cqto
+	idiv %r10
+	mov %rdx, -144(%rbp)
+	mov -144(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $7, %r10
+	mov $3, %r11
+	sub %r11, %r10
+	mov %r10, -152(%rbp)
+	mov -152(%rbp), %r10
+	mov $2, %r11
+	sub %r11, %r10
+	mov %r10, -160(%rbp)
+	mov -160(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $3, %r10
+	mov $4, %r11
+	imul %r11, %r10
+	mov %r10, -168(%rbp)
+	mov $2, %r10
+	mov -168(%rbp), %r11
+	add %r11, %r10
+	mov %r10, -176(%rbp)
+	mov -176(%rbp), %rdi
+	mov $0, %rax
+	call printInt
+	mov $0, %rax
+	leave
+	ret
+	leave
+	ret
+
+	.section .note.GNU-stack,"",@progbits

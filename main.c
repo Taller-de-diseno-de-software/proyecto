@@ -3,15 +3,17 @@
  *
  * Interfaz:  c-tds [opcion] nombreArchivo.ctds
  *   -target <scan|parse|codinter|assembly> la compilacion procede hasta la etapa dada
- *   -o <salida>                     nombre del archivo de salida
+ *   -o <salida>                     nombre del archivo de salida (sin -target, del ejecutable)
  *   -opt [optimizacion]             se acepta; todavia no hace nada
  *   -debug                          imprime informacion de debugging
  *
  * Etapas y archivo de salida (nombreArchivo + extension):
  *   scan     -> .lex    listado de tokens
  *   parse    -> .sint   AST
- *   codinter -> .ci     codigo intermedio (etapa por defecto)
+ *   codinter -> .ci     codigo intermedio
  *   assembly -> .ass    assembly x86-64
+ *   (sin -target) -> .out   ejecutable: se ensambla y enlaza el .ass con gcc y libtds.c, que debe estar
+ *                           en el mismo directorio que c-tds. El .ass intermedio se borra salvo con -debug.
  *
  * Sin -debug una compilacion exitosa no imprime nada; los errores van a stderr.
  * El codigo de retorno es distinto de 0 si alguna etapa falla.
@@ -19,24 +21,29 @@
  * Compilacion:
  * bison -d -v analizadorSintactico.y
  * flex analizadorLexico.l
- * gcc -Wall -g -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
+ * gcc -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __linux__
+#include <unistd.h>
+#endif
 #include "ast.h"
 #include "analizadorSemantico.h"
 #include "codigoIntermedio.h"
 #include "codigoObjeto.h"
 
 #define EXTENSION_ENTRADA ".ctds"
+#define BIBLIOTECA_EJECUCION "libtds.c" // define get_int y printInt, las funciones extern
 
 typedef enum {
     ETAPA_SCAN,
     ETAPA_PARSE,
     ETAPA_CODINTER,
-    ETAPA_ASSEMBLY
+    ETAPA_ASSEMBLY,
+    ETAPA_EJECUTABLE // la etapa por defecto: llega hasta el ejecutable
 } Etapa;
 
 typedef struct {
@@ -44,6 +51,7 @@ typedef struct {
     int debug;
     const char *entrada;
     const char *salida; // NULL: se deriva del nombre de entrada
+    const char *programa; // argv[0], para ubicar libtds.c junto al compilador
 } Opciones;
 
 // Generados por flex y bison
@@ -76,7 +84,8 @@ static int leerTarget(const char *texto, Etapa *etapa) {
 
 // Devuelve 1 si los argumentos son validos y deja el resultado en `op`
 static int leerArgumentos(int argc, char **argv, Opciones *op) {
-    op->target = ETAPA_CODINTER; // la etapa corriente
+    op->target = ETAPA_EJECUTABLE;
+    op->programa = argv[0];
     op->debug = 0;
     op->entrada = NULL;
     op->salida = NULL;
@@ -121,33 +130,46 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
     return 1;
 }
 
-// Nombre del archivo de salida: -o si se dio; si no, la entrada con la extension de la etapa
-static char *nombreSalida(const Opciones *op, const char *extension) {
-    const char *origen = op->salida;
-    size_t base = origen ? strlen(origen) : strlen(op->entrada) - strlen(EXTENSION_ENTRADA);
-    size_t resto = origen ? 0 : strlen(extension);
-    char *nombre = malloc(base + resto + 1);
-
-    if (nombre == NULL) {
+static void *reservar(size_t bytes) {
+    void *p = malloc(bytes);
+    if (p == NULL) {
         fprintf(stderr, "Error: sin memoria\n");
         exit(EXIT_FAILURE);
     }
-    if (origen) {
-        strcpy(nombre, origen);
-    } else {
-        memcpy(nombre, op->entrada, base);
-        strcpy(nombre + base, extension);
-    }
+    return p;
+}
+
+// La entrada sin su extension .ctds mas `extension`
+static char *nombreDerivado(const Opciones *op, const char *extension) {
+    size_t base = strlen(op->entrada) - strlen(EXTENSION_ENTRADA);
+    char *nombre = reservar(base + strlen(extension) + 1);
+
+    memcpy(nombre, op->entrada, base);
+    strcpy(nombre + base, extension);
     return nombre;
 }
 
-static FILE *abrirSalida(const Opciones *op, const char *extension) {
-    char *nombre = nombreSalida(op, extension);
+// Nombre del archivo de salida: -o si se dio; si no, la entrada con la extension de la etapa
+static char *nombreSalida(const Opciones *op, const char *extension) {
+    if (op->salida == NULL) return nombreDerivado(op, extension);
+
+    char *nombre = reservar(strlen(op->salida) + 1);
+    strcpy(nombre, op->salida);
+    return nombre;
+}
+
+static FILE *abrirArchivo(const char *nombre) {
     FILE *archivo = fopen(nombre, "w");
 
     if (archivo == NULL) {
         fprintf(stderr, "Error: no se pudo crear %s\n", nombre);
     }
+    return archivo;
+}
+
+static FILE *abrirSalida(const Opciones *op, const char *extension) {
+    char *nombre = nombreSalida(op, extension);
+    FILE *archivo = abrirArchivo(nombre);
     free(nombre);
     return archivo;
 }
@@ -198,12 +220,67 @@ static int etapaCodigoIntermedio(const Opciones *op, ListaIR **ir) {
     return 0;
 }
 
+// Directorio donde esta el compilador (ahi se busca libtds.c), con la barra final; "" si no se sabe
+static char *directorioDelCompilador(const char *programa) {
+    char ruta[4096] = "";
+
+#ifdef __linux__
+    ssize_t n = readlink("/proc/self/exe", ruta, sizeof(ruta) - 1);
+    ruta[n > 0 ? n : 0] = '\0';
+#endif
+    if (ruta[0] == '\0' && strlen(programa) < sizeof(ruta)) {
+        strcpy(ruta, programa);
+    }
+
+    char *corte = strrchr(ruta, '/');
+    char *corteWindows = strrchr(ruta, '\\');
+    if (corteWindows != NULL && (corte == NULL || corteWindows > corte)) corte = corteWindows;
+    if (corte != NULL) {
+        corte[1] = '\0';
+    } else {
+        ruta[0] = '\0';
+    }
+
+    char *directorio = reservar(strlen(ruta) + 1);
+    strcpy(directorio, ruta);
+    return directorio;
+}
+
+// Con -target assembly deja el .ass; sin target lo ensambla y enlaza hasta el ejecutable
 static int etapaAssembly(const Opciones *op, ListaIR *ir) {
-    FILE *salida = abrirSalida(op, ".ass");
-    if (salida == NULL) return 1;
-    generarAssembly(ir, salida);
-    fclose(salida);
-    return 0;
+    int ejecutable = op->target == ETAPA_EJECUTABLE;
+    char *rutaAss = ejecutable ? nombreDerivado(op, ".ass") : nombreSalida(op, ".ass");
+    int fallo = 1;
+
+    FILE *salida = abrirArchivo(rutaAss);
+    if (salida != NULL) {
+        generarAssembly(ir, salida);
+        fclose(salida);
+        fallo = 0;
+    }
+
+    if (ejecutable && !fallo) {
+        char *rutaExe = nombreSalida(op, ".out");
+        char *directorio = directorioDelCompilador(op->programa);
+        size_t largo = strlen(rutaAss) + strlen(rutaExe) + strlen(directorio) + 128;
+        char *comando = reservar(largo);
+
+        // -x indica el lenguaje de cada archivo, asi no importa la extension .ass
+        snprintf(comando, largo, "gcc -x assembler \"%s\" -x c \"%s%s\" -o \"%s\"",
+                 rutaAss, directorio, BIBLIOTECA_EJECUCION, rutaExe);
+        fallo = system(comando) != 0;
+        if (fallo) {
+            fprintf(stderr, "Error: fallo el ensamblado o el enlace (%s)\n", comando);
+        }
+        if (!op->debug) {
+            remove(rutaAss);
+        }
+        free(comando);
+        free(directorio);
+        free(rutaExe);
+    }
+    free(rutaAss);
+    return fallo;
 }
 
 int main(int argc, char **argv) {
@@ -229,7 +306,7 @@ int main(int argc, char **argv) {
         if (!fallo && op.target >= ETAPA_CODINTER) {
             ListaIR *ir = NULL;
             fallo = etapaCodigoIntermedio(&op, &ir);
-            if (!fallo && op.target == ETAPA_ASSEMBLY) {
+            if (!fallo && op.target >= ETAPA_ASSEMBLY) {
                 fallo = etapaAssembly(&op, ir);
             }
             liberarLista(ir);
