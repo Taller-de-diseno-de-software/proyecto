@@ -2,7 +2,7 @@
  * Programa principal del compilador (c-tds).
  *
  * Interfaz:  c-tds [opcion] nombreArchivo.ctds
- *   -target <scan|parse|codinter>   la compilacion procede hasta la etapa dada
+ *   -target <scan|parse|codinter|assembly> la compilacion procede hasta la etapa dada
  *   -o <salida>                     nombre del archivo de salida
  *   -opt [optimizacion]             se acepta; todavia no hace nada
  *   -debug                          imprime informacion de debugging
@@ -11,6 +11,7 @@
  *   scan     -> .lex    listado de tokens
  *   parse    -> .sint   AST
  *   codinter -> .ci     codigo intermedio (etapa por defecto)
+ *   assembly -> .ass    assembly x86-64
  *
  * Sin -debug una compilacion exitosa no imprime nada; los errores van a stderr.
  * El codigo de retorno es distinto de 0 si alguna etapa falla.
@@ -18,7 +19,7 @@
  * Compilacion:
  * bison -d -v analizadorSintactico.y
  * flex analizadorLexico.l
- * gcc -Wall -g -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c analizadorSintactico.tab.c lex.yy.c
+ * gcc -Wall -g -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
  */
 
 #include <stdio.h>
@@ -27,13 +28,15 @@
 #include "ast.h"
 #include "analizadorSemantico.h"
 #include "codigoIntermedio.h"
+#include "codigoObjeto.h"
 
 #define EXTENSION_ENTRADA ".ctds"
 
 typedef enum {
     ETAPA_SCAN,
     ETAPA_PARSE,
-    ETAPA_CODINTER
+    ETAPA_CODINTER,
+    ETAPA_ASSEMBLY
 } Etapa;
 
 typedef struct {
@@ -54,7 +57,7 @@ FILE *archivoTokens = NULL;
 int huboErrorLexico = 0;
 
 static void mostrarUso(void) {
-    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter] [-o salida] [-opt [optimizacion]] [-debug] archivo.ctds\n");
+    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt [optimizacion]] [-debug] archivo.ctds\n");
 }
 
 static int terminaEn(const char *texto, const char *sufijo) {
@@ -67,6 +70,7 @@ static int leerTarget(const char *texto, Etapa *etapa) {
     if (strcmp(texto, "scan") == 0)     { *etapa = ETAPA_SCAN; return 1; }
     if (strcmp(texto, "parse") == 0)    { *etapa = ETAPA_PARSE; return 1; }
     if (strcmp(texto, "codinter") == 0) { *etapa = ETAPA_CODINTER; return 1; }
+    if (strcmp(texto, "assembly") == 0) { *etapa = ETAPA_ASSEMBLY; return 1; }
     return 0;
 }
 
@@ -87,7 +91,7 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
             op->salida = argv[i];
         } else if (strcmp(arg, "-target") == 0) {
             if (++i >= argc || !leerTarget(argv[i], &op->target)) {
-                fprintf(stderr, "Error: -target requiere scan, parse o codinter\n");
+                fprintf(stderr, "Error: -target requiere scan, parse, codinter o assembly\n");
                 return 0;
             }
         } else if (strcmp(arg, "-opt") == 0) {
@@ -176,23 +180,29 @@ static int etapaParse(const Opciones *op) {
     return 0;
 }
 
-static int etapaCodigoIntermedio(const Opciones *op) {
+// Genera el IR; con -target codinter lo escribe en el .ci
+static int etapaCodigoIntermedio(const Opciones *op, ListaIR **ir) {
     analizarSemantica(raiz);
-    ListaIR *ir = generarCodigoIntermedio(raiz);
-    if (ir == NULL) return 1; // errores semanticos, ya informados por stderr
-
-    FILE *salida = abrirSalida(op, ".ci");
-    if (salida == NULL) {
-        liberarLista(ir);
-        return 1;
-    }
-    imprimirIR(ir, salida);
-    fclose(salida);
+    *ir = generarCodigoIntermedio(raiz);
+    if (*ir == NULL) return 1; // errores semanticos, ya informados por stderr
 
     if (op->debug) {
-        imprimirIR(ir, stdout);
+        imprimirIR(*ir, stdout);
     }
-    liberarLista(ir);
+    if (op->target != ETAPA_CODINTER) return 0;
+
+    FILE *salida = abrirSalida(op, ".ci");
+    if (salida == NULL) return 1;
+    imprimirIR(*ir, salida);
+    fclose(salida);
+    return 0;
+}
+
+static int etapaAssembly(const Opciones *op, ListaIR *ir) {
+    FILE *salida = abrirSalida(op, ".ass");
+    if (salida == NULL) return 1;
+    generarAssembly(ir, salida);
+    fclose(salida);
     return 0;
 }
 
@@ -216,8 +226,13 @@ int main(int argc, char **argv) {
     } else {
         archivoTokens = op.debug ? stdout : NULL;
         fallo = etapaParse(&op);
-        if (!fallo && op.target == ETAPA_CODINTER) {
-            fallo = etapaCodigoIntermedio(&op);
+        if (!fallo && op.target >= ETAPA_CODINTER) {
+            ListaIR *ir = NULL;
+            fallo = etapaCodigoIntermedio(&op, &ir);
+            if (!fallo && op.target == ETAPA_ASSEMBLY) {
+                fallo = etapaAssembly(&op, ir);
+            }
+            liberarLista(ir);
         }
     }
 
