@@ -154,3 +154,33 @@ No hubo problemas detectados durante el Día 2.
   Al principio el main ignoraba el resultado del análisis y aceptaba programas con errores semánticos.
   Los literales se tipan por su texto (true/false, con punto, entero) porque el parser crea el mismo nodo para los tres.
   Los tipos se comparan de forma exacta: float f; f = 5; da error porque 5 es int. Hay que decidir si se permite esa conversión.
+
+
+## Día 5
+### Trabajo Realizado
+  Implementamos el generador de código intermedio de tres direcciones (codigoIntermedio.c y codigoIntermedio.h). Recorre el AST ya decorado por el analizador semántico y produce una lista enlazada de cuádruplas (op, arg1, arg2, res).
+  Las instrucciones (OperadorIR) son: aritméticas (ADD, SUB, MULT, DIV, MOD, NEG), lógicas (AND, OR, NOT), relacionales (LT, GT, EQ), ASSIGN, de flujo (LABEL, JUMP, JMPF) y de funciones (ENTER, PARAM, CALL, RET, LEAVE).
+  Los operandos (KindOperando) pueden ser constante, variable (apunta al Simbolo), temporal, etiqueta o función. Los constructores son operandoConst, operandoVar, operandoTemp, operandoLabel y operandoFunc, y nuevoTemp / nuevaEtiqueta llevan los contadores (t1, t2... y L1, L2...).
+  genExpr devuelve el operando donde queda el valor de cada expresión. Las constantes y variables no emiten código, se usan directamente como operando. Los operadores binarios y unarios emiten una cuádrupla con un temporal nuevo.
+  Las llamadas (genLlamada) evalúan primero todos los argumentos y recién después emiten los PARAM, para que los de una llamada anidada no se intercalen con los de la externa. El CALL guarda la función y la cantidad de argumentos, y devuelve un temporal con el resultado (nada si la función es void).
+  El if usa JMPF y una etiqueta al final (con else, una más y un JUMP al final del then). El while pone una etiqueta al inicio, reevalúa la condición en cada vuelta y cierra con JUMP al inicio.
+  Cada método se encierra entre ENTER y LEAVE. Los métodos void que no terminan en return reciben un RET implícito. Las declaraciones y los parámetros no generan código.
+  generarCodigoIntermedio devuelve NULL si huboErrorSemantico, así que solo se genera código de programas correctos. imprimirIR lo escribe en formato legible (t1 = a + b, ifFalse t1 goto L1, param x, t2 = call f, 1).
+
+  Armamos un main.c nuevo que organiza las etapas con la interfaz c-tds [opcion] archivo.ctds:
+  - -target scan|parse|codinter: la compilación llega hasta esa etapa (por defecto codinter).
+  - -o: nombre del archivo de salida.
+  - -opt: se acepta pero todavía no hace nada.
+  - -debug: imprime información de debugging por pantalla.
+  Cada etapa escribe su archivo a partir del nombre de entrada: .lex (tokens), .sint (AST) y .ci (código intermedio). Sin -debug una compilación exitosa no imprime nada, los errores van a stderr y el código de retorno es distinto de 0 si falla alguna etapa.
+  Para esto se sacó el main del analizador sintáctico, el lexer escribe los tokens en archivoTokens en lugar de usar printf, se agregó imprimirArbolEn (imprimirArbol a un archivo) y los mensajes de error pasaron a stderr.
+  En el analizador semántico se terminó la tipificación de expresiones (tipoAritmetico, tipoRelacional, tipoLogico, tipoDeLiteral), que es lo que el generador necesita para decidir el IR.
+  Armamos la carpeta tests/test_codigo_intermedio con cuatro casos: aritmética y lógica, control de flujo, llamadas y return, y recursión con variables globales. Incluye las salidas .lex, .sint y .ci del primer caso.
+
+### Problemas Detectados
+  El literal llega doblemente envuelto (LITERAL(LITERAL "texto")), así que hay que leer el texto del hijo.
+  El IR solo cubre enteros y lógicos: los float se truncan a int (limitación documentada en genLiteral).
+  Los operadores && y || evalúan siempre los dos operandos, no hay cortocircuito.
+  Los temporales se piden después de generar los operandos para que el subresultado tome el número menor (t1 = i < 10, no al revés).
+  Los argumentos están limitados a MAX_PARAMS por llamada; si se supera se avisa por stderr y se ignoran los sobrantes.
+  Las variables globales no tienen código propio: solo aparecen como operando de las instrucciones que las usan.
