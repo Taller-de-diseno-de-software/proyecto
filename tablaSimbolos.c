@@ -107,6 +107,7 @@ Simbolo* insertarSimbolo(FlagSimbolo flag, char *nombre, TipoDato tipo) {
     memset(nuevoSimbolo->params, 0, sizeof(nuevoSimbolo->params));
     nuevoSimbolo->esGlobal = (topeTablaSimbolos->anterior == NULL); // el primer nivel de la pila es el global
     nuevoSimbolo->offset = 0;
+    nuevoSimbolo->esExterna = 0;
 
     // Creamos el nodo para insertarlo en la lista enlazada del nivel
     EntradaSimbolo *nuevoNodo = (EntradaSimbolo *)malloc(sizeof(EntradaSimbolo));

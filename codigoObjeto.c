@@ -253,7 +253,19 @@ static void traducirLlamada(FILE *out, const Frame *f, const Cuadrupla *c, Pendi
         cargar(out, f, p->args[i], REGISTROS_PARAMS[i]);
     }
 
+    // Las externas son funciones de C, asi que hay que respetar dos cosas:
+    //  - antes del call, %rax en 0: printInt acepta cantidad variable de argumentos y C
+    //    mira ese registro para saber cuantos registros especiales se usaron (nosotros, ninguno)
+    //  - despues del call, cltq: C devuelve el int en 32 bits (%eax) pero nosotros guardamos
+    //    enteros de 64, entonces hay que extender el signo o un -5 quedaria como un numero enorme
+    int externa = c->arg1.u.simbolo->esExterna;
+    if (externa) {
+        fprintf(out, "\tmov $0, %%rax\n");
+    }
     fprintf(out, "\tcall %s\n", c->arg1.u.simbolo->nombre);
+    if (externa && c->res.kind != OPD_NONE) {
+        fprintf(out, "\tcltq\n");
+    }
 
     if (enPila > 0) {
         fprintf(out, "\tadd $%d, %%rsp\n", (enPila + relleno) * BYTES_SLOT);

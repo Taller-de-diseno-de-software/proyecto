@@ -28,7 +28,7 @@ ALPHA         [a-zA-Z]
 DIGIT         [0-9]
 ID            {ALPHA}{ALPHA_NUM}*
 INT_LITERAL   {DIGIT}{DIGIT}*
-FLOAT_LITERAL {DIGIT}{DIGIT}\.{DIGIT}{DIGIT}
+FLOAT_LITERAL {DIGIT}+\.{DIGIT}+
 
 %x COMENTARIO
 
@@ -60,6 +60,12 @@ FLOAT_LITERAL {DIGIT}{DIGIT}\.{DIGIT}{DIGIT}
                     LOG_TOKEN("BOOLEAN    %s\n", yytext);
                     yylval.str = strdup(yytext);
                     return BOOLEAN;
+                }
+
+"extern"        {
+                    LOG_TOKEN("EXTERN    %s\n", yytext);
+                    yylval.str = strdup(yytext);
+                    return EXTERN;
                 }
 
 "else"          {

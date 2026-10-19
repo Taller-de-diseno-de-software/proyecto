@@ -62,35 +62,36 @@ extern int yydebug;
     YYUNDEF = 257,                 /* "invalid token"  */
     BOOLEAN = 258,                 /* BOOLEAN  */
     ELSE = 259,                    /* ELSE  */
-    IF = 260,                      /* IF  */
-    INT = 261,                     /* INT  */
-    RETURN = 262,                  /* RETURN  */
-    VOID = 263,                    /* VOID  */
-    WHILE = 264,                   /* WHILE  */
-    FLOAT = 265,                   /* FLOAT  */
-    CTE_LOGICA = 266,              /* CTE_LOGICA  */
-    CTE_ENTERA = 267,              /* CTE_ENTERA  */
-    CTE_FLOAT = 268,               /* CTE_FLOAT  */
-    ID = 269,                      /* ID  */
-    OP_SUMA = 270,                 /* OP_SUMA  */
-    OP_PROD = 271,                 /* OP_PROD  */
-    OP_RESTA = 272,                /* OP_RESTA  */
-    OP_DIV = 273,                  /* OP_DIV  */
-    OP_DIVENT = 274,               /* OP_DIVENT  */
-    OP_MENOR = 275,                /* OP_MENOR  */
-    OP_MAYOR = 276,                /* OP_MAYOR  */
-    OP_EQ = 277,                   /* OP_EQ  */
-    OP_AND = 278,                  /* OP_AND  */
-    OP_OR = 279,                   /* OP_OR  */
-    OP_NEG = 280,                  /* OP_NEG  */
-    OP_ASIG = 281,                 /* OP_ASIG  */
-    PUNTO_COMA = 282,              /* PUNTO_COMA  */
-    PAR_IZQ = 283,                 /* PAR_IZQ  */
-    PAR_DER = 284,                 /* PAR_DER  */
-    LLAVE_IZQ = 285,               /* LLAVE_IZQ  */
-    LLAVE_DER = 286,               /* LLAVE_DER  */
-    COMA = 287,                    /* COMA  */
-    SIGNO_MENOS = 288              /* SIGNO_MENOS  */
+    EXTERN = 260,                  /* EXTERN  */
+    IF = 261,                      /* IF  */
+    INT = 262,                     /* INT  */
+    RETURN = 263,                  /* RETURN  */
+    VOID = 264,                    /* VOID  */
+    WHILE = 265,                   /* WHILE  */
+    FLOAT = 266,                   /* FLOAT  */
+    CTE_LOGICA = 267,              /* CTE_LOGICA  */
+    CTE_ENTERA = 268,              /* CTE_ENTERA  */
+    CTE_FLOAT = 269,               /* CTE_FLOAT  */
+    ID = 270,                      /* ID  */
+    OP_SUMA = 271,                 /* OP_SUMA  */
+    OP_PROD = 272,                 /* OP_PROD  */
+    OP_RESTA = 273,                /* OP_RESTA  */
+    OP_DIV = 274,                  /* OP_DIV  */
+    OP_DIVENT = 275,               /* OP_DIVENT  */
+    OP_MENOR = 276,                /* OP_MENOR  */
+    OP_MAYOR = 277,                /* OP_MAYOR  */
+    OP_EQ = 278,                   /* OP_EQ  */
+    OP_AND = 279,                  /* OP_AND  */
+    OP_OR = 280,                   /* OP_OR  */
+    OP_NEG = 281,                  /* OP_NEG  */
+    OP_ASIG = 282,                 /* OP_ASIG  */
+    PUNTO_COMA = 283,              /* PUNTO_COMA  */
+    PAR_IZQ = 284,                 /* PAR_IZQ  */
+    PAR_DER = 285,                 /* PAR_DER  */
+    LLAVE_IZQ = 286,               /* LLAVE_IZQ  */
+    LLAVE_DER = 287,               /* LLAVE_DER  */
+    COMA = 288,                    /* COMA  */
+    SIGNO_MENOS = 289              /* SIGNO_MENOS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -105,7 +106,7 @@ union YYSTYPE
     char *str;
     
 
-#line 109 "analizadorSintactico.tab.h"
+#line 110 "analizadorSintactico.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

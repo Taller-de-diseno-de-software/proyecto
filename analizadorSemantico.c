@@ -98,6 +98,16 @@ static void visitarDeclaracionesGlobales(nodoAST *declaraciones){
                 guardarParametros(simbolo, declaracion->hijos[1]);
             }
             declaracion->simbolo = simbolo;
+        }else if(declaracion->tipo == NODO_EXTERN){
+            // Solo firma: se registra como funcion pero sus parametros no abren ningun alcance
+            Simbolo *simbolo = insertarSimbolo(FLAG_FUNCION, declaracion->valor, tipoDeNodo(declaracion->hijos[0]));
+            if(!simbolo){
+                errorSemantico = 1;
+            }else{
+                simbolo->esExterna = 1;
+                guardarParametros(simbolo, declaracion->hijos[1]);
+            }
+            declaracion->simbolo = simbolo;
         }else{
             visitarDeclaracionesGlobales(declaracion); // DECLS anidado
         }

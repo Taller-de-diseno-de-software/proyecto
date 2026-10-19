@@ -49,6 +49,7 @@ typedef struct simbolo{
     int numParams; //Solo FLAG_FUNCION: cantidad de parametros formales
     TipoDato tiposParams[MAX_PARAMS]; //Solo FLAG_FUNCION: tipo de cada parametro, en orden
     struct simbolo *params[MAX_PARAMS]; //Solo FLAG_FUNCION: simbolo de cada parametro formal, en orden (lo usa el generador de codigo objeto)
+    int esExterna; //Solo FLAG_FUNCION: 1 si se declaro con extern (no tiene cuerpo, la define otra unidad)
     int esGlobal; //1 si se declaro en el nivel global (variables y funciones)
     int offset; //Solo variables y parametros locales: desplazamiento respecto de %rbp; lo asigna el generador de codigo objeto
 } Simbolo;

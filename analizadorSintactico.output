@@ -9,194 +9,204 @@ Grammar
 
     4 DECL: VAR
     5     | METHOD
+    6     | EXTERN_DECL
 
-    6 VAR: TYPE IDS PUNTO_COMA
+    7 VAR: TYPE IDS PUNTO_COMA
 
-    7 IDS: ID ID_PRIMA
+    8 IDS: ID ID_PRIMA
 
-    8 ID_PRIMA: COMA IDS
-    9         | ε
+    9 ID_PRIMA: COMA IDS
+   10         | ε
 
-   10 METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE
-   11       | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE
-   12       | TYPE ID PAR_IZQ PAR_DER BLOQUE
-   13       | VOID ID PAR_IZQ PAR_DER BLOQUE
+   11 METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE
+   12       | VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE
+   13       | TYPE ID PAR_IZQ PAR_DER BLOQUE
+   14       | VOID ID PAR_IZQ PAR_DER BLOQUE
 
-   14 PARAMS: PARAM PARAMS_PRIMA
+   15 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   16            | EXTERN VOID ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   17            | EXTERN TYPE ID PAR_IZQ PAR_DER PUNTO_COMA
+   18            | EXTERN VOID ID PAR_IZQ PAR_DER PUNTO_COMA
 
-   15 PARAMS_PRIMA: COMA PARAMS
-   16             | ε
+   19 PARAMS: PARAM PARAMS_PRIMA
 
-   17 PARAM: TYPE ID
+   20 PARAMS_PRIMA: COMA PARAMS
+   21             | ε
 
-   18 BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER
+   22 PARAM: TYPE ID
 
-   19 VAR_DECL: VAR VAR_DECL
-   20         | ε
+   23 BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER
 
-   21 STATEMENTS: STATEMENT STATEMENTS
-   22           | ε
+   24 VAR_DECL: VAR VAR_DECL
+   25         | ε
 
-   23 TYPE: INT
-   24     | FLOAT
-   25     | BOOLEAN
+   26 STATEMENTS: STATEMENT STATEMENTS
+   27           | ε
 
-   26 STATEMENT: ID OP_ASIG EXPR PUNTO_COMA
-   27          | METHOD_CALL PUNTO_COMA
-   28          | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE
-   29          | WHILE PAR_IZQ EXPR PAR_DER BLOQUE
-   30          | RETURN OPTIONAL_EXPR PUNTO_COMA
-   31          | PUNTO_COMA
-   32          | BLOQUE
+   28 TYPE: INT
+   29     | FLOAT
+   30     | BOOLEAN
 
-   33 OPTIONAL_ELSE: ELSE BLOQUE
-   34              | ε
+   31 STATEMENT: ID OP_ASIG EXPR PUNTO_COMA
+   32          | METHOD_CALL PUNTO_COMA
+   33          | IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE
+   34          | WHILE PAR_IZQ EXPR PAR_DER BLOQUE
+   35          | RETURN OPTIONAL_EXPR PUNTO_COMA
+   36          | PUNTO_COMA
+   37          | BLOQUE
 
-   35 OPTIONAL_EXPR: EXPR
-   36              | ε
+   38 OPTIONAL_ELSE: ELSE BLOQUE
+   39              | ε
 
-   37 METHOD_CALL: ID PAR_IZQ ARGS PAR_DER
-   38            | ID PAR_IZQ PAR_DER
+   40 OPTIONAL_EXPR: EXPR
+   41              | ε
 
-   39 ARGS: ARG ARGS_PRIMA
+   42 METHOD_CALL: ID PAR_IZQ ARGS PAR_DER
+   43            | ID PAR_IZQ PAR_DER
 
-   40 ARGS_PRIMA: COMA ARGS
-   41           | ε
+   44 ARGS: ARG ARGS_PRIMA
 
-   42 ARG: EXPR
+   45 ARGS_PRIMA: COMA ARGS
+   46           | ε
 
-   43 EXPR: ID
-   44     | METHOD_CALL
-   45     | LITERAL
-   46     | EXPR OP_SUMA EXPR
-   47     | EXPR OP_RESTA EXPR
-   48     | EXPR OP_PROD EXPR
-   49     | EXPR OP_DIV EXPR
-   50     | EXPR OP_DIVENT EXPR
-   51     | EXPR OP_MENOR EXPR
-   52     | EXPR OP_MAYOR EXPR
-   53     | EXPR OP_EQ EXPR
-   54     | EXPR OP_AND EXPR
-   55     | EXPR OP_OR EXPR
-   56     | OP_RESTA EXPR
-   57     | OP_NEG EXPR
-   58     | PAR_IZQ EXPR PAR_DER
+   47 ARG: EXPR
 
-   59 LITERAL: CTE_ENTERA
-   60        | CTE_LOGICA
-   61        | CTE_FLOAT
+   48 EXPR: ID
+   49     | METHOD_CALL
+   50     | LITERAL
+   51     | EXPR OP_SUMA EXPR
+   52     | EXPR OP_RESTA EXPR
+   53     | EXPR OP_PROD EXPR
+   54     | EXPR OP_DIV EXPR
+   55     | EXPR OP_DIVENT EXPR
+   56     | EXPR OP_MENOR EXPR
+   57     | EXPR OP_MAYOR EXPR
+   58     | EXPR OP_EQ EXPR
+   59     | EXPR OP_AND EXPR
+   60     | EXPR OP_OR EXPR
+   61     | OP_RESTA EXPR
+   62     | OP_NEG EXPR
+   63     | PAR_IZQ EXPR PAR_DER
+
+   64 LITERAL: CTE_ENTERA
+   65        | CTE_LOGICA
+   66        | CTE_FLOAT
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    BOOLEAN (258) 25
-    ELSE (259) 33
-    IF (260) 28
-    INT (261) 23
-    RETURN (262) 30
-    VOID (263) 11 13
-    WHILE (264) 29
-    FLOAT (265) 24
-    CTE_LOGICA <str> (266) 60
-    CTE_ENTERA <str> (267) 59
-    CTE_FLOAT <str> (268) 61
-    ID <str> (269) 7 10 11 12 13 17 26 37 38 43
-    OP_SUMA (270) 46
-    OP_PROD (271) 48
-    OP_RESTA (272) 47 56
-    OP_DIV (273) 49
-    OP_DIVENT (274) 50
-    OP_MENOR (275) 51
-    OP_MAYOR (276) 52
-    OP_EQ (277) 53
-    OP_AND (278) 54
-    OP_OR (279) 55
-    OP_NEG (280) 57
-    OP_ASIG (281) 26
-    PUNTO_COMA (282) 6 26 27 30 31
-    PAR_IZQ (283) 10 11 12 13 28 29 37 38 58
-    PAR_DER (284) 10 11 12 13 28 29 37 38 58
-    LLAVE_IZQ (285) 18
-    LLAVE_DER (286) 18
-    COMA (287) 8 15 40
-    SIGNO_MENOS (288)
+    BOOLEAN (258) 30
+    ELSE (259) 38
+    EXTERN (260) 15 16 17 18
+    IF (261) 33
+    INT (262) 28
+    RETURN (263) 35
+    VOID (264) 12 14 16 18
+    WHILE (265) 34
+    FLOAT (266) 29
+    CTE_LOGICA <str> (267) 65
+    CTE_ENTERA <str> (268) 64
+    CTE_FLOAT <str> (269) 66
+    ID <str> (270) 8 11 12 13 14 15 16 17 18 22 31 42 43 48
+    OP_SUMA (271) 51
+    OP_PROD (272) 53
+    OP_RESTA (273) 52 61
+    OP_DIV (274) 54
+    OP_DIVENT (275) 55
+    OP_MENOR (276) 56
+    OP_MAYOR (277) 57
+    OP_EQ (278) 58
+    OP_AND (279) 59
+    OP_OR (280) 60
+    OP_NEG (281) 62
+    OP_ASIG (282) 31
+    PUNTO_COMA (283) 7 15 16 17 18 31 32 35 36
+    PAR_IZQ (284) 11 12 13 14 15 16 17 18 33 34 42 43 63
+    PAR_DER (285) 11 12 13 14 15 16 17 18 33 34 42 43 63
+    LLAVE_IZQ (286) 23
+    LLAVE_DER (287) 23
+    COMA (288) 9 20 45
+    SIGNO_MENOS (289)
 
 
 Nonterminals, with rules where they appear
 
-    $accept (34)
+    $accept (35)
         on left: 0
-    P <nodo> (35)
+    P <nodo> (36)
         on left: 1
         on right: 0
-    DECLS <nodo> (36)
+    DECLS <nodo> (37)
         on left: 2 3
         on right: 1 2
-    DECL <nodo> (37)
-        on left: 4 5
+    DECL <nodo> (38)
+        on left: 4 5 6
         on right: 2
-    VAR <nodo> (38)
-        on left: 6
-        on right: 4 19
-    IDS <nodo> (39)
+    VAR <nodo> (39)
         on left: 7
-        on right: 6 8
-    ID_PRIMA <nodo> (40)
-        on left: 8 9
-        on right: 7
-    METHOD <nodo> (41)
-        on left: 10 11 12 13
+        on right: 4 24
+    IDS <nodo> (40)
+        on left: 8
+        on right: 7 9
+    ID_PRIMA <nodo> (41)
+        on left: 9 10
+        on right: 8
+    METHOD <nodo> (42)
+        on left: 11 12 13 14
         on right: 5
-    PARAMS <nodo> (42)
-        on left: 14
-        on right: 10 11 15
-    PARAMS_PRIMA <nodo> (43)
-        on left: 15 16
-        on right: 14
-    PARAM <nodo> (44)
-        on left: 17
-        on right: 14
-    BLOQUE <nodo> (45)
-        on left: 18
-        on right: 10 11 12 13 28 29 32 33
-    VAR_DECL <nodo> (46)
-        on left: 19 20
-        on right: 18 19
-    STATEMENTS <nodo> (47)
-        on left: 21 22
-        on right: 18 21
-    TYPE <nodo> (48)
-        on left: 23 24 25
-        on right: 6 10 12 17
-    STATEMENT <nodo> (49)
-        on left: 26 27 28 29 30 31 32
-        on right: 21
-    OPTIONAL_ELSE <nodo> (50)
-        on left: 33 34
-        on right: 28
-    OPTIONAL_EXPR <nodo> (51)
-        on left: 35 36
-        on right: 30
-    METHOD_CALL <nodo> (52)
-        on left: 37 38
-        on right: 27 44
-    ARGS <nodo> (53)
-        on left: 39
-        on right: 37 40
-    ARGS_PRIMA <nodo> (54)
+    EXTERN_DECL <nodo> (43)
+        on left: 15 16 17 18
+        on right: 6
+    PARAMS <nodo> (44)
+        on left: 19
+        on right: 11 12 15 16 20
+    PARAMS_PRIMA <nodo> (45)
+        on left: 20 21
+        on right: 19
+    PARAM <nodo> (46)
+        on left: 22
+        on right: 19
+    BLOQUE <nodo> (47)
+        on left: 23
+        on right: 11 12 13 14 33 34 37 38
+    VAR_DECL <nodo> (48)
+        on left: 24 25
+        on right: 23 24
+    STATEMENTS <nodo> (49)
+        on left: 26 27
+        on right: 23 26
+    TYPE <nodo> (50)
+        on left: 28 29 30
+        on right: 7 11 13 15 17 22
+    STATEMENT <nodo> (51)
+        on left: 31 32 33 34 35 36 37
+        on right: 26
+    OPTIONAL_ELSE <nodo> (52)
+        on left: 38 39
+        on right: 33
+    OPTIONAL_EXPR <nodo> (53)
         on left: 40 41
-        on right: 39
-    ARG <nodo> (55)
-        on left: 42
-        on right: 39
-    EXPR <nodo> (56)
-        on left: 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58
-        on right: 26 28 29 35 42 46 47 48 49 50 51 52 53 54 55 56 57 58
-    LITERAL <nodo> (57)
-        on left: 59 60 61
-        on right: 45
+        on right: 35
+    METHOD_CALL <nodo> (54)
+        on left: 42 43
+        on right: 32 49
+    ARGS <nodo> (55)
+        on left: 44
+        on right: 42 45
+    ARGS_PRIMA <nodo> (56)
+        on left: 45 46
+        on right: 44
+    ARG <nodo> (57)
+        on left: 47
+        on right: 44
+    EXPR <nodo> (58)
+        on left: 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63
+        on right: 31 33 34 40 47 51 52 53 54 55 56 57 58 59 60 61 62 63
+    LITERAL <nodo> (59)
+        on left: 64 65 66
+        on right: 50
 
 
 State 0
@@ -204,1438 +214,1596 @@ State 0
     0 $accept: • P $end
 
     BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    VOID     shift, and go to state 3
-    FLOAT    shift, and go to state 4
+    EXTERN   shift, and go to state 2
+    INT      shift, and go to state 3
+    VOID     shift, and go to state 4
+    FLOAT    shift, and go to state 5
 
     $default  reduce using rule 3 (DECLS)
 
-    P       go to state 5
-    DECLS   go to state 6
-    DECL    go to state 7
-    VAR     go to state 8
-    METHOD  go to state 9
-    TYPE    go to state 10
+    P            go to state 6
+    DECLS        go to state 7
+    DECL         go to state 8
+    VAR          go to state 9
+    METHOD       go to state 10
+    EXTERN_DECL  go to state 11
+    TYPE         go to state 12
 
 
 State 1
 
-   25 TYPE: BOOLEAN •
+   30 TYPE: BOOLEAN •
 
-    $default  reduce using rule 25 (TYPE)
+    $default  reduce using rule 30 (TYPE)
 
 
 State 2
 
-   23 TYPE: INT •
+   15 EXTERN_DECL: EXTERN • TYPE ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   16            | EXTERN • VOID ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   17            | EXTERN • TYPE ID PAR_IZQ PAR_DER PUNTO_COMA
+   18            | EXTERN • VOID ID PAR_IZQ PAR_DER PUNTO_COMA
 
-    $default  reduce using rule 23 (TYPE)
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    VOID     shift, and go to state 13
+    FLOAT    shift, and go to state 5
+
+    TYPE  go to state 14
 
 
 State 3
 
-   11 METHOD: VOID • ID PAR_IZQ PARAMS PAR_DER BLOQUE
-   13       | VOID • ID PAR_IZQ PAR_DER BLOQUE
+   28 TYPE: INT •
 
-    ID  shift, and go to state 11
+    $default  reduce using rule 28 (TYPE)
 
 
 State 4
 
-   24 TYPE: FLOAT •
+   12 METHOD: VOID • ID PAR_IZQ PARAMS PAR_DER BLOQUE
+   14       | VOID • ID PAR_IZQ PAR_DER BLOQUE
 
-    $default  reduce using rule 24 (TYPE)
+    ID  shift, and go to state 15
 
 
 State 5
 
-    0 $accept: P • $end
+   29 TYPE: FLOAT •
 
-    $end  shift, and go to state 12
+    $default  reduce using rule 29 (TYPE)
 
 
 State 6
+
+    0 $accept: P • $end
+
+    $end  shift, and go to state 16
+
+
+State 7
 
     1 P: DECLS •
 
     $default  reduce using rule 1 (P)
 
 
-State 7
+State 8
 
     2 DECLS: DECL • DECLS
 
     BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    VOID     shift, and go to state 3
-    FLOAT    shift, and go to state 4
+    EXTERN   shift, and go to state 2
+    INT      shift, and go to state 3
+    VOID     shift, and go to state 4
+    FLOAT    shift, and go to state 5
 
     $default  reduce using rule 3 (DECLS)
 
-    DECLS   go to state 13
-    DECL    go to state 7
-    VAR     go to state 8
-    METHOD  go to state 9
-    TYPE    go to state 10
+    DECLS        go to state 17
+    DECL         go to state 8
+    VAR          go to state 9
+    METHOD       go to state 10
+    EXTERN_DECL  go to state 11
+    TYPE         go to state 12
 
 
-State 8
+State 9
 
     4 DECL: VAR •
 
     $default  reduce using rule 4 (DECL)
 
 
-State 9
+State 10
 
     5 DECL: METHOD •
 
     $default  reduce using rule 5 (DECL)
 
 
-State 10
-
-    6 VAR: TYPE • IDS PUNTO_COMA
-   10 METHOD: TYPE • ID PAR_IZQ PARAMS PAR_DER BLOQUE
-   12       | TYPE • ID PAR_IZQ PAR_DER BLOQUE
-
-    ID  shift, and go to state 14
-
-    IDS  go to state 15
-
-
 State 11
 
-   11 METHOD: VOID ID • PAR_IZQ PARAMS PAR_DER BLOQUE
-   13       | VOID ID • PAR_IZQ PAR_DER BLOQUE
+    6 DECL: EXTERN_DECL •
 
-    PAR_IZQ  shift, and go to state 16
+    $default  reduce using rule 6 (DECL)
 
 
 State 12
+
+    7 VAR: TYPE • IDS PUNTO_COMA
+   11 METHOD: TYPE • ID PAR_IZQ PARAMS PAR_DER BLOQUE
+   13       | TYPE • ID PAR_IZQ PAR_DER BLOQUE
+
+    ID  shift, and go to state 18
+
+    IDS  go to state 19
+
+
+State 13
+
+   16 EXTERN_DECL: EXTERN VOID • ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   18            | EXTERN VOID • ID PAR_IZQ PAR_DER PUNTO_COMA
+
+    ID  shift, and go to state 20
+
+
+State 14
+
+   15 EXTERN_DECL: EXTERN TYPE • ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   17            | EXTERN TYPE • ID PAR_IZQ PAR_DER PUNTO_COMA
+
+    ID  shift, and go to state 21
+
+
+State 15
+
+   12 METHOD: VOID ID • PAR_IZQ PARAMS PAR_DER BLOQUE
+   14       | VOID ID • PAR_IZQ PAR_DER BLOQUE
+
+    PAR_IZQ  shift, and go to state 22
+
+
+State 16
 
     0 $accept: P $end •
 
     $default  accept
 
 
-State 13
+State 17
 
     2 DECLS: DECL DECLS •
 
     $default  reduce using rule 2 (DECLS)
 
 
-State 14
-
-    7 IDS: ID • ID_PRIMA
-   10 METHOD: TYPE ID • PAR_IZQ PARAMS PAR_DER BLOQUE
-   12       | TYPE ID • PAR_IZQ PAR_DER BLOQUE
-
-    PAR_IZQ  shift, and go to state 17
-    COMA     shift, and go to state 18
-
-    $default  reduce using rule 9 (ID_PRIMA)
-
-    ID_PRIMA  go to state 19
-
-
-State 15
-
-    6 VAR: TYPE IDS • PUNTO_COMA
-
-    PUNTO_COMA  shift, and go to state 20
-
-
-State 16
-
-   11 METHOD: VOID ID PAR_IZQ • PARAMS PAR_DER BLOQUE
-   13       | VOID ID PAR_IZQ • PAR_DER BLOQUE
-
-    BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    FLOAT    shift, and go to state 4
-    PAR_DER  shift, and go to state 21
-
-    PARAMS  go to state 22
-    PARAM   go to state 23
-    TYPE    go to state 24
-
-
-State 17
-
-   10 METHOD: TYPE ID PAR_IZQ • PARAMS PAR_DER BLOQUE
-   12       | TYPE ID PAR_IZQ • PAR_DER BLOQUE
-
-    BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    FLOAT    shift, and go to state 4
-    PAR_DER  shift, and go to state 25
-
-    PARAMS  go to state 26
-    PARAM   go to state 23
-    TYPE    go to state 24
-
-
 State 18
 
-    8 ID_PRIMA: COMA • IDS
+    8 IDS: ID • ID_PRIMA
+   11 METHOD: TYPE ID • PAR_IZQ PARAMS PAR_DER BLOQUE
+   13       | TYPE ID • PAR_IZQ PAR_DER BLOQUE
 
-    ID  shift, and go to state 27
+    PAR_IZQ  shift, and go to state 23
+    COMA     shift, and go to state 24
 
-    IDS  go to state 28
+    $default  reduce using rule 10 (ID_PRIMA)
+
+    ID_PRIMA  go to state 25
 
 
 State 19
 
-    7 IDS: ID ID_PRIMA •
+    7 VAR: TYPE IDS • PUNTO_COMA
 
-    $default  reduce using rule 7 (IDS)
+    PUNTO_COMA  shift, and go to state 26
 
 
 State 20
 
-    6 VAR: TYPE IDS PUNTO_COMA •
+   16 EXTERN_DECL: EXTERN VOID ID • PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   18            | EXTERN VOID ID • PAR_IZQ PAR_DER PUNTO_COMA
 
-    $default  reduce using rule 6 (VAR)
+    PAR_IZQ  shift, and go to state 27
 
 
 State 21
 
-   13 METHOD: VOID ID PAR_IZQ PAR_DER • BLOQUE
+   15 EXTERN_DECL: EXTERN TYPE ID • PAR_IZQ PARAMS PAR_DER PUNTO_COMA
+   17            | EXTERN TYPE ID • PAR_IZQ PAR_DER PUNTO_COMA
 
-    LLAVE_IZQ  shift, and go to state 29
-
-    BLOQUE  go to state 30
+    PAR_IZQ  shift, and go to state 28
 
 
 State 22
 
-   11 METHOD: VOID ID PAR_IZQ PARAMS • PAR_DER BLOQUE
+   12 METHOD: VOID ID PAR_IZQ • PARAMS PAR_DER BLOQUE
+   14       | VOID ID PAR_IZQ • PAR_DER BLOQUE
 
-    PAR_DER  shift, and go to state 31
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
+    PAR_DER  shift, and go to state 29
+
+    PARAMS  go to state 30
+    PARAM   go to state 31
+    TYPE    go to state 32
 
 
 State 23
 
-   14 PARAMS: PARAM • PARAMS_PRIMA
+   11 METHOD: TYPE ID PAR_IZQ • PARAMS PAR_DER BLOQUE
+   13       | TYPE ID PAR_IZQ • PAR_DER BLOQUE
 
-    COMA  shift, and go to state 32
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
+    PAR_DER  shift, and go to state 33
 
-    $default  reduce using rule 16 (PARAMS_PRIMA)
-
-    PARAMS_PRIMA  go to state 33
+    PARAMS  go to state 34
+    PARAM   go to state 31
+    TYPE    go to state 32
 
 
 State 24
 
-   17 PARAM: TYPE • ID
+    9 ID_PRIMA: COMA • IDS
 
-    ID  shift, and go to state 34
+    ID  shift, and go to state 35
+
+    IDS  go to state 36
 
 
 State 25
 
-   12 METHOD: TYPE ID PAR_IZQ PAR_DER • BLOQUE
+    8 IDS: ID ID_PRIMA •
 
-    LLAVE_IZQ  shift, and go to state 29
-
-    BLOQUE  go to state 35
+    $default  reduce using rule 8 (IDS)
 
 
 State 26
 
-   10 METHOD: TYPE ID PAR_IZQ PARAMS • PAR_DER BLOQUE
+    7 VAR: TYPE IDS PUNTO_COMA •
 
-    PAR_DER  shift, and go to state 36
+    $default  reduce using rule 7 (VAR)
 
 
 State 27
 
-    7 IDS: ID • ID_PRIMA
+   16 EXTERN_DECL: EXTERN VOID ID PAR_IZQ • PARAMS PAR_DER PUNTO_COMA
+   18            | EXTERN VOID ID PAR_IZQ • PAR_DER PUNTO_COMA
 
-    COMA  shift, and go to state 18
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
+    PAR_DER  shift, and go to state 37
 
-    $default  reduce using rule 9 (ID_PRIMA)
-
-    ID_PRIMA  go to state 19
+    PARAMS  go to state 38
+    PARAM   go to state 31
+    TYPE    go to state 32
 
 
 State 28
 
-    8 ID_PRIMA: COMA IDS •
+   15 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ • PARAMS PAR_DER PUNTO_COMA
+   17            | EXTERN TYPE ID PAR_IZQ • PAR_DER PUNTO_COMA
 
-    $default  reduce using rule 8 (ID_PRIMA)
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
+    PAR_DER  shift, and go to state 39
+
+    PARAMS  go to state 40
+    PARAM   go to state 31
+    TYPE    go to state 32
 
 
 State 29
 
-   18 BLOQUE: LLAVE_IZQ • VAR_DECL STATEMENTS LLAVE_DER
+   14 METHOD: VOID ID PAR_IZQ PAR_DER • BLOQUE
 
-    BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    FLOAT    shift, and go to state 4
-
-    $default  reduce using rule 20 (VAR_DECL)
-
-    VAR       go to state 37
-    VAR_DECL  go to state 38
-    TYPE      go to state 39
-
-
-State 30
-
-   13 METHOD: VOID ID PAR_IZQ PAR_DER BLOQUE •
-
-    $default  reduce using rule 13 (METHOD)
-
-
-State 31
-
-   11 METHOD: VOID ID PAR_IZQ PARAMS PAR_DER • BLOQUE
-
-    LLAVE_IZQ  shift, and go to state 29
-
-    BLOQUE  go to state 40
-
-
-State 32
-
-   15 PARAMS_PRIMA: COMA • PARAMS
-
-    BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    FLOAT    shift, and go to state 4
-
-    PARAMS  go to state 41
-    PARAM   go to state 23
-    TYPE    go to state 24
-
-
-State 33
-
-   14 PARAMS: PARAM PARAMS_PRIMA •
-
-    $default  reduce using rule 14 (PARAMS)
-
-
-State 34
-
-   17 PARAM: TYPE ID •
-
-    $default  reduce using rule 17 (PARAM)
-
-
-State 35
-
-   12 METHOD: TYPE ID PAR_IZQ PAR_DER BLOQUE •
-
-    $default  reduce using rule 12 (METHOD)
-
-
-State 36
-
-   10 METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER • BLOQUE
-
-    LLAVE_IZQ  shift, and go to state 29
+    LLAVE_IZQ  shift, and go to state 41
 
     BLOQUE  go to state 42
 
 
+State 30
+
+   12 METHOD: VOID ID PAR_IZQ PARAMS • PAR_DER BLOQUE
+
+    PAR_DER  shift, and go to state 43
+
+
+State 31
+
+   19 PARAMS: PARAM • PARAMS_PRIMA
+
+    COMA  shift, and go to state 44
+
+    $default  reduce using rule 21 (PARAMS_PRIMA)
+
+    PARAMS_PRIMA  go to state 45
+
+
+State 32
+
+   22 PARAM: TYPE • ID
+
+    ID  shift, and go to state 46
+
+
+State 33
+
+   13 METHOD: TYPE ID PAR_IZQ PAR_DER • BLOQUE
+
+    LLAVE_IZQ  shift, and go to state 41
+
+    BLOQUE  go to state 47
+
+
+State 34
+
+   11 METHOD: TYPE ID PAR_IZQ PARAMS • PAR_DER BLOQUE
+
+    PAR_DER  shift, and go to state 48
+
+
+State 35
+
+    8 IDS: ID • ID_PRIMA
+
+    COMA  shift, and go to state 24
+
+    $default  reduce using rule 10 (ID_PRIMA)
+
+    ID_PRIMA  go to state 25
+
+
+State 36
+
+    9 ID_PRIMA: COMA IDS •
+
+    $default  reduce using rule 9 (ID_PRIMA)
+
+
 State 37
 
-   19 VAR_DECL: VAR • VAR_DECL
+   18 EXTERN_DECL: EXTERN VOID ID PAR_IZQ PAR_DER • PUNTO_COMA
 
-    BOOLEAN  shift, and go to state 1
-    INT      shift, and go to state 2
-    FLOAT    shift, and go to state 4
-
-    $default  reduce using rule 20 (VAR_DECL)
-
-    VAR       go to state 37
-    VAR_DECL  go to state 43
-    TYPE      go to state 39
+    PUNTO_COMA  shift, and go to state 49
 
 
 State 38
 
-   18 BLOQUE: LLAVE_IZQ VAR_DECL • STATEMENTS LLAVE_DER
+   16 EXTERN_DECL: EXTERN VOID ID PAR_IZQ PARAMS • PAR_DER PUNTO_COMA
 
-    IF          shift, and go to state 44
-    RETURN      shift, and go to state 45
-    WHILE       shift, and go to state 46
-    ID          shift, and go to state 47
-    PUNTO_COMA  shift, and go to state 48
-    LLAVE_IZQ   shift, and go to state 29
-
-    $default  reduce using rule 22 (STATEMENTS)
-
-    BLOQUE       go to state 49
-    STATEMENTS   go to state 50
-    STATEMENT    go to state 51
-    METHOD_CALL  go to state 52
+    PAR_DER  shift, and go to state 50
 
 
 State 39
 
-    6 VAR: TYPE • IDS PUNTO_COMA
+   17 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ PAR_DER • PUNTO_COMA
 
-    ID  shift, and go to state 27
-
-    IDS  go to state 15
+    PUNTO_COMA  shift, and go to state 51
 
 
 State 40
 
-   11 METHOD: VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE •
+   15 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ PARAMS • PAR_DER PUNTO_COMA
 
-    $default  reduce using rule 11 (METHOD)
+    PAR_DER  shift, and go to state 52
 
 
 State 41
 
-   15 PARAMS_PRIMA: COMA PARAMS •
+   23 BLOQUE: LLAVE_IZQ • VAR_DECL STATEMENTS LLAVE_DER
 
-    $default  reduce using rule 15 (PARAMS_PRIMA)
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
+
+    $default  reduce using rule 25 (VAR_DECL)
+
+    VAR       go to state 53
+    VAR_DECL  go to state 54
+    TYPE      go to state 55
 
 
 State 42
 
-   10 METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE •
+   14 METHOD: VOID ID PAR_IZQ PAR_DER BLOQUE •
 
-    $default  reduce using rule 10 (METHOD)
+    $default  reduce using rule 14 (METHOD)
 
 
 State 43
 
-   19 VAR_DECL: VAR VAR_DECL •
+   12 METHOD: VOID ID PAR_IZQ PARAMS PAR_DER • BLOQUE
 
-    $default  reduce using rule 19 (VAR_DECL)
+    LLAVE_IZQ  shift, and go to state 41
+
+    BLOQUE  go to state 56
 
 
 State 44
 
-   28 STATEMENT: IF • PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE
+   20 PARAMS_PRIMA: COMA • PARAMS
 
-    PAR_IZQ  shift, and go to state 53
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
+
+    PARAMS  go to state 57
+    PARAM   go to state 31
+    TYPE    go to state 32
 
 
 State 45
 
-   30 STATEMENT: RETURN • OPTIONAL_EXPR PUNTO_COMA
+   19 PARAMS: PARAM PARAMS_PRIMA •
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    $default  reduce using rule 36 (OPTIONAL_EXPR)
-
-    OPTIONAL_EXPR  go to state 61
-    METHOD_CALL    go to state 62
-    EXPR           go to state 63
-    LITERAL        go to state 64
+    $default  reduce using rule 19 (PARAMS)
 
 
 State 46
 
-   29 STATEMENT: WHILE • PAR_IZQ EXPR PAR_DER BLOQUE
+   22 PARAM: TYPE ID •
 
-    PAR_IZQ  shift, and go to state 65
+    $default  reduce using rule 22 (PARAM)
 
 
 State 47
 
-   26 STATEMENT: ID • OP_ASIG EXPR PUNTO_COMA
-   37 METHOD_CALL: ID • PAR_IZQ ARGS PAR_DER
-   38            | ID • PAR_IZQ PAR_DER
+   13 METHOD: TYPE ID PAR_IZQ PAR_DER BLOQUE •
 
-    OP_ASIG  shift, and go to state 66
-    PAR_IZQ  shift, and go to state 67
+    $default  reduce using rule 13 (METHOD)
 
 
 State 48
 
-   31 STATEMENT: PUNTO_COMA •
+   11 METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER • BLOQUE
 
-    $default  reduce using rule 31 (STATEMENT)
+    LLAVE_IZQ  shift, and go to state 41
+
+    BLOQUE  go to state 58
 
 
 State 49
 
-   32 STATEMENT: BLOQUE •
+   18 EXTERN_DECL: EXTERN VOID ID PAR_IZQ PAR_DER PUNTO_COMA •
 
-    $default  reduce using rule 32 (STATEMENT)
+    $default  reduce using rule 18 (EXTERN_DECL)
 
 
 State 50
 
-   18 BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS • LLAVE_DER
+   16 EXTERN_DECL: EXTERN VOID ID PAR_IZQ PARAMS PAR_DER • PUNTO_COMA
 
-    LLAVE_DER  shift, and go to state 68
+    PUNTO_COMA  shift, and go to state 59
 
 
 State 51
 
-   21 STATEMENTS: STATEMENT • STATEMENTS
+   17 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ PAR_DER PUNTO_COMA •
 
-    IF          shift, and go to state 44
-    RETURN      shift, and go to state 45
-    WHILE       shift, and go to state 46
-    ID          shift, and go to state 47
-    PUNTO_COMA  shift, and go to state 48
-    LLAVE_IZQ   shift, and go to state 29
-
-    $default  reduce using rule 22 (STATEMENTS)
-
-    BLOQUE       go to state 49
-    STATEMENTS   go to state 69
-    STATEMENT    go to state 51
-    METHOD_CALL  go to state 52
+    $default  reduce using rule 17 (EXTERN_DECL)
 
 
 State 52
 
-   27 STATEMENT: METHOD_CALL • PUNTO_COMA
+   15 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ PARAMS PAR_DER • PUNTO_COMA
 
-    PUNTO_COMA  shift, and go to state 70
+    PUNTO_COMA  shift, and go to state 60
 
 
 State 53
 
-   28 STATEMENT: IF PAR_IZQ • EXPR PAR_DER BLOQUE OPTIONAL_ELSE
+   24 VAR_DECL: VAR • VAR_DECL
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
+    BOOLEAN  shift, and go to state 1
+    INT      shift, and go to state 3
+    FLOAT    shift, and go to state 5
 
-    METHOD_CALL  go to state 62
-    EXPR         go to state 71
-    LITERAL      go to state 64
+    $default  reduce using rule 25 (VAR_DECL)
+
+    VAR       go to state 53
+    VAR_DECL  go to state 61
+    TYPE      go to state 55
 
 
 State 54
 
-   60 LITERAL: CTE_LOGICA •
+   23 BLOQUE: LLAVE_IZQ VAR_DECL • STATEMENTS LLAVE_DER
 
-    $default  reduce using rule 60 (LITERAL)
+    IF          shift, and go to state 62
+    RETURN      shift, and go to state 63
+    WHILE       shift, and go to state 64
+    ID          shift, and go to state 65
+    PUNTO_COMA  shift, and go to state 66
+    LLAVE_IZQ   shift, and go to state 41
+
+    $default  reduce using rule 27 (STATEMENTS)
+
+    BLOQUE       go to state 67
+    STATEMENTS   go to state 68
+    STATEMENT    go to state 69
+    METHOD_CALL  go to state 70
 
 
 State 55
 
-   59 LITERAL: CTE_ENTERA •
+    7 VAR: TYPE • IDS PUNTO_COMA
 
-    $default  reduce using rule 59 (LITERAL)
+    ID  shift, and go to state 35
+
+    IDS  go to state 19
 
 
 State 56
 
-   61 LITERAL: CTE_FLOAT •
+   12 METHOD: VOID ID PAR_IZQ PARAMS PAR_DER BLOQUE •
 
-    $default  reduce using rule 61 (LITERAL)
+    $default  reduce using rule 12 (METHOD)
 
 
 State 57
 
-   37 METHOD_CALL: ID • PAR_IZQ ARGS PAR_DER
-   38            | ID • PAR_IZQ PAR_DER
-   43 EXPR: ID •
+   20 PARAMS_PRIMA: COMA PARAMS •
 
-    PAR_IZQ  shift, and go to state 67
-
-    $default  reduce using rule 43 (EXPR)
+    $default  reduce using rule 20 (PARAMS_PRIMA)
 
 
 State 58
 
-   56 EXPR: OP_RESTA • EXPR
+   11 METHOD: TYPE ID PAR_IZQ PARAMS PAR_DER BLOQUE •
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 72
-    LITERAL      go to state 64
+    $default  reduce using rule 11 (METHOD)
 
 
 State 59
 
-   57 EXPR: OP_NEG • EXPR
+   16 EXTERN_DECL: EXTERN VOID ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA •
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 73
-    LITERAL      go to state 64
+    $default  reduce using rule 16 (EXTERN_DECL)
 
 
 State 60
 
-   58 EXPR: PAR_IZQ • EXPR PAR_DER
+   15 EXTERN_DECL: EXTERN TYPE ID PAR_IZQ PARAMS PAR_DER PUNTO_COMA •
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 74
-    LITERAL      go to state 64
+    $default  reduce using rule 15 (EXTERN_DECL)
 
 
 State 61
 
-   30 STATEMENT: RETURN OPTIONAL_EXPR • PUNTO_COMA
+   24 VAR_DECL: VAR VAR_DECL •
 
-    PUNTO_COMA  shift, and go to state 75
+    $default  reduce using rule 24 (VAR_DECL)
 
 
 State 62
 
-   44 EXPR: METHOD_CALL •
+   33 STATEMENT: IF • PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE
 
-    $default  reduce using rule 44 (EXPR)
+    PAR_IZQ  shift, and go to state 71
 
 
 State 63
 
-   35 OPTIONAL_EXPR: EXPR •
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   35 STATEMENT: RETURN • OPTIONAL_EXPR PUNTO_COMA
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
-    OP_AND     shift, and go to state 84
-    OP_OR      shift, and go to state 85
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
 
-    $default  reduce using rule 35 (OPTIONAL_EXPR)
+    $default  reduce using rule 41 (OPTIONAL_EXPR)
+
+    OPTIONAL_EXPR  go to state 79
+    METHOD_CALL    go to state 80
+    EXPR           go to state 81
+    LITERAL        go to state 82
 
 
 State 64
 
-   45 EXPR: LITERAL •
+   34 STATEMENT: WHILE • PAR_IZQ EXPR PAR_DER BLOQUE
 
-    $default  reduce using rule 45 (EXPR)
+    PAR_IZQ  shift, and go to state 83
 
 
 State 65
 
-   29 STATEMENT: WHILE PAR_IZQ • EXPR PAR_DER BLOQUE
+   31 STATEMENT: ID • OP_ASIG EXPR PUNTO_COMA
+   42 METHOD_CALL: ID • PAR_IZQ ARGS PAR_DER
+   43            | ID • PAR_IZQ PAR_DER
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 86
-    LITERAL      go to state 64
+    OP_ASIG  shift, and go to state 84
+    PAR_IZQ  shift, and go to state 85
 
 
 State 66
 
-   26 STATEMENT: ID OP_ASIG • EXPR PUNTO_COMA
+   36 STATEMENT: PUNTO_COMA •
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 87
-    LITERAL      go to state 64
+    $default  reduce using rule 36 (STATEMENT)
 
 
 State 67
 
-   37 METHOD_CALL: ID PAR_IZQ • ARGS PAR_DER
-   38            | ID PAR_IZQ • PAR_DER
+   37 STATEMENT: BLOQUE •
 
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-    PAR_DER     shift, and go to state 88
-
-    METHOD_CALL  go to state 62
-    ARGS         go to state 89
-    ARG          go to state 90
-    EXPR         go to state 91
-    LITERAL      go to state 64
+    $default  reduce using rule 37 (STATEMENT)
 
 
 State 68
 
-   18 BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER •
+   23 BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS • LLAVE_DER
 
-    $default  reduce using rule 18 (BLOQUE)
+    LLAVE_DER  shift, and go to state 86
 
 
 State 69
 
-   21 STATEMENTS: STATEMENT STATEMENTS •
+   26 STATEMENTS: STATEMENT • STATEMENTS
 
-    $default  reduce using rule 21 (STATEMENTS)
+    IF          shift, and go to state 62
+    RETURN      shift, and go to state 63
+    WHILE       shift, and go to state 64
+    ID          shift, and go to state 65
+    PUNTO_COMA  shift, and go to state 66
+    LLAVE_IZQ   shift, and go to state 41
+
+    $default  reduce using rule 27 (STATEMENTS)
+
+    BLOQUE       go to state 67
+    STATEMENTS   go to state 87
+    STATEMENT    go to state 69
+    METHOD_CALL  go to state 70
 
 
 State 70
 
-   27 STATEMENT: METHOD_CALL PUNTO_COMA •
+   32 STATEMENT: METHOD_CALL • PUNTO_COMA
 
-    $default  reduce using rule 27 (STATEMENT)
+    PUNTO_COMA  shift, and go to state 88
 
 
 State 71
 
-   28 STATEMENT: IF PAR_IZQ EXPR • PAR_DER BLOQUE OPTIONAL_ELSE
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   33 STATEMENT: IF PAR_IZQ • EXPR PAR_DER BLOQUE OPTIONAL_ELSE
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
-    OP_AND     shift, and go to state 84
-    OP_OR      shift, and go to state 85
-    PAR_DER    shift, and go to state 92
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 89
+    LITERAL      go to state 82
 
 
 State 72
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-   56     | OP_RESTA EXPR •
+   65 LITERAL: CTE_LOGICA •
 
-    $default  reduce using rule 56 (EXPR)
+    $default  reduce using rule 65 (LITERAL)
 
 
 State 73
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-   57     | OP_NEG EXPR •
+   64 LITERAL: CTE_ENTERA •
 
-    $default  reduce using rule 57 (EXPR)
+    $default  reduce using rule 64 (LITERAL)
 
 
 State 74
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-   58     | PAR_IZQ EXPR • PAR_DER
+   66 LITERAL: CTE_FLOAT •
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
-    OP_AND     shift, and go to state 84
-    OP_OR      shift, and go to state 85
-    PAR_DER    shift, and go to state 93
+    $default  reduce using rule 66 (LITERAL)
 
 
 State 75
 
-   30 STATEMENT: RETURN OPTIONAL_EXPR PUNTO_COMA •
-
-    $default  reduce using rule 30 (STATEMENT)
-
-
-State 76
-
-   46 EXPR: EXPR OP_SUMA • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 94
-    LITERAL      go to state 64
-
-
-State 77
-
-   48 EXPR: EXPR OP_PROD • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 95
-    LITERAL      go to state 64
-
-
-State 78
-
-   47 EXPR: EXPR OP_RESTA • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 96
-    LITERAL      go to state 64
-
-
-State 79
-
-   49 EXPR: EXPR OP_DIV • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 97
-    LITERAL      go to state 64
-
-
-State 80
-
-   50 EXPR: EXPR OP_DIVENT • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 98
-    LITERAL      go to state 64
-
-
-State 81
-
-   51 EXPR: EXPR OP_MENOR • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 99
-    LITERAL      go to state 64
-
-
-State 82
-
-   52 EXPR: EXPR OP_MAYOR • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 100
-    LITERAL      go to state 64
-
-
-State 83
-
-   53 EXPR: EXPR OP_EQ • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 101
-    LITERAL      go to state 64
-
-
-State 84
-
-   54 EXPR: EXPR OP_AND • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 102
-    LITERAL      go to state 64
-
-
-State 85
-
-   55 EXPR: EXPR OP_OR • EXPR
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    EXPR         go to state 103
-    LITERAL      go to state 64
-
-
-State 86
-
-   29 STATEMENT: WHILE PAR_IZQ EXPR • PAR_DER BLOQUE
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
-    OP_AND     shift, and go to state 84
-    OP_OR      shift, and go to state 85
-    PAR_DER    shift, and go to state 104
-
-
-State 87
-
-   26 STATEMENT: ID OP_ASIG EXPR • PUNTO_COMA
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-
-    OP_SUMA     shift, and go to state 76
-    OP_PROD     shift, and go to state 77
-    OP_RESTA    shift, and go to state 78
-    OP_DIV      shift, and go to state 79
-    OP_DIVENT   shift, and go to state 80
-    OP_MENOR    shift, and go to state 81
-    OP_MAYOR    shift, and go to state 82
-    OP_EQ       shift, and go to state 83
-    OP_AND      shift, and go to state 84
-    OP_OR       shift, and go to state 85
-    PUNTO_COMA  shift, and go to state 105
-
-
-State 88
-
-   38 METHOD_CALL: ID PAR_IZQ PAR_DER •
-
-    $default  reduce using rule 38 (METHOD_CALL)
-
-
-State 89
-
-   37 METHOD_CALL: ID PAR_IZQ ARGS • PAR_DER
-
-    PAR_DER  shift, and go to state 106
-
-
-State 90
-
-   39 ARGS: ARG • ARGS_PRIMA
-
-    COMA  shift, and go to state 107
-
-    $default  reduce using rule 41 (ARGS_PRIMA)
-
-    ARGS_PRIMA  go to state 108
-
-
-State 91
-
-   42 ARG: EXPR •
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
-    OP_AND     shift, and go to state 84
-    OP_OR      shift, and go to state 85
-
-    $default  reduce using rule 42 (ARG)
-
-
-State 92
-
-   28 STATEMENT: IF PAR_IZQ EXPR PAR_DER • BLOQUE OPTIONAL_ELSE
-
-    LLAVE_IZQ  shift, and go to state 29
-
-    BLOQUE  go to state 109
-
-
-State 93
-
-   58 EXPR: PAR_IZQ EXPR PAR_DER •
-
-    $default  reduce using rule 58 (EXPR)
-
-
-State 94
-
-   46 EXPR: EXPR • OP_SUMA EXPR
-   46     | EXPR OP_SUMA EXPR •
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-
-    OP_PROD    shift, and go to state 77
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-
-    $default  reduce using rule 46 (EXPR)
-
-
-State 95
-
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   48     | EXPR OP_PROD EXPR •
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   42 METHOD_CALL: ID • PAR_IZQ ARGS PAR_DER
+   43            | ID • PAR_IZQ PAR_DER
+   48 EXPR: ID •
+
+    PAR_IZQ  shift, and go to state 85
 
     $default  reduce using rule 48 (EXPR)
 
 
-State 96
+State 76
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   47     | EXPR OP_RESTA EXPR •
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   61 EXPR: OP_RESTA • EXPR
 
-    OP_PROD    shift, and go to state 77
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
 
-    $default  reduce using rule 47 (EXPR)
+    METHOD_CALL  go to state 80
+    EXPR         go to state 90
+    LITERAL      go to state 82
 
 
-State 97
+State 77
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   49     | EXPR OP_DIV EXPR •
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   62 EXPR: OP_NEG • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 91
+    LITERAL      go to state 82
+
+
+State 78
+
+   63 EXPR: PAR_IZQ • EXPR PAR_DER
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 92
+    LITERAL      go to state 82
+
+
+State 79
+
+   35 STATEMENT: RETURN OPTIONAL_EXPR • PUNTO_COMA
+
+    PUNTO_COMA  shift, and go to state 93
+
+
+State 80
+
+   49 EXPR: METHOD_CALL •
 
     $default  reduce using rule 49 (EXPR)
 
 
-State 98
+State 81
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   50     | EXPR OP_DIVENT EXPR •
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   40 OPTIONAL_EXPR: EXPR •
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
+    OP_AND     shift, and go to state 102
+    OP_OR      shift, and go to state 103
+
+    $default  reduce using rule 40 (OPTIONAL_EXPR)
+
+
+State 82
+
+   50 EXPR: LITERAL •
 
     $default  reduce using rule 50 (EXPR)
 
 
+State 83
+
+   34 STATEMENT: WHILE PAR_IZQ • EXPR PAR_DER BLOQUE
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 104
+    LITERAL      go to state 82
+
+
+State 84
+
+   31 STATEMENT: ID OP_ASIG • EXPR PUNTO_COMA
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 105
+    LITERAL      go to state 82
+
+
+State 85
+
+   42 METHOD_CALL: ID PAR_IZQ • ARGS PAR_DER
+   43            | ID PAR_IZQ • PAR_DER
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+    PAR_DER     shift, and go to state 106
+
+    METHOD_CALL  go to state 80
+    ARGS         go to state 107
+    ARG          go to state 108
+    EXPR         go to state 109
+    LITERAL      go to state 82
+
+
+State 86
+
+   23 BLOQUE: LLAVE_IZQ VAR_DECL STATEMENTS LLAVE_DER •
+
+    $default  reduce using rule 23 (BLOQUE)
+
+
+State 87
+
+   26 STATEMENTS: STATEMENT STATEMENTS •
+
+    $default  reduce using rule 26 (STATEMENTS)
+
+
+State 88
+
+   32 STATEMENT: METHOD_CALL PUNTO_COMA •
+
+    $default  reduce using rule 32 (STATEMENT)
+
+
+State 89
+
+   33 STATEMENT: IF PAR_IZQ EXPR • PAR_DER BLOQUE OPTIONAL_ELSE
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
+    OP_AND     shift, and go to state 102
+    OP_OR      shift, and go to state 103
+    PAR_DER    shift, and go to state 110
+
+
+State 90
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+   61     | OP_RESTA EXPR •
+
+    $default  reduce using rule 61 (EXPR)
+
+
+State 91
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+   62     | OP_NEG EXPR •
+
+    $default  reduce using rule 62 (EXPR)
+
+
+State 92
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+   63     | PAR_IZQ EXPR • PAR_DER
+
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
+    OP_AND     shift, and go to state 102
+    OP_OR      shift, and go to state 103
+    PAR_DER    shift, and go to state 111
+
+
+State 93
+
+   35 STATEMENT: RETURN OPTIONAL_EXPR PUNTO_COMA •
+
+    $default  reduce using rule 35 (STATEMENT)
+
+
+State 94
+
+   51 EXPR: EXPR OP_SUMA • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 112
+    LITERAL      go to state 82
+
+
+State 95
+
+   53 EXPR: EXPR OP_PROD • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 113
+    LITERAL      go to state 82
+
+
+State 96
+
+   52 EXPR: EXPR OP_RESTA • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 114
+    LITERAL      go to state 82
+
+
+State 97
+
+   54 EXPR: EXPR OP_DIV • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 115
+    LITERAL      go to state 82
+
+
+State 98
+
+   55 EXPR: EXPR OP_DIVENT • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 116
+    LITERAL      go to state 82
+
+
 State 99
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   51     | EXPR OP_MENOR EXPR •
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   56 EXPR: EXPR OP_MENOR • EXPR
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
 
-    OP_MENOR  error (nonassociative)
-    OP_MAYOR  error (nonassociative)
-    OP_EQ     error (nonassociative)
-
-    $default  reduce using rule 51 (EXPR)
+    METHOD_CALL  go to state 80
+    EXPR         go to state 117
+    LITERAL      go to state 82
 
 
 State 100
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   52     | EXPR OP_MAYOR EXPR •
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   57 EXPR: EXPR OP_MAYOR • EXPR
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
 
-    OP_MENOR  error (nonassociative)
-    OP_MAYOR  error (nonassociative)
-    OP_EQ     error (nonassociative)
-
-    $default  reduce using rule 52 (EXPR)
+    METHOD_CALL  go to state 80
+    EXPR         go to state 118
+    LITERAL      go to state 82
 
 
 State 101
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   53     | EXPR OP_EQ EXPR •
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
+   58 EXPR: EXPR OP_EQ • EXPR
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 119
+    LITERAL      go to state 82
+
+
+State 102
+
+   59 EXPR: EXPR OP_AND • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 120
+    LITERAL      go to state 82
+
+
+State 103
+
+   60 EXPR: EXPR OP_OR • EXPR
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    EXPR         go to state 121
+    LITERAL      go to state 82
+
+
+State 104
+
+   34 STATEMENT: WHILE PAR_IZQ EXPR • PAR_DER BLOQUE
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
+    OP_AND     shift, and go to state 102
+    OP_OR      shift, and go to state 103
+    PAR_DER    shift, and go to state 122
+
+
+State 105
+
+   31 STATEMENT: ID OP_ASIG EXPR • PUNTO_COMA
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_SUMA     shift, and go to state 94
+    OP_PROD     shift, and go to state 95
+    OP_RESTA    shift, and go to state 96
+    OP_DIV      shift, and go to state 97
+    OP_DIVENT   shift, and go to state 98
+    OP_MENOR    shift, and go to state 99
+    OP_MAYOR    shift, and go to state 100
+    OP_EQ       shift, and go to state 101
+    OP_AND      shift, and go to state 102
+    OP_OR       shift, and go to state 103
+    PUNTO_COMA  shift, and go to state 123
+
+
+State 106
+
+   43 METHOD_CALL: ID PAR_IZQ PAR_DER •
+
+    $default  reduce using rule 43 (METHOD_CALL)
+
+
+State 107
+
+   42 METHOD_CALL: ID PAR_IZQ ARGS • PAR_DER
+
+    PAR_DER  shift, and go to state 124
+
+
+State 108
+
+   44 ARGS: ARG • ARGS_PRIMA
+
+    COMA  shift, and go to state 125
+
+    $default  reduce using rule 46 (ARGS_PRIMA)
+
+    ARGS_PRIMA  go to state 126
+
+
+State 109
+
+   47 ARG: EXPR •
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
+    OP_AND     shift, and go to state 102
+    OP_OR      shift, and go to state 103
+
+    $default  reduce using rule 47 (ARG)
+
+
+State 110
+
+   33 STATEMENT: IF PAR_IZQ EXPR PAR_DER • BLOQUE OPTIONAL_ELSE
+
+    LLAVE_IZQ  shift, and go to state 41
+
+    BLOQUE  go to state 127
+
+
+State 111
+
+   63 EXPR: PAR_IZQ EXPR PAR_DER •
+
+    $default  reduce using rule 63 (EXPR)
+
+
+State 112
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   51     | EXPR OP_SUMA EXPR •
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_PROD    shift, and go to state 95
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+
+    $default  reduce using rule 51 (EXPR)
+
+
+State 113
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   53     | EXPR OP_PROD EXPR •
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    $default  reduce using rule 53 (EXPR)
+
+
+State 114
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   52     | EXPR OP_RESTA EXPR •
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_PROD    shift, and go to state 95
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+
+    $default  reduce using rule 52 (EXPR)
+
+
+State 115
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   54     | EXPR OP_DIV EXPR •
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    $default  reduce using rule 54 (EXPR)
+
+
+State 116
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   55     | EXPR OP_DIVENT EXPR •
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    $default  reduce using rule 55 (EXPR)
+
+
+State 117
+
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   56     | EXPR OP_MENOR EXPR •
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
 
     OP_MENOR  error (nonassociative)
     OP_MAYOR  error (nonassociative)
     OP_EQ     error (nonassociative)
 
-    $default  reduce using rule 53 (EXPR)
+    $default  reduce using rule 56 (EXPR)
 
 
-State 102
+State 118
 
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   54     | EXPR OP_AND EXPR •
-   55     | EXPR • OP_OR EXPR
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   57     | EXPR OP_MAYOR EXPR •
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
 
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
 
-    $default  reduce using rule 54 (EXPR)
+    OP_MENOR  error (nonassociative)
+    OP_MAYOR  error (nonassociative)
+    OP_EQ     error (nonassociative)
 
-
-State 103
-
-   46 EXPR: EXPR • OP_SUMA EXPR
-   47     | EXPR • OP_RESTA EXPR
-   48     | EXPR • OP_PROD EXPR
-   49     | EXPR • OP_DIV EXPR
-   50     | EXPR • OP_DIVENT EXPR
-   51     | EXPR • OP_MENOR EXPR
-   52     | EXPR • OP_MAYOR EXPR
-   53     | EXPR • OP_EQ EXPR
-   54     | EXPR • OP_AND EXPR
-   55     | EXPR • OP_OR EXPR
-   55     | EXPR OP_OR EXPR •
-
-    OP_SUMA    shift, and go to state 76
-    OP_PROD    shift, and go to state 77
-    OP_RESTA   shift, and go to state 78
-    OP_DIV     shift, and go to state 79
-    OP_DIVENT  shift, and go to state 80
-    OP_MENOR   shift, and go to state 81
-    OP_MAYOR   shift, and go to state 82
-    OP_EQ      shift, and go to state 83
-    OP_AND     shift, and go to state 84
-
-    $default  reduce using rule 55 (EXPR)
+    $default  reduce using rule 57 (EXPR)
 
 
-State 104
+State 119
 
-   29 STATEMENT: WHILE PAR_IZQ EXPR PAR_DER • BLOQUE
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   58     | EXPR OP_EQ EXPR •
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
 
-    LLAVE_IZQ  shift, and go to state 29
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
 
-    BLOQUE  go to state 110
+    OP_MENOR  error (nonassociative)
+    OP_MAYOR  error (nonassociative)
+    OP_EQ     error (nonassociative)
 
-
-State 105
-
-   26 STATEMENT: ID OP_ASIG EXPR PUNTO_COMA •
-
-    $default  reduce using rule 26 (STATEMENT)
-
-
-State 106
-
-   37 METHOD_CALL: ID PAR_IZQ ARGS PAR_DER •
-
-    $default  reduce using rule 37 (METHOD_CALL)
-
-
-State 107
-
-   40 ARGS_PRIMA: COMA • ARGS
-
-    CTE_LOGICA  shift, and go to state 54
-    CTE_ENTERA  shift, and go to state 55
-    CTE_FLOAT   shift, and go to state 56
-    ID          shift, and go to state 57
-    OP_RESTA    shift, and go to state 58
-    OP_NEG      shift, and go to state 59
-    PAR_IZQ     shift, and go to state 60
-
-    METHOD_CALL  go to state 62
-    ARGS         go to state 111
-    ARG          go to state 90
-    EXPR         go to state 91
-    LITERAL      go to state 64
+    $default  reduce using rule 58 (EXPR)
 
 
-State 108
+State 120
 
-   39 ARGS: ARG ARGS_PRIMA •
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   59     | EXPR OP_AND EXPR •
+   60     | EXPR • OP_OR EXPR
 
-    $default  reduce using rule 39 (ARGS)
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
 
-
-State 109
-
-   28 STATEMENT: IF PAR_IZQ EXPR PAR_DER BLOQUE • OPTIONAL_ELSE
-
-    ELSE  shift, and go to state 112
-
-    $default  reduce using rule 34 (OPTIONAL_ELSE)
-
-    OPTIONAL_ELSE  go to state 113
-
-
-State 110
-
-   29 STATEMENT: WHILE PAR_IZQ EXPR PAR_DER BLOQUE •
-
-    $default  reduce using rule 29 (STATEMENT)
-
-
-State 111
-
-   40 ARGS_PRIMA: COMA ARGS •
-
-    $default  reduce using rule 40 (ARGS_PRIMA)
+    $default  reduce using rule 59 (EXPR)
 
 
-State 112
+State 121
 
-   33 OPTIONAL_ELSE: ELSE • BLOQUE
+   51 EXPR: EXPR • OP_SUMA EXPR
+   52     | EXPR • OP_RESTA EXPR
+   53     | EXPR • OP_PROD EXPR
+   54     | EXPR • OP_DIV EXPR
+   55     | EXPR • OP_DIVENT EXPR
+   56     | EXPR • OP_MENOR EXPR
+   57     | EXPR • OP_MAYOR EXPR
+   58     | EXPR • OP_EQ EXPR
+   59     | EXPR • OP_AND EXPR
+   60     | EXPR • OP_OR EXPR
+   60     | EXPR OP_OR EXPR •
 
-    LLAVE_IZQ  shift, and go to state 29
+    OP_SUMA    shift, and go to state 94
+    OP_PROD    shift, and go to state 95
+    OP_RESTA   shift, and go to state 96
+    OP_DIV     shift, and go to state 97
+    OP_DIVENT  shift, and go to state 98
+    OP_MENOR   shift, and go to state 99
+    OP_MAYOR   shift, and go to state 100
+    OP_EQ      shift, and go to state 101
+    OP_AND     shift, and go to state 102
 
-    BLOQUE  go to state 114
+    $default  reduce using rule 60 (EXPR)
 
 
-State 113
+State 122
 
-   28 STATEMENT: IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE •
+   34 STATEMENT: WHILE PAR_IZQ EXPR PAR_DER • BLOQUE
 
-    $default  reduce using rule 28 (STATEMENT)
+    LLAVE_IZQ  shift, and go to state 41
+
+    BLOQUE  go to state 128
 
 
-State 114
+State 123
 
-   33 OPTIONAL_ELSE: ELSE BLOQUE •
+   31 STATEMENT: ID OP_ASIG EXPR PUNTO_COMA •
 
-    $default  reduce using rule 33 (OPTIONAL_ELSE)
+    $default  reduce using rule 31 (STATEMENT)
+
+
+State 124
+
+   42 METHOD_CALL: ID PAR_IZQ ARGS PAR_DER •
+
+    $default  reduce using rule 42 (METHOD_CALL)
+
+
+State 125
+
+   45 ARGS_PRIMA: COMA • ARGS
+
+    CTE_LOGICA  shift, and go to state 72
+    CTE_ENTERA  shift, and go to state 73
+    CTE_FLOAT   shift, and go to state 74
+    ID          shift, and go to state 75
+    OP_RESTA    shift, and go to state 76
+    OP_NEG      shift, and go to state 77
+    PAR_IZQ     shift, and go to state 78
+
+    METHOD_CALL  go to state 80
+    ARGS         go to state 129
+    ARG          go to state 108
+    EXPR         go to state 109
+    LITERAL      go to state 82
+
+
+State 126
+
+   44 ARGS: ARG ARGS_PRIMA •
+
+    $default  reduce using rule 44 (ARGS)
+
+
+State 127
+
+   33 STATEMENT: IF PAR_IZQ EXPR PAR_DER BLOQUE • OPTIONAL_ELSE
+
+    ELSE  shift, and go to state 130
+
+    $default  reduce using rule 39 (OPTIONAL_ELSE)
+
+    OPTIONAL_ELSE  go to state 131
+
+
+State 128
+
+   34 STATEMENT: WHILE PAR_IZQ EXPR PAR_DER BLOQUE •
+
+    $default  reduce using rule 34 (STATEMENT)
+
+
+State 129
+
+   45 ARGS_PRIMA: COMA ARGS •
+
+    $default  reduce using rule 45 (ARGS_PRIMA)
+
+
+State 130
+
+   38 OPTIONAL_ELSE: ELSE • BLOQUE
+
+    LLAVE_IZQ  shift, and go to state 41
+
+    BLOQUE  go to state 132
+
+
+State 131
+
+   33 STATEMENT: IF PAR_IZQ EXPR PAR_DER BLOQUE OPTIONAL_ELSE •
+
+    $default  reduce using rule 33 (STATEMENT)
+
+
+State 132
+
+   38 OPTIONAL_ELSE: ELSE BLOQUE •
+
+    $default  reduce using rule 38 (OPTIONAL_ELSE)

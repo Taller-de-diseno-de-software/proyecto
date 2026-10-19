@@ -1,0 +1,17 @@
+// extern: lee dos enteros (uno negativo), los suma con una funcion propia e imprime
+// resultados con printInt; incluye un extern sin parametros y otro void con uno
+extern int get_int();
+extern void printInt(int x);
+
+int doble(int v) { return v * 2; }
+
+void main() {
+    int a;
+    int b;
+    a = get_int();
+    b = get_int();
+    printInt(a + b);
+    printInt(doble(a) - b);
+    if (a < 0) { printInt(1); } else { printInt(0); }
+    printInt(get_int());
+}
