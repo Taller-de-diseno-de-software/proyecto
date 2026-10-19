@@ -160,6 +160,167 @@ static int tamanioFrame(const Frame *f) {
     return (bytes + 15) / 16 * 16;
 }
 
+/* ---- Traduccion de cuadruplas ---- */
+
+static int offsetTemporal(const Frame *f, int id) {
+    for (int i = 0; i < f->cantTemps; i++) {
+        if (f->temps[i].id == id) return f->temps[i].offset;
+    }
+    fprintf(stderr, "Codigo objeto: temporal t%d sin lugar en el frame\n", id);
+    return 0;
+}
+
+// Operando de memoria (variable o temporal) en sintaxis AT&T
+static void escribirMemoria(FILE *out, const Frame *f, Operando o) {
+    if (o.kind == OPD_TEMP) {
+        fprintf(out, "%d(%%rbp)", offsetTemporal(f, o.u.id));
+    } else if (o.u.simbolo->esGlobal) {
+        fprintf(out, "%s(%%rip)", o.u.simbolo->nombre);
+    } else {
+        fprintf(out, "%d(%%rbp)", o.u.simbolo->offset);
+    }
+}
+
+// registro = valor del operando
+static void cargar(FILE *out, const Frame *f, Operando o, const char *registro) {
+    if (o.kind == OPD_CONST) {
+        fprintf(out, "\tmov $%d, %s\n", o.u.valor, registro);
+        return;
+    }
+    fprintf(out, "\tmov ");
+    escribirMemoria(out, f, o);
+    fprintf(out, ", %s\n", registro);
+}
+
+// operando = registro
+static void guardar(FILE *out, const Frame *f, Operando o, const char *registro) {
+    fprintf(out, "\tmov %s, ", registro);
+    escribirMemoria(out, f, o);
+    fprintf(out, "\n");
+}
+
+// res = arg1 <op> arg2, con op una instruccion de dos operandos (add, sub, imul)
+static void traducirAritmetica(FILE *out, const Frame *f, const Cuadrupla *c, const char *instruccion) {
+    cargar(out, f, c->arg1, "%r10");
+    cargar(out, f, c->arg2, "%r11");
+    fprintf(out, "\t%s %%r11, %%r10\n", instruccion);
+    guardar(out, f, c->res, "%r10");
+}
+
+// Division entera con signo: idiv divide rdx:rax, asi que antes hay que extender el signo con cqto.
+// El cociente queda en %rax y el resto en %rdx.
+static void traducirDivision(FILE *out, const Frame *f, const Cuadrupla *c, const char *resultado) {
+    cargar(out, f, c->arg1, "%rax");
+    cargar(out, f, c->arg2, "%r10");
+    fprintf(out, "\tcqto\n");
+    fprintf(out, "\tidiv %%r10\n");
+    guardar(out, f, c->res, resultado);
+}
+
+// res = (arg1 <cmp> arg2) como 0 o 1. Los mov no modifican los flags de cmp, asi que
+// se precargan 0 y 1 y un cmov elige cual queda.
+static void traducirComparacion(FILE *out, const Frame *f, const Cuadrupla *c, const char *cmov) {
+    cargar(out, f, c->arg1, "%r10");
+    cargar(out, f, c->arg2, "%r11");
+    fprintf(out, "\tcmp %%r11, %%r10\n"); // flags de arg1 - arg2
+    fprintf(out, "\tmov $0, %%r11\n");
+    fprintf(out, "\tmov $1, %%r10\n");
+    fprintf(out, "\t%s %%r10, %%r11\n", cmov);
+    guardar(out, f, c->res, "%r11");
+}
+
+// Argumentos acumulados por los IR_PARAM que preceden a un IR_CALL
+typedef struct {
+    Operando args[MAX_PARAMS];
+    int cantidad;
+} Pendientes;
+
+// Los primeros 6 argumentos van en registros y el resto en la pila, en orden inverso
+// (el septimo queda en 16(%rbp) del callee). Si la cantidad de argumentos de pila es
+// impar se reserva un slot de relleno para mantener %rsp alineado a 16 en el call.
+static void traducirLlamada(FILE *out, const Frame *f, const Cuadrupla *c, Pendientes *p) {
+    int enPila = p->cantidad > PARAMS_EN_REGISTROS ? p->cantidad - PARAMS_EN_REGISTROS : 0;
+    int relleno = enPila % 2;
+
+    if (relleno) {
+        fprintf(out, "\tsub $%d, %%rsp\n", BYTES_SLOT);
+    }
+    for (int i = p->cantidad - 1; i >= PARAMS_EN_REGISTROS; i--) {
+        cargar(out, f, p->args[i], "%r10");
+        fprintf(out, "\tpush %%r10\n");
+    }
+    for (int i = 0; i < p->cantidad && i < PARAMS_EN_REGISTROS; i++) {
+        cargar(out, f, p->args[i], REGISTROS_PARAMS[i]);
+    }
+
+    fprintf(out, "\tcall %s\n", c->arg1.u.simbolo->nombre);
+
+    if (enPila > 0) {
+        fprintf(out, "\tadd $%d, %%rsp\n", (enPila + relleno) * BYTES_SLOT);
+    }
+    if (c->res.kind != OPD_NONE) {
+        guardar(out, f, c->res, "%rax");
+    }
+    p->cantidad = 0;
+}
+
+static void traducirCuadrupla(FILE *out, const Frame *f, const Cuadrupla *c, Pendientes *p) {
+    switch (c->op) {
+        case IR_ADD:  traducirAritmetica(out, f, c, "add"); break;
+        case IR_SUB:  traducirAritmetica(out, f, c, "sub"); break;
+        case IR_MULT: traducirAritmetica(out, f, c, "imul"); break;
+        case IR_DIV:  traducirDivision(out, f, c, "%rax"); break;
+        case IR_MOD:  traducirDivision(out, f, c, "%rdx"); break;
+        case IR_NEG:
+            cargar(out, f, c->arg1, "%r10");
+            fprintf(out, "\tneg %%r10\n");
+            guardar(out, f, c->res, "%r10");
+            break;
+        case IR_NOT: // los booleanos son 0 o 1
+            cargar(out, f, c->arg1, "%r10");
+            fprintf(out, "\txor $1, %%r10\n");
+            guardar(out, f, c->res, "%r10");
+            break;
+        case IR_LT: traducirComparacion(out, f, c, "cmovl"); break;
+        case IR_GT: traducirComparacion(out, f, c, "cmovg"); break;
+        case IR_EQ: traducirComparacion(out, f, c, "cmove"); break;
+        case IR_ASSIGN:
+            cargar(out, f, c->arg1, "%r10");
+            guardar(out, f, c->res, "%r10");
+            break;
+        case IR_LABEL:
+            fprintf(out, ".L%d:\n", c->res.u.id);
+            break;
+        case IR_JUMP:
+            fprintf(out, "\tjmp .L%d\n", c->res.u.id);
+            break;
+        case IR_JMPF:
+            cargar(out, f, c->arg1, "%r10");
+            fprintf(out, "\tcmp $0, %%r10\n");
+            fprintf(out, "\tje .L%d\n", c->res.u.id);
+            break;
+        case IR_PARAM:
+            if (p->cantidad < MAX_PARAMS) p->args[p->cantidad++] = c->arg1;
+            break;
+        case IR_CALL:
+            traducirLlamada(out, f, c, p);
+            break;
+        case IR_RET:
+            if (c->arg1.kind != OPD_NONE) {
+                cargar(out, f, c->arg1, "%rax");
+            } else {
+                fprintf(out, "\tmov $0, %%rax\n"); // asi main termina con estado 0
+            }
+            fprintf(out, "\tleave\n\tret\n");
+            break;
+        case IR_LEAVE:
+            fprintf(out, "\tleave\n\tret\n");
+            break;
+        case IR_ENTER: // lo emite generarFuncion
+            break;
+    }
+}
+
 /* ---- Funciones ---- */
 
 // Genera la funcion que empieza en `enter` (una cuadrupla IR_ENTER) y devuelve la
@@ -180,9 +341,14 @@ static const Cuadrupla *generarFuncion(const Cuadrupla *enter, FILE *out) {
         fprintf(out, "\tmov %s, %d(%%rbp)\n", REGISTROS_PARAMS[i], funcion->params[i]->offset);
     }
 
+    Pendientes pendientes = { .cantidad = 0 };
     const Cuadrupla *c = enter->siguiente;
     while (c != NULL && c->op != IR_LEAVE) {
-        c = c->siguiente; // TODO: traducir el cuerpo (paso siguiente)
+        traducirCuadrupla(out, &frame, c, &pendientes);
+        c = c->siguiente;
+    }
+    if (c != NULL) {
+        traducirCuadrupla(out, &frame, c, &pendientes); // el IR_LEAVE cierra la funcion
     }
     free(frame.temps);
     return c != NULL ? c->siguiente : NULL;

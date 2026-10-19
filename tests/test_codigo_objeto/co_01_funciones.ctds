@@ -1,0 +1,35 @@
+int g;
+boolean tocar() { g = g + 1; return true; }
+int cs() {
+    boolean r;
+    g = 0;
+    r = false && tocar();
+    r = true || tocar();
+    r = true && tocar();
+    r = false || tocar();
+    if (g > 5 && tocar() || !r) { g = g + 100; }
+    return g;
+}
+int ops(int a, int b) { return a * b + a / b - a % b + -a; }
+int cmp(int a, int b) {
+    int r;
+    r = 0;
+    if (a < b) { r = r + 1; }
+    if (a > b) { r = r + 10; }
+    if (a == b) { r = r + 100; }
+    if (!(a == b)) { r = r + 1000; } else { r = r + 5; }
+    return r;
+}
+int suma(int n) {
+    int s; int i;
+    s = 0; i = 1;
+    while (i < n + 1) { s = s + i; i = i + 1; }
+    return s;
+}
+int fact(int n) { if (n < 2) { return 1; } return n * fact(n - 1); }
+int fib(int n) { if (n < 2) { return n; } return fib(n - 1) + fib(n - 2); }
+int siete(int a, int b, int c, int d, int e, int f, int h) { return a + 2*b + 3*c + 4*d + 5*e + 6*f + 7*h; }
+int ocho(int a, int b, int c, int d, int e, int f, int h, int i) { return a + 2*b + 3*c + 4*d + 5*e + 6*f + 7*h + 8*i; }
+int llama() { return ocho(1,2,3,4,5,6,7,8) + siete(1,1,1,1,1,1,1) * fact(3) + ocho(fib(3), 1, 1, 1, 1, 1, 1, siete(0,0,0,0,0,0,1)); }
+int param(int x) { x = x + 1; return x; }
+void main() { }
