@@ -1,0 +1,11 @@
+// if(true): la rama else se descarta, pero tiene un error de tipos
+int main() {
+    int a;
+    a = 1;
+    if (true) {
+        a = 2;
+    } else {
+        a = true;
+    }
+    return a;
+}

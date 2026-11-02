@@ -11,7 +11,7 @@ El proyecto implementa las etapas del compilador para el lenguaje C-TDS:
   llamadas, y decora el AST con los símbolos.
 - **Generador de código intermedio:** cuádruplas de tres direcciones.
 - **Generador de código objeto:** assembly x86-64 (AT&T, ABI System V).
-- **Optimizador:** sobre el AST (`-opt cf` y `-opt dce`).
+- **Optimizador:** sobre el AST (`-opt cf`, `-opt as` y `-opt dce`; `-opt all` las activa a las tres).
 
 ## Día 1
 
@@ -223,7 +223,7 @@ Acordamos optimizaciones y las implementamos...
 Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se aplica sobre el AST justo después del parseo (por eso `-target parse` ya muestra el árbol plegado).
 Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
 No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
-Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (por ahora solo `cf`).
+Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (`cf`, `dce`, `as` o `all`, que activa las tres) y se puede repetir.
 Se eliminó el segundo envoltorio del literal: en la gramática `EXPR : LITERAL` ahora devuelve el nodo del literal tal cual (`$$ = $1`), así que un literal es un único nodo `LITERAL : texto` y ya no `LITERAL(LITERAL "texto")`. Se simplificaron `tipoDeLiteral`, `genLiteral` y el optimizador, y se regeneró el `.sint` del test ci_01.
 
 #### Simplificación algebraica (`-opt as`)
@@ -233,27 +233,21 @@ Potencias de 2: `x * 2^k` pasa a `x << k` y `x / 2^k` a `x >> k`. Para eso se ag
 Criterios de seguridad: solo enteros salvo las identidades que conservan el tipo (reemplazar `f * 0` por `0` cambiaría el tipo); `x * 0`, `x % 1`, `x && false` y `x || true` solo si `x` no tiene llamadas ni divisiones (no se descartan efectos ni errores de ejecución).
 Tests: tests/test_optimizaciones/as_01 (código intermedio) y tests/test_codigo_objeto/co_05 (ejecuta con negativos; da lo mismo con y sin `-opt as`). Además elimina las sentencias `x = x` (incluidas las que dejan las otras simplificaciones, como `x = x + 0`): el nodo de la sentencia queda en NULL, que el generador de IR trata como un `;` vacío. Pendiente: `x % 2^k`.
 
-### Notas de optimizaciones acordadas:
-- Propagacion de constantes (idealmente en el arbol)
-- Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
-- Patrones (dividir por 2 shiftear, comerse los +0, los *1, x = x, etc)
-
-#### Constant folding (`-opt cf`)
-Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se aplica sobre el AST justo después del parseo (por eso `-target parse` ya muestra el árbol plegado).
-Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
-No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
-Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (`cf`, `dce` o `all`) y se puede repetir.
-
 #### Eliminación de código muerto (`-opt dce`)
-También en optimizador.c y optimizador.h, sobre el AST después del parseo y después del plegado (`-opt all`, o `-opt cf -opt dce`; siempre se pliega primero).
+También en optimizador.c y optimizador.h. Corre sobre el AST después del análisis semántico y solo si no hubo errores (junto con `as`, antes de generar el código intermedio), después de simplificar y de volver a plegar, para aprovechar las constantes que dejan. Por eso actúa desde `-target codinter` (con `parse` no hace nada).
 Elimina:
 - las sentencias que siguen a un `return`, a un `while(true)` o a un `if` cuyas dos ramas cortan el flujo, dentro del mismo bloque (el análisis es recursivo);
 - los `if(false)` sin `else` y los `while(false)`, que no tienen efecto;
 - en `if(true) ... else ...`, la rama que no se ejecuta.
 Solo decide con condiciones constantes bien tipadas (literales y operadores, nunca variables ni llamadas), así no descarta código con efectos; `while(1)` no se toca y el semántico sigue reportando el error de tipo. El `if` que sobrevive se reescribe en el lugar como `NODO_BLOQUE` con el bloque de la rama elegida, para conservar el alcance de sus variables.
+Decisión: originalmente corría justo después del parseo, antes del semántico, y escondía errores: `return 1; a = noDeclarada;`, un tipo incompatible en un `if(false)` o una llamada inexistente en un `while(false)` pasaban a compilar porque el código con el error se descartaba. Al correr después del semántico eso no puede pasar; tests/test_optimizaciones/err_*.ctds lo verifican (tienen que seguir sin compilar con `-opt all`).
 Problemas: doble `free` en `if(false)` sin `else` (detectado con AddressSanitizer), el primer nodo de la cadena quedaba colgado al eliminarlo (se pasó a puntero a puntero) y `liberarSubarbol` liberaba el texto de los `NODO_TYPE`, que es un literal del parser.
-Test: tests/test_optimizaciones/dce_01_muerto.ctds, con correr_tests.sh.
+Test: tests/test_optimizaciones/dce_01_muerto.ctds, con correr_tests.sh (ahora también compila hasta código intermedio los casos sin `.esperado`, así corren el semántico y las tres optimizaciones).
 
+### Notas de optimizaciones acordadas:
+- Propagacion de constantes (idealmente en el arbol)
+- Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
+- Patrones (dividir por 2 shiftear, comerse los +0, los *1, x = x, etc)
 
 ### Ejecucion de optimizaciones
 - A nivel de tabla de simbolo tener una lista de lugares reservados: al reservar una variable queremos fijarnos primero si hay espacio liberado Y SI NO HAY pide espacio nuevo. Para esto, cuando cerremos un scope, toda variable declarada en este scope se libera.

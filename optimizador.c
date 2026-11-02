@@ -6,15 +6,14 @@
  * Solo pliega combinaciones bien tipadas (int con int, boolean con boolean), asi que el
  * analizador semantico sigue viendo los mismos errores de tipo que sin optimizar.
  *
-<<<<<<< HEAD
  * Eliminacion de codigo muerto: saca las sentencias que nunca se ejecutan (despues de un
  * return o de un while(true)), los if/while cuya condicion constante decide que no se
  * ejecutan y la rama de un if que no se toma. Tambien usa solo constantes bien tipadas.
-=======
+ * Corre despues del analisis semantico: asi no puede ocultar errores que haya en el codigo que descarta.
+ *
  * Simplificacion algebraica: recorre el arbol en postorden y reemplaza las operaciones que tienen un
  * operando neutro, absorbente o potencia de 2 por una forma mas barata (x + 0 -> x, x * 8 -> x << 3).
  * Corre despues del analisis semantico: necesita los tipos de las variables y las llamadas.
->>>>>>> optimizacion-patrones
  */
 #include <errno.h>
 #include <limits.h>
@@ -158,7 +157,6 @@ void plegarConstantes(nodoAST *raiz) {
     plegarNodo(raiz);
 }
 
-<<<<<<< HEAD
 
 
 /* ---- Eliminacion de codigo muerto ---- */
@@ -353,11 +351,13 @@ static void optimizarDeclaraciones(nodoAST *declaraciones) {
  *  - en if (true) ... [else ...] deja solo la rama que se ejecuta.
  * Las condiciones se evaluan con literales y operadores (no con variables ni llamadas),
  * asi que nunca se descarta codigo con efectos. Conviene correrla despues del plegado.
+ * Requiere el AST ya analizado semanticamente (ver el encabezado de este archivo).
  */
 void eliminarCodigoMuerto(nodoAST *raiz) {
     if (raiz == NULL) return;
     optimizarDeclaraciones(raiz);
-=======
+}
+
 /* ---- Simplificacion algebraica ---- */
 
 // Tipo de una expresion ya analizada: los ID y las llamadas traen su Simbolo del analisis semantico
@@ -544,5 +544,4 @@ static void simplificarNodo(nodoAST *n) {
 
 void simplificarAlgebraicamente(nodoAST *raiz) {
     simplificarNodo(raiz);
->>>>>>> optimizacion-patrones
 }

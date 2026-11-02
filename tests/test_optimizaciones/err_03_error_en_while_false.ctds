@@ -1,0 +1,9 @@
+// La llamada a una funcion que no existe esta en un while(false), que dce elimina
+int main() {
+    int a;
+    a = 1;
+    while (false) {
+        a = noExiste();
+    }
+    return a;
+}

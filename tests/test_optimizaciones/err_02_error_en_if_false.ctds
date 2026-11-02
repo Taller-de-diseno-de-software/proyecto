@@ -1,0 +1,9 @@
+// El error de tipos esta en la rama de un if(false), que dce elimina
+int main() {
+    int a;
+    a = 1;
+    if (false) {
+        a = true;
+    }
+    return a;
+}

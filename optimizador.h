@@ -16,6 +16,8 @@ void plegarConstantes(nodoAST *raiz);
  * (despues de return, de while(true) o de un if cuyas dos ramas cortan el flujo), los
  * if(false) sin else y los while(false), y deja solo la rama que se ejecuta en if(true).
  * Las condiciones se evaluan solo con constantes bien tipadas (nunca con variables o llamadas).
+ * Requiere el AST ya analizado semanticamente y sin errores: si corriera antes, un programa con un
+ * error en el codigo descartado (una variable no declarada, un tipo incompatible) pasaria a compilar.
  */
 void eliminarCodigoMuerto(nodoAST *raiz);
 

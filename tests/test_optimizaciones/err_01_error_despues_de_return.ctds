@@ -1,0 +1,7 @@
+// El error esta despues de un return: dce lo descarta, pero el programa sigue siendo invalido
+int main() {
+    int a;
+    a = 1;
+    return a;
+    a = noDeclarada;
+}
