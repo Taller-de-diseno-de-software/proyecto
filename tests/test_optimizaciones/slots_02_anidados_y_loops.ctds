@@ -1,0 +1,62 @@
+extern void printInt(int x);
+
+// Scopes anidados: b y c son hermanos dentro de a, asi que comparten lugar entre si, pero nunca
+// con a (sigue viva). d reutiliza el lugar de a una vez cerrado su scope.
+// Las condiciones dependen del parametro para que cf/dce no eliminen los bloques.
+int anidado(int n) {
+    int r;
+    r = 0;
+    if (n > 0) {
+        int a;
+        a = n;
+        if (a > 1) {
+            int b;
+            b = a + 100;
+            r = r + b;
+        }
+        if (a > 2) {
+            int c;
+            c = a + 1000;
+            r = r + c + a;
+        }
+        r = r + a;
+    }
+    if (n > 0) {
+        int d;
+        d = 7;
+        r = r + d;
+    }
+    return r;
+}
+
+// Variables declaradas dentro de un while: x e y se reutilizan en cada iteracion,
+// y z reutiliza el lugar de x despues del ciclo.
+int bucle(int n) {
+    int i;
+    int suma;
+    i = 0;
+    suma = 0;
+    while (i < n) {
+        int x;
+        x = i + 1;
+        if (x > 2) {
+            int y;
+            y = x * 10;
+            suma = suma + y;
+        }
+        suma = suma + x;
+        i = i + 1;
+    }
+    if (n > 0) {
+        int z;
+        z = 5;
+        suma = suma + z;
+    }
+    return suma;
+}
+
+int main() {
+    printInt(anidado(3));  // a=3: b=103, c=1003 -> 103 + 1003 + 3 + 3 + 7 = 1119
+    printInt(bucle(4));    // x=1,2,3,4; y=30,40 -> 70 + 10 + 5 = 85
+    return 0;
+}
