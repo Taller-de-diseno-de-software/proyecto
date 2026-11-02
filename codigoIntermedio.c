@@ -252,9 +252,8 @@ static Operando genLlamada(nodoAST *llamada) {
     return resultado;
 }
 
-// El literal viene doblemente envuelto: LITERAL(LITERAL "texto"); el texto esta en el hijo
-static Operando genLiteral(const nodoAST *e) {
-    const nodoAST *literal = e->hijos[0] ? e->hijos[0] : e;
+// LITERAL: valor = texto de la constante
+static Operando genLiteral(const nodoAST *literal) {
     const char *texto = literal->valor;
 
     if (strcmp(texto, "true") == 0) return operandoConst(1);

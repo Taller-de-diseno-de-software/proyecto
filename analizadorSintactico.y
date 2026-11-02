@@ -165,7 +165,7 @@ ARG
 EXPR
     : ID {$$ = crearNodo(NODO_ID, $1, NULL, NULL, NULL, NULL);}
     | METHOD_CALL {$$ = crearNodo(NODO_METHOD_CALL, NULL, $1, NULL, NULL, NULL);}
-    | LITERAL {$$ = crearNodo(NODO_LITERAL, NULL, $1, NULL, NULL, NULL);} 
+    | LITERAL {$$ = $1;}
     | EXPR OP_SUMA EXPR {$$ = crearNodo(NODO_SUMA, NULL, $1, $3, NULL, NULL);}//ARITH_OP
     | EXPR OP_RESTA EXPR {$$ = crearNodo(NODO_RESTA, NULL, $1, $3, NULL, NULL);}//ARITH_OP
     | EXPR OP_PROD EXPR {$$ = crearNodo(NODO_PROD, NULL, $1, $3, NULL, NULL);}//ARITH_OP

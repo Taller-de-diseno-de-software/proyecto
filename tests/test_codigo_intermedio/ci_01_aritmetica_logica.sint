@@ -32,8 +32,7 @@ DECLS
                         IDS : q
               STATEMENT
                 OP_ASIG : x
-                  LITERAL
-                    LITERAL : 7
+                  LITERAL : 7
                 STATEMENT
                   OP_ASIG : y
                     ID : x
@@ -43,16 +42,14 @@ DECLS
                         ID : x
                         PROD
                           ID : y
-                          LITERAL
-                            LITERAL : 2
+                          LITERAL : 2
                     STATEMENT
                       OP_ASIG : b
                         PROD
                           SUMA
                             ID : x
                             ID : y
-                          LITERAL
-                            LITERAL : 2
+                          LITERAL : 2
                       STATEMENT
                         OP_ASIG : x
                           RESTA
@@ -61,12 +58,10 @@ DECLS
                                 ID : a
                               DIVENT
                                 ID : b
-                                LITERAL
-                                  LITERAL : 3
+                                LITERAL : 3
                             DIV
                               ID : y
-                              LITERAL
-                                LITERAL : 2
+                              LITERAL : 2
                         STATEMENT
                           OP_ASIG : p
                             MENOR
@@ -77,8 +72,7 @@ DECLS
                               AND
                                 MAYOR
                                   ID : x
-                                  LITERAL
-                                    LITERAL : 3
+                                  LITERAL : 3
                                 NEG
                                   ID : p
                             STATEMENT
@@ -87,8 +81,7 @@ DECLS
                                   ID : p
                                   EQ
                                     ID : q
-                                    LITERAL
-                                      LITERAL : true
+                                    LITERAL : true
                               STATEMENT
                                 OP_ASIG : ok
                                   AND
