@@ -230,4 +230,6 @@ Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (por aho
 - Propagacion de constantes (idealmente en el arbol)
 - Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
 - Patrones (dividir por 2 shiftear, comerse los +0, los *1, x = x, etc)
+
+### Ejecucion de optimizaciones
 - A nivel de tabla de simbolo tener una lista de lugares reservados: al reservar una variable queremos fijarnos primero si hay espacio liberado Y SI NO HAY pide espacio nuevo. Para esto, cuando cerremos un scope, toda variable declarada en este scope se libera.
