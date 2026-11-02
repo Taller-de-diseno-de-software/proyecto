@@ -217,6 +217,28 @@ static void traducirDivision(FILE *out, const Frame *f, const Cuadrupla *c, cons
     guardar(out, f, c->res, resultado);
 }
 
+// res = arg1 << arg2, con arg2 una constante (la que deja el optimizador)
+static void traducirShl(FILE *out, const Frame *f, const Cuadrupla *c) {
+    cargar(out, f, c->arg1, "%r10");
+    fprintf(out, "\tshl $%d, %%r10\n", c->arg2.u.valor);
+    guardar(out, f, c->res, "%r10");
+}
+
+// res = arg1 / 2^arg2, con arg2 una constante. Un sar solo redondea hacia abajo y idiv hacia cero,
+// asi que para un arg1 negativo se le suma antes 2^arg2 - 1:
+//   r11 = arg1 >> 63 (todo unos si es negativo) ; r11 >>= 64 - arg2 (queda 2^arg2 - 1) ; (arg1 + r11) >> arg2
+static void traducirShr(FILE *out, const Frame *f, const Cuadrupla *c) {
+    int bits = c->arg2.u.valor;
+
+    cargar(out, f, c->arg1, "%r10");
+    fprintf(out, "\tmov %%r10, %%r11\n");
+    fprintf(out, "\tsar $63, %%r11\n");
+    fprintf(out, "\tshr $%d, %%r11\n", 64 - bits);
+    fprintf(out, "\tadd %%r11, %%r10\n");
+    fprintf(out, "\tsar $%d, %%r10\n", bits);
+    guardar(out, f, c->res, "%r10");
+}
+
 // res = (arg1 <cmp> arg2) como 0 o 1. Los mov no modifican los flags de cmp, asi que
 // se precargan 0 y 1 y un cmov elige cual queda.
 static void traducirComparacion(FILE *out, const Frame *f, const Cuadrupla *c, const char *cmov) {
@@ -283,6 +305,8 @@ static void traducirCuadrupla(FILE *out, const Frame *f, const Cuadrupla *c, Pen
         case IR_MULT: traducirAritmetica(out, f, c, "imul"); break;
         case IR_DIV:  traducirDivision(out, f, c, "%rax"); break;
         case IR_MOD:  traducirDivision(out, f, c, "%rdx"); break;
+        case IR_SHL:  traducirShl(out, f, c); break;
+        case IR_SHR:  traducirShr(out, f, c); break;
         case IR_NEG:
             cargar(out, f, c->arg1, "%r10");
             fprintf(out, "\tneg %%r10\n");

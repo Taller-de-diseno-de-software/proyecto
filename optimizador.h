@@ -11,4 +11,21 @@
  */
 void plegarConstantes(nodoAST *raiz);
 
+/*
+ * Simplificacion algebraica sobre el AST (-opt as). Requiere el AST ya analizado semanticamente,
+ * porque necesita el tipo de las variables y las llamadas. Reemplaza:
+ *   x + 0, 0 + x, x - 0, x * 1, 1 * x, x / 1   ->  x
+ *   0 - x                                      ->  -x
+ *   x * 0, 0 * x, x % 1, x - x                 ->  0     (solo enteros, y x sin llamadas ni divisiones)
+ *   x * 2^k, 2^k * x                           ->  x << k  (NODO_SHL, solo enteros)
+ *   x / 2^k                                    ->  x >> k  (NODO_SHR, solo enteros; redondea hacia cero como /)
+ *   x && true, x || false (y simetricos)       ->  x
+ *   false && x, true || x                      ->  la constante (x no se evalua por el cortocircuito)
+ *   x && false, x || true                      ->  la constante (solo si x no tiene llamadas ni divisiones)
+ *   !!x, --x                                   ->  x
+ *   la sentencia x = x (tambien la que dejan las anteriores, como x = x + 0)  ->  se elimina
+ * Los floats solo admiten las identidades que conservan el tipo (x + 0, x * 1, ...).
+ */
+void simplificarAlgebraicamente(nodoAST *raiz);
+
 #endif // OPTIMIZADOR_H

@@ -1,0 +1,29 @@
+int g;
+
+int f() {
+    g = g + 1;
+    return g;
+}
+
+int main() {
+    int x;
+    float r;
+    boolean b;
+    x = 3;
+    r = 1.5;
+    b = true;
+    x = x;
+    x = x + 0;
+    x = 8 * x;
+    x = x / 4;
+    x = x * 0;
+    x = f() * 0;
+    r = r * 2;
+    r = r + 0;
+    r = r * 0;
+    b = b && true;
+    b = false && b;
+    b = !(!b);
+    x = -(-x);
+    return x * 1;
+}

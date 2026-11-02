@@ -227,6 +227,13 @@ No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni re
 Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (por ahora solo `cf`).
 Se eliminó el segundo envoltorio del literal: en la gramática `EXPR : LITERAL` ahora devuelve el nodo del literal tal cual (`$$ = $1`), así que un literal es un único nodo `LITERAL : texto` y ya no `LITERAL(LITERAL "texto")`. Se simplificaron `tipoDeLiteral`, `genLiteral` y el optimizador, y se regeneró el `.sint` del test ci_01.
 
+#### Simplificación algebraica (`-opt as`)
+También en optimizador.c. Corre después del análisis semántico (necesita el tipo de variables y llamadas, que obtiene de los Simbolos que el semántico engancha al AST) y solo si no hubo errores; si además está `-opt cf`, se vuelve a plegar después. Por eso actúa desde `-target codinter`.
+Recorre el árbol en postorden y reescribe en el lugar: `x + 0`, `x - 0`, `x * 1`, `x / 1` y simétricos pasan a `x`; `0 - x` a `-x`; `x * 0`, `x % 1` y `x - x` a `0`; `x && true`, `x || false`, `!!x`, `--x` a `x`; `false && x` y `true || x` a la constante (por el cortocircuito `x` no se evalúa).
+Potencias de 2: `x * 2^k` pasa a `x << k` y `x / 2^k` a `x >> k`. Para eso se agregaron los nodos NODO_SHL/NODO_SHR (solo los crea el optimizador), las instrucciones IR_SHL/IR_SHR y su traducción a `shl`/`sar`. Un `sar` redondea hacia abajo y `idiv` hacia cero, así que IR_SHR suma antes 2^k - 1 si el valor es negativo; con -7 / 2 da -3 igual que la división. `x % 2^k` no se transforma por lo mismo.
+Criterios de seguridad: solo enteros salvo las identidades que conservan el tipo (reemplazar `f * 0` por `0` cambiaría el tipo); `x * 0`, `x % 1`, `x && false` y `x || true` solo si `x` no tiene llamadas ni divisiones (no se descartan efectos ni errores de ejecución).
+Tests: tests/test_optimizaciones/as_01 (código intermedio) y tests/test_codigo_objeto/co_05 (ejecuta con negativos; da lo mismo con y sin `-opt as`). Además elimina las sentencias `x = x` (incluidas las que dejan las otras simplificaciones, como `x = x + 0`): el nodo de la sentencia queda en NULL, que el generador de IR trata como un `;` vacío. Pendiente: `x % 2^k`.
+
 ### Notas de optimizaciones acordadas:
 - Propagacion de constantes (idealmente en el arbol)
 - Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
