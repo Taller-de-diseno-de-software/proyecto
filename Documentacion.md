@@ -214,3 +214,13 @@ No hubo problemas detectados durante el Día 2.
   Las variables locales no se inicializan, valen lo que haya en la pila.
   El float sigue sin soportarse en el código objeto (el IR lo trunca a int).
   Nuestro printInt imprime con salto de línea; si la biblioteca de la cátedra difiere, hay que usar la suya.
+
+
+## Dia 8
+### Trabajo realizado
+Acordamos optimizaciones y las implementamos...
+### Notas de optimizaciones acordadas:
+- Propagacion de constantes (idealmente en el arbol)
+- Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
+- Patrones (dividir por 2 shiftear, comerse los +0, los *1, x = x, etc)
+- A nivel de tabla de simbolo tener una lista de lugares reservados: al reservar una variable queremos fijarnos primero si hay espacio liberado Y SI NO HAY pide espacio nuevo. Para esto, cuando cerremos un scope, toda variable declarada en este scope se libera.
