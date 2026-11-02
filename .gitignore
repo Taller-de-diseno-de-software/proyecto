@@ -4,3 +4,4 @@ fixes.md
 lex.yy.c
 parser
 *.ci
+*.out
