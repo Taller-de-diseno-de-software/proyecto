@@ -23,17 +23,15 @@ typedef struct {
 
 static const Cte NO_CTE = { CTE_NINGUNA, 0 };
 
-// Un literal de expresion viene doblemente envuelto: LITERAL(LITERAL "texto")
 static int esLiteral(const nodoAST *nodo) {
-    return nodo != NULL && nodo->tipo == NODO_LITERAL
-        && nodo->hijos[0] != NULL && nodo->hijos[0]->valor != NULL;
+    return nodo != NULL && nodo->tipo == NODO_LITERAL && nodo->valor != NULL;
 }
 
 // El valor del literal si es entero o booleano; los floats quedan como NO_CTE
 static Cte leerConstante(const nodoAST *nodo) {
     if (!esLiteral(nodo)) return NO_CTE;
 
-    const char *texto = nodo->hijos[0]->valor;
+    const char *texto = nodo->valor;
     if (strcmp(texto, "true") == 0)  return (Cte){ CTE_BOOL, 1 };
     if (strcmp(texto, "false") == 0) return (Cte){ CTE_BOOL, 0 };
     if (strpbrk(texto, ".eE") != NULL) return NO_CTE;
@@ -76,8 +74,7 @@ static void reemplazarPorLiteral(nodoAST *nodo, Cte resultado) {
         nodo->hijos[i] = NULL;
     }
     nodo->tipo = NODO_LITERAL;
-    nodo->valor = NULL;
-    nodo->hijos[0] = crearNodo(NODO_LITERAL, copia, NULL, NULL, NULL, NULL);
+    nodo->valor = copia;
 }
 
 static Cte operarBinaria(TipoNodo op, Cte a, Cte b) {

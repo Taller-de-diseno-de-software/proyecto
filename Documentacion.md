@@ -225,6 +225,7 @@ Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se apli
 Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
 No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
 Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (por ahora solo `cf`).
+Se eliminó el segundo envoltorio del literal: en la gramática `EXPR : LITERAL` ahora devuelve el nodo del literal tal cual (`$$ = $1`), así que un literal es un único nodo `LITERAL : texto` y ya no `LITERAL(LITERAL "texto")`. Se simplificaron `tipoDeLiteral`, `genLiteral` y el optimizador, y se regeneró el `.sint` del test ci_01.
 
 ### Notas de optimizaciones acordadas:
 - Propagacion de constantes (idealmente en el arbol)

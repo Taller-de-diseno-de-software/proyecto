@@ -359,9 +359,8 @@ static int esNumerico(TipoDato tipo){
     return tipo == TIPO_INT || tipo == TIPO_FLOAT;
 }
 
-// EXPR(LITERAL) -> hijos[0] es el literal con el texto de la constante
-static TipoDato tipoDeLiteral(nodoAST *expresion){
-    nodoAST *literal = expresion->hijos[0] ? expresion->hijos[0] : expresion;
+// LITERAL: valor = texto de la constante
+static TipoDato tipoDeLiteral(nodoAST *literal){
     if(!literal->valor){
         return TIPO_INDEFINIDO;
     }
