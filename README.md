@@ -23,10 +23,16 @@ gcc -o c-tds main.c ast.c optimizador.c tablaSimbolos.c analizadorSemantico.c co
 ./c-tds -target codinter programa.ctds     # solo el codigo intermedio: programa.ci
 ./c-tds -target parse programa.ctds        # solo el AST: programa.sint
 ./c-tds -target scan programa.ctds         # solo los tokens: programa.lex
+<<<<<<< HEAD
 ./c-tds -opt cf programa.ctds              # constant folding sobre el AST
 ./c-tds -opt dce programa.ctds             # eliminación de código muerto sobre el AST
 ./c-tds -opt all programa.ctds             # todas las optimizaciones
 ./c-tds -opt cf -opt dce programa.ctds     # se pueden combinar (siempre se pliega antes de eliminar)
+=======
+./c-tds -opt cf programa.ctds             # con constant folding sobre el AST
+./c-tds -opt as programa.ctds             # con simplificacion algebraica (x + 0, x * 8, ...)
+./c-tds -opt cf -opt as programa.ctds     # ambas
+>>>>>>> optimizacion-patrones
 ```
 
 `-opt cf` reemplaza en el AST las expresiones enteras y lógicas con todos los operandos constantes por su resultado (`2 * 3 + 1` pasa a `7`). No pliega floats, divisiones por cero ni resultados que se salgan de `int`.
@@ -34,6 +40,8 @@ gcc -o c-tds main.c ast.c optimizador.c tablaSimbolos.c analizadorSemantico.c co
 `-opt dce` elimina el código que nunca se ejecuta: lo que sigue a un `return` o a un `while(true)`, los `if(false)` sin `else` y los `while(false)`, y en `if(true)` deja solo la rama que se ejecuta. Las condiciones se evalúan solo con constantes bien tipadas, nunca con variables ni llamadas. Conviene combinarla con `cf` para que las condiciones ya estén plegadas.
 
 Ambas se pueden usar con cualquier `-target` (con `parse` el `.sint` ya muestra el árbol optimizado). Ejemplos en `tests/test_optimizaciones`.
+
+`-opt as` simplifica operaciones con un operando neutro, absorbente o potencia de 2: `x + 0`, `x * 1` y `x / 1` pasan a `x`; `x * 0` y `x % 1` a `0`; `x * 2^k` a `x << k`; `x / 2^k` a `x >> k` (con corrección de signo, da lo mismo que `/`); `x && true`, `x || false`, `!!x` y `--x` a `x`; los absorbentes de `&&` y `||`; y elimina las sentencias `x = x`. Solo opera sobre enteros salvo las identidades que conservan el tipo, y no descarta nunca una expresión con llamadas o divisiones. Necesita el análisis semántico, así que actúa desde `-target codinter` (con `parse` no hace nada). Ejemplo en `tests/test_optimizaciones/as_01_simplificaciones.ctds`; el test `co_05` de código objeto verifica que el resultado no cambia.
 
 `-debug` imprime información de debugging y conserva el `.ass`.
 

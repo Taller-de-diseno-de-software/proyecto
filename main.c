@@ -6,8 +6,12 @@
  *   -o <salida>                     nombre del archivo de salida (sin -target, del ejecutable)
  *   -opt <optimizacion>             activa una optimizacion; se puede repetir. Disponibles:
  *                                     cf   constant folding sobre el AST
+<<<<<<< HEAD
  *                                     dce  eliminacion de codigo muerto sobre el AST
  *                                     all  todas las optimizaciones soportadas
+=======
+ *                                     as   simplificacion algebraica (x + 0, x * 8 -> x << 3, ...); actua desde codinter
+>>>>>>> optimizacion-patrones
  *   -debug                          imprime informacion de debugging
  *
  * Etapas y archivo de salida (nombreArchivo + extension):
@@ -53,8 +57,13 @@ typedef enum {
 typedef struct {
     Etapa target;
     int debug;
+<<<<<<< HEAD
     int constantFolding;   // -opt cf
     int eliminacionMuerto; // -opt dce
+=======
+    int constantFolding; // -opt cf
+    int simplificacionAlgebraica; // -opt as
+>>>>>>> optimizacion-patrones
     const char *entrada;
     const char *salida; // NULL: se deriva del nombre de entrada
     const char *programa; // argv[0], para ubicar libtds.c junto al compilador
@@ -71,7 +80,11 @@ FILE *archivoTokens = NULL;
 int huboErrorLexico = 0;
 
 static void mostrarUso(void) {
+<<<<<<< HEAD
     fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf|dce|all] [-debug] archivo.ctds\n");
+=======
+    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf|as] [-debug] archivo.ctds\n");
+>>>>>>> optimizacion-patrones
 }
 
 static int terminaEn(const char *texto, const char *sufijo) {
@@ -94,7 +107,11 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
     op->programa = argv[0];
     op->debug = 0;
     op->constantFolding = 0;
+<<<<<<< HEAD
     op->eliminacionMuerto = 0;
+=======
+    op->simplificacionAlgebraica = 0;
+>>>>>>> optimizacion-patrones
     op->entrada = NULL;
     op->salida = NULL;
 
@@ -113,11 +130,16 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
             }
         } else if (strcmp(arg, "-opt") == 0) {
             if (++i >= argc) {
+<<<<<<< HEAD
                 fprintf(stderr, "Error: -opt requiere una optimizacion (cf, dce o all)\n");
+=======
+                fprintf(stderr, "Error: -opt requiere una optimizacion (cf o as)\n");
+>>>>>>> optimizacion-patrones
                 return 0;
             }
             if (strcmp(argv[i], "cf") == 0) {
                 op->constantFolding = 1;
+<<<<<<< HEAD
             } else if (strcmp(argv[i], "dce") == 0) {
                 op->eliminacionMuerto = 1;
             } else if (strcmp(argv[i], "all") == 0) {
@@ -125,6 +147,12 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
                 op->eliminacionMuerto = 1;
             } else {
                 fprintf(stderr, "Error: optimizacion desconocida '%s' (cf, dce o all)\n", argv[i]);
+=======
+            } else if (strcmp(argv[i], "as") == 0) {
+                op->simplificacionAlgebraica = 1;
+            } else {
+                fprintf(stderr, "Error: optimizacion desconocida '%s' (cf o as)\n", argv[i]);
+>>>>>>> optimizacion-patrones
                 return 0;
             }
         } else if (arg[0] == '-') {
@@ -232,6 +260,12 @@ static int etapaParse(const Opciones *op) {
 // Genera el IR; con -target codinter lo escribe en el .ci
 static int etapaCodigoIntermedio(const Opciones *op, ListaIR **ir) {
     analizarSemantica(raiz);
+    if (op->simplificacionAlgebraica && !huboErrorSemantico()) {
+        simplificarAlgebraicamente(raiz);
+        if (op->constantFolding) {
+            plegarConstantes(raiz); // las simplificaciones pueden dejar operaciones entre constantes
+        }
+    }
     *ir = generarCodigoIntermedio(raiz);
     if (*ir == NULL) return 1; // errores semanticos, ya informados por stderr
 

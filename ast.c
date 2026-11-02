@@ -43,6 +43,8 @@ const char *tipoNodoNombre(TipoNodo tipo){
         case NODO_SIGNO_MENOS: return "SIGNO_MENOS";
         case NODO_NEG: return "NEG";
         case NODO_EXTERN: return "EXTERN";
+        case NODO_SHL: return "SHL";
+        case NODO_SHR: return "SHR";
         default: return "DESCONOCIDO";
     }
 }

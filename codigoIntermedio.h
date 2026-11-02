@@ -14,6 +14,10 @@ typedef enum {
     IR_DIV,
     IR_MOD, 
     IR_NEG,
+    // Desplazamientos por una constante (arg2). IR_SHR es la division con signo por 2^arg2:
+    // redondea hacia cero como IR_DIV, no hacia abajo como un desplazamiento aritmetico puro
+    IR_SHL,
+    IR_SHR,
 
 
     //Logica (&& y || no tienen instruccion: se generan con saltos, por el cortocircuito)

@@ -1,0 +1,58 @@
+// Simplificaciones algebraicas (-opt as): el resultado tiene que ser el mismo con y sin la optimizacion.
+// Se lee un negativo (-7) y un positivo (9) porque x / 2^k con un desplazamiento solo es correcto si
+// redondea hacia cero como la division. efecto() cuenta cuantas veces se llama: una llamada nunca se descarta.
+extern int get_int();
+extern void printInt(int x);
+
+int cuenta;
+
+int efecto() {
+    cuenta = cuenta + 1;
+    return 5;
+}
+
+void mostrar(boolean v) {
+    if (v) { printInt(1); } else { printInt(0); }
+}
+
+void main() {
+    int x;
+    int y;
+    boolean b;
+    x = get_int();
+    y = get_int();
+    b = x < 0;
+    x = x;
+    y = y * 1;
+
+    printInt(x + 0);
+    printInt(0 + y);
+    printInt(x - 0);
+    printInt(x * 1);
+    printInt(1 * y);
+    printInt(x / 1);
+    printInt(0 - x);
+    printInt(x * 0);
+    printInt(x % 1);
+    printInt(x - x);
+    printInt(x * 8);
+    printInt(4 * y);
+    printInt(x / 2);
+    printInt(x / 4);
+    printInt(x / 8);
+    printInt(y / 2);
+    printInt(y / 4);
+    printInt(-(-x));
+
+    mostrar(b && true);
+    mostrar(!(!b));
+    mostrar(false && b);
+    mostrar(b || false);
+    mostrar(true || b);
+    mostrar(b && false);
+
+    printInt(efecto() * 0);
+    printInt(cuenta);
+    printInt(efecto() * 2);
+    printInt(cuenta);
+}

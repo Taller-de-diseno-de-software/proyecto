@@ -125,6 +125,8 @@ static const char *simboloBinario(OperadorIR op) {
         case IR_MULT: return "*";
         case IR_DIV:  return "/";
         case IR_MOD:  return "%";
+        case IR_SHL:  return "<<";
+        case IR_SHR:  return ">>";
         case IR_LT:   return "<";
         case IR_GT:   return ">";
         case IR_EQ:   return "==";
@@ -321,6 +323,8 @@ static Operando genExpr(nodoAST *e) {
         case NODO_PROD:        return genBinaria(IR_MULT, e);
         case NODO_DIV:         return genBinaria(IR_DIV, e);
         case NODO_DIVENT:      return genBinaria(IR_MOD, e);
+        case NODO_SHL:         return genBinaria(IR_SHL, e);
+        case NODO_SHR:         return genBinaria(IR_SHR, e);
         case NODO_MENOR:       return genBinaria(IR_LT, e);
         case NODO_MAYOR:       return genBinaria(IR_GT, e);
         case NODO_EQ:          return genBinaria(IR_EQ, e);
