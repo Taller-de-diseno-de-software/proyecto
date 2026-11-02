@@ -1,0 +1,17 @@
+int g;
+
+int main() {
+    int a;
+    boolean b;
+    float f;
+    a = 2 * 3 + 4 - 1;
+    a = -(5 - 8);
+    a = 7 / 2 + 7 % 3;
+    b = (1 + 2 < 4) && !false;
+    b = true == false || 3 == 3;
+    f = 1.5 + 2.5;
+    a = a + 2 * 3;
+    a = 1 / 0;
+    a = 2147483647 + 1;
+    return 4 * 5;
+}

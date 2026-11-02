@@ -4,7 +4,8 @@
  * Interfaz:  c-tds [opcion] nombreArchivo.ctds
  *   -target <scan|parse|codinter|assembly> la compilacion procede hasta la etapa dada
  *   -o <salida>                     nombre del archivo de salida (sin -target, del ejecutable)
- *   -opt [optimizacion]             se acepta; todavia no hace nada
+ *   -opt <optimizacion>             activa una optimizacion; se puede repetir. Disponibles:
+ *                                     cf   constant folding sobre el AST
  *   -debug                          imprime informacion de debugging
  *
  * Etapas y archivo de salida (nombreArchivo + extension):
@@ -21,7 +22,7 @@
  * Compilacion:
  * bison -d -v analizadorSintactico.y
  * flex analizadorLexico.l
- * gcc -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
+ * gcc -o c-tds main.c ast.c optimizador.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
  */
 
 #include <stdio.h>
@@ -31,6 +32,7 @@
 #include <unistd.h>
 #endif
 #include "ast.h"
+#include "optimizador.h"
 #include "analizadorSemantico.h"
 #include "codigoIntermedio.h"
 #include "codigoObjeto.h"
@@ -49,6 +51,7 @@ typedef enum {
 typedef struct {
     Etapa target;
     int debug;
+    int constantFolding; // -opt cf
     const char *entrada;
     const char *salida; // NULL: se deriva del nombre de entrada
     const char *programa; // argv[0], para ubicar libtds.c junto al compilador
@@ -65,7 +68,7 @@ FILE *archivoTokens = NULL;
 int huboErrorLexico = 0;
 
 static void mostrarUso(void) {
-    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt [optimizacion]] [-debug] archivo.ctds\n");
+    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf] [-debug] archivo.ctds\n");
 }
 
 static int terminaEn(const char *texto, const char *sufijo) {
@@ -87,6 +90,7 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
     op->target = ETAPA_EJECUTABLE;
     op->programa = argv[0];
     op->debug = 0;
+    op->constantFolding = 0;
     op->entrada = NULL;
     op->salida = NULL;
 
@@ -104,10 +108,11 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
                 return 0;
             }
         } else if (strcmp(arg, "-opt") == 0) {
-            // La optimizacion es opcional: se consume solo si no es otra opcion ni el archivo
-            if (i + 1 < argc && argv[i + 1][0] != '-' && !terminaEn(argv[i + 1], EXTENSION_ENTRADA)) {
-                i++;
+            if (++i >= argc || strcmp(argv[i], "cf") != 0) {
+                fprintf(stderr, "Error: -opt requiere una optimizacion valida (cf)\n");
+                return 0;
             }
+            op->constantFolding = 1;
         } else if (arg[0] == '-') {
             fprintf(stderr, "Error: opcion desconocida '%s'\n", arg);
             return 0;
@@ -189,6 +194,10 @@ static int etapaScan(const Opciones *op) {
 
 static int etapaParse(const Opciones *op) {
     if (yyparse() != 0 || huboErrorLexico) return 1;
+
+    if (op->constantFolding) {
+        plegarConstantes(raiz);
+    }
 
     if (op->debug) {
         imprimirArbol(raiz, 0);

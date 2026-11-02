@@ -9,7 +9,7 @@ Se necesita `flex`, `gcc` y, solo si se modifica la gramática, `bison`. Para pr
 ```sh
 bison -d -v analizadorSintactico.y     # solo si cambió la gramática
 flex analizadorLexico.l
-gcc -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
+gcc -o c-tds main.c ast.c optimizador.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio.c codigoObjeto.c analizadorSintactico.tab.c lex.yy.c
 ```
 
 `libtds.c` (define `get_int` y `printInt`, las funciones `extern`) tiene que estar en el mismo directorio que `c-tds`.
@@ -23,7 +23,10 @@ gcc -o c-tds main.c ast.c tablaSimbolos.c analizadorSemantico.c codigoIntermedio
 ./c-tds -target codinter programa.ctds     # solo el codigo intermedio: programa.ci
 ./c-tds -target parse programa.ctds        # solo el AST: programa.sint
 ./c-tds -target scan programa.ctds         # solo los tokens: programa.lex
+./c-tds -opt cf programa.ctds             # con constant folding sobre el AST
 ```
+
+`-opt cf` reemplaza en el AST las expresiones enteras y lógicas con todos los operandos constantes por su resultado (`2 * 3 + 1` pasa a `7`). No pliega floats, divisiones por cero ni resultados que se salgan de `int`. Se puede combinar con cualquier `-target` (con `parse` el `.sint` ya muestra el árbol plegado). Ejemplo en `tests/test_optimizaciones` (`cf_01_plegado.ci` es el código intermedio esperado con `-opt cf`).
 
 `-debug` imprime información de debugging y conserva el `.ass`.
 
@@ -35,4 +38,4 @@ Los tests de código objeto compilan programas, los ejecutan y comparan la salid
 sh tests/test_codigo_objeto/correr_tests.sh
 ```
 
-Usa `../../c-tds` como compilador; con otro se puede indicar `COMPILADOR=/ruta/a/c-tds sh tests/test_codigo_objeto/correr_tests.sh`. Los casos están en `tests/`: `test_codigo_objeto` (entrada `.in` y salida `.esperado`), `test_codigo_intermedio` (código intermedio esperado `.ci`), `test_correctos` y `test_errores` (sintaxis y tabla de símbolos).
+Usa `../../c-tds` como compilador; con otro se puede indicar `COMPILADOR=/ruta/a/c-tds sh tests/test_codigo_objeto/correr_tests.sh`. Los casos están en `tests/`: `test_codigo_objeto` (entrada `.in` y salida `.esperado`), `test_codigo_intermedio` (código intermedio esperado `.ci`), `test_optimizaciones`, `test_correctos` y `test_errores` (sintaxis y tabla de símbolos).

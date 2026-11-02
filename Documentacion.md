@@ -219,6 +219,13 @@ No hubo problemas detectados durante el Día 2.
 ## Dia 8
 ### Trabajo realizado
 Acordamos optimizaciones y las implementamos...
+
+#### Constant folding (`-opt cf`)
+Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se aplica sobre el AST justo después del parseo (por eso `-target parse` ya muestra el árbol plegado).
+Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
+No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
+Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (por ahora solo `cf`).
+
 ### Notas de optimizaciones acordadas:
 - Propagacion de constantes (idealmente en el arbol)
 - Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
