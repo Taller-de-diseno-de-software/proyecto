@@ -2,17 +2,16 @@
 
 ## Alcance actual
 
-El proyecto implementa dos etapas iniciales de un compilador:
+El proyecto implementa las etapas del compilador para el lenguaje C-TDS:
 
 - **Analizador léxico:** desarrollado con Flex. Reconoce palabras reservadas,
   identificadores, literales, operadores y delimitadores.
-- **Analizador sintáctico:** desarrollado con Bison. Comprueba si la secuencia
-  de tokens cumple la gramática definida para el lenguaje.
-
-El lenguaje implementado es intencionalmente reducido. Por el momento, el
-proyecto valida la estructura sintáctica, pero todavía no incluye análisis
-semántico, tabla de símbolos, verificación de tipos ni generación real de un
-AST.
+- **Analizador sintáctico:** desarrollado con Bison. Construye el AST.
+- **Analizador semántico:** con tabla de símbolos; valida alcance, tipos y
+  llamadas, y decora el AST con los símbolos.
+- **Generador de código intermedio:** cuádruplas de tres direcciones.
+- **Generador de código objeto:** assembly x86-64 (AT&T, ABI System V).
+- **Optimizador:** sobre el AST (`-opt cf` y `-opt dce`).
 
 ## Día 1
 
@@ -220,16 +219,27 @@ No hubo problemas detectados durante el Día 2.
 ### Trabajo realizado
 Acordamos optimizaciones y las implementamos...
 
-#### Constant folding (`-opt cf`)
-Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se aplica sobre el AST justo después del parseo (por eso `-target parse` ya muestra el árbol plegado).
-Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
-No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
-Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (por ahora solo `cf`).
-
 ### Notas de optimizaciones acordadas:
 - Propagacion de constantes (idealmente en el arbol)
 - Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
 - Patrones (dividir por 2 shiftear, comerse los +0, los *1, x = x, etc)
+
+#### Constant folding (`-opt cf`)
+Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se aplica sobre el AST justo después del parseo (por eso `-target parse` ya muestra el árbol plegado).
+Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
+No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
+Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (`cf`, `dce` o `all`) y se puede repetir.
+
+#### Eliminación de código muerto (`-opt dce`)
+También en optimizador.c y optimizador.h, sobre el AST después del parseo y después del plegado (`-opt all`, o `-opt cf -opt dce`; siempre se pliega primero).
+Elimina:
+- las sentencias que siguen a un `return`, a un `while(true)` o a un `if` cuyas dos ramas cortan el flujo, dentro del mismo bloque (el análisis es recursivo);
+- los `if(false)` sin `else` y los `while(false)`, que no tienen efecto;
+- en `if(true) ... else ...`, la rama que no se ejecuta.
+Solo decide con condiciones constantes bien tipadas (literales y operadores, nunca variables ni llamadas), así no descarta código con efectos; `while(1)` no se toca y el semántico sigue reportando el error de tipo. El `if` que sobrevive se reescribe en el lugar como `NODO_BLOQUE` con el bloque de la rama elegida, para conservar el alcance de sus variables.
+Problemas: doble `free` en `if(false)` sin `else` (detectado con AddressSanitizer), el primer nodo de la cadena quedaba colgado al eliminarlo (se pasó a puntero a puntero) y `liberarSubarbol` liberaba el texto de los `NODO_TYPE`, que es un literal del parser.
+Test: tests/test_optimizaciones/dce_01_muerto.ctds, con correr_tests.sh.
+
 
 ### Ejecucion de optimizaciones
 - A nivel de tabla de simbolo tener una lista de lugares reservados: al reservar una variable queremos fijarnos primero si hay espacio liberado Y SI NO HAY pide espacio nuevo. Para esto, cuando cerremos un scope, toda variable declarada en este scope se libera.

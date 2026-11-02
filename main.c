@@ -6,6 +6,8 @@
  *   -o <salida>                     nombre del archivo de salida (sin -target, del ejecutable)
  *   -opt <optimizacion>             activa una optimizacion; se puede repetir. Disponibles:
  *                                     cf   constant folding sobre el AST
+ *                                     dce  eliminacion de codigo muerto sobre el AST
+ *                                     all  todas las optimizaciones soportadas
  *   -debug                          imprime informacion de debugging
  *
  * Etapas y archivo de salida (nombreArchivo + extension):
@@ -51,7 +53,8 @@ typedef enum {
 typedef struct {
     Etapa target;
     int debug;
-    int constantFolding; // -opt cf
+    int constantFolding;   // -opt cf
+    int eliminacionMuerto; // -opt dce
     const char *entrada;
     const char *salida; // NULL: se deriva del nombre de entrada
     const char *programa; // argv[0], para ubicar libtds.c junto al compilador
@@ -68,7 +71,7 @@ FILE *archivoTokens = NULL;
 int huboErrorLexico = 0;
 
 static void mostrarUso(void) {
-    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf] [-debug] archivo.ctds\n");
+    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf|dce|all] [-debug] archivo.ctds\n");
 }
 
 static int terminaEn(const char *texto, const char *sufijo) {
@@ -91,6 +94,7 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
     op->programa = argv[0];
     op->debug = 0;
     op->constantFolding = 0;
+    op->eliminacionMuerto = 0;
     op->entrada = NULL;
     op->salida = NULL;
 
@@ -108,11 +112,21 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
                 return 0;
             }
         } else if (strcmp(arg, "-opt") == 0) {
-            if (++i >= argc || strcmp(argv[i], "cf") != 0) {
-                fprintf(stderr, "Error: -opt requiere una optimizacion valida (cf)\n");
+            if (++i >= argc) {
+                fprintf(stderr, "Error: -opt requiere una optimizacion (cf, dce o all)\n");
                 return 0;
             }
-            op->constantFolding = 1;
+            if (strcmp(argv[i], "cf") == 0) {
+                op->constantFolding = 1;
+            } else if (strcmp(argv[i], "dce") == 0) {
+                op->eliminacionMuerto = 1;
+            } else if (strcmp(argv[i], "all") == 0) {
+                op->constantFolding = 1;
+                op->eliminacionMuerto = 1;
+            } else {
+                fprintf(stderr, "Error: optimizacion desconocida '%s' (cf, dce o all)\n", argv[i]);
+                return 0;
+            }
         } else if (arg[0] == '-') {
             fprintf(stderr, "Error: opcion desconocida '%s'\n", arg);
             return 0;
@@ -195,8 +209,12 @@ static int etapaScan(const Opciones *op) {
 static int etapaParse(const Opciones *op) {
     if (yyparse() != 0 || huboErrorLexico) return 1;
 
+    // El plegado va primero: deja constantes que la eliminacion de codigo muerto aprovecha
     if (op->constantFolding) {
         plegarConstantes(raiz);
+    }
+    if (op->eliminacionMuerto) {
+        eliminarCodigoMuerto(raiz);
     }
 
     if (op->debug) {

@@ -1,0 +1,106 @@
+// Eliminacion de codigo muerto (-opt dce)
+int g;
+
+void muertoAlPrincipio() {
+    if (false) {
+        g = 1000;       // se elimina la primera sentencia del bloque
+    }
+    g = g + 1;          // +1
+}
+
+void sinElse() {
+    int a;
+    a = 1;
+    if (false) {
+        a = 2;          // se elimina el if completo
+    }
+    g = a;              // 1
+}
+
+void conElse() {
+    int a;
+    a = 2;
+    if (false) {
+        a = 3;          // rama muerta
+    } else {
+        a = 4;
+    }
+    g = g + a;          // +4
+}
+
+void verdadero() {
+    int a;
+    a = 5;
+    if (true) {
+        a = a + 1;
+    } else {
+        a = 100;        // rama muerta
+    }
+    if (2 < 1) {
+        a = 200;        // condicion constante falsa, sin plegado previo
+    }
+    if (3 == 3) {
+        a = a + 1;      // condicion constante verdadera
+    }
+    g = g + a;          // +7
+}
+
+int retorno() {
+    return 7;
+    g = 1000;           // inalcanzable
+}
+
+void despuesDeReturn() {
+    int a;
+    a = 8;
+    return;
+    a = 9;              // inalcanzable
+}
+
+void ramasQueCortan() {
+    if (g > 0) {
+        return;
+    } else {
+        return;
+    }
+    g = 1000;           // inalcanzable: ambas ramas cortan
+}
+
+void bloqueQueCorta() {
+    {
+        return;
+        g = 1000;       // inalcanzable dentro del bloque
+    }
+    g = 1000;           // inalcanzable: el bloque siempre retorna
+}
+
+void conWhileFalse() {
+    int a;
+    a = 10;
+    while (false) {
+        a = 11;         // se elimina el while completo
+    }
+    g = g + a;          // +10
+    while (true) {
+        g = g + 1;      // +1
+        return;
+        g = 1001;       // inalcanzable dentro del while
+    }
+    g = 1000;           // inalcanzable: while(true) no cae
+}
+
+extern void printInt(int x);
+
+void main() {
+    g = 0;
+    muertoAlPrincipio();
+    sinElse();
+    conElse();
+    verdadero();
+    g = g + retorno();
+    despuesDeReturn();
+    ramasQueCortan();
+    bloqueQueCorta();
+    conWhileFalse();
+    printInt(g);        // muerto +1, sinElse deja 1, conElse +4, verdadero +7, retorno +7, while +11 = 30
+}

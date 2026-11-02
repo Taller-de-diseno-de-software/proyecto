@@ -19,11 +19,12 @@ for fuente in co_*.ctds; do
         else
             echo "FALLO $base"; fallos=1
         fi
+        rm -f "$base.out"
     else
         $COMPILADOR -target assembly -o "$base.ass" "$fuente" || { echo "FALLO compilando $base"; fallos=1; continue; }
         sed -E 's/\bmain\b/tds_main/g; s/^([A-Za-z_][A-Za-z0-9_]*):$/\t.globl \1\n\1:/' "$base.ass" > "$base.s"
         if gcc -o "$base.out" "$base.c" "$base.s" "$LIBTDS" && "./$base.out"; then echo "OK    $base"; else echo "FALLO $base"; fallos=1; fi
+        rm -f "$base.ass" "$base.s" "$base.out"
     fi
-    rm -f "$base.ass" "$base.s" "$base.out"
 done
 exit $fallos
