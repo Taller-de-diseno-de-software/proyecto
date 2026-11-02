@@ -5,10 +5,11 @@
  *   -target <scan|parse|codinter|assembly> la compilacion procede hasta la etapa dada
  *   -o <salida>                     nombre del archivo de salida (sin -target, del ejecutable)
  *   -opt <optimizacion>             activa una optimizacion; se puede repetir. Disponibles:
- *                                     cf   constant folding sobre el AST
- *                                     dce  eliminacion de codigo muerto sobre el AST
- *                                     all  todas las optimizaciones soportadas
- *                                     as   simplificacion algebraica (x + 0, x * 8 -> x << 3, ...); actua desde codinter
+ *                                     cf     constant folding sobre el AST
+ *                                     dce    eliminacion de codigo muerto sobre el AST
+ *                                     as     simplificacion algebraica (x + 0, x * 8 -> x << 3, ...); actua desde codinter
+ *                                     slots  reutilizacion de lugares del frame entre scopes disjuntos
+ *                                     all    todas las optimizaciones soportadas
  *   -debug                          imprime informacion de debugging
  *
  * Etapas y archivo de salida (nombreArchivo + extension):
@@ -37,6 +38,7 @@
 #include "ast.h"
 #include "optimizador.h"
 #include "analizadorSemantico.h"
+#include "tablaSimbolos.h"
 #include "codigoIntermedio.h"
 #include "codigoObjeto.h"
 
@@ -57,6 +59,7 @@ typedef struct {
     int constantFolding;   // -opt cf
     int eliminacionMuerto; // -opt dce
     int simplificacionAlgebraica; // -opt as
+    int reusoLugares;      // -opt slots
     const char *entrada;
     const char *salida; // NULL: se deriva del nombre de entrada
     const char *programa; // argv[0], para ubicar libtds.c junto al compilador
@@ -73,7 +76,7 @@ FILE *archivoTokens = NULL;
 int huboErrorLexico = 0;
 
 static void mostrarUso(void) {
-    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf|dce|as|all] [-debug] archivo.ctds\n");
+    fprintf(stderr, "Uso: c-tds [-target scan|parse|codinter|assembly] [-o salida] [-opt cf|dce|as|slots|all] [-debug] archivo.ctds\n");
 }
 
 static int terminaEn(const char *texto, const char *sufijo) {
@@ -98,6 +101,7 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
     op->constantFolding = 0;
     op->eliminacionMuerto = 0;
     op->simplificacionAlgebraica = 0;
+    op->reusoLugares = 0;
     op->entrada = NULL;
     op->salida = NULL;
 
@@ -116,7 +120,7 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
             }
         } else if (strcmp(arg, "-opt") == 0) {
             if (++i >= argc) {
-                fprintf(stderr, "Error: -opt requiere una optimizacion (cf, dce, as o all)\n");
+                fprintf(stderr, "Error: -opt requiere una optimizacion (cf, dce, as, slots o all)\n");
                 return 0;
             }
             if (strcmp(argv[i], "cf") == 0) {
@@ -125,12 +129,15 @@ static int leerArgumentos(int argc, char **argv, Opciones *op) {
                 op->eliminacionMuerto = 1;
             } else if (strcmp(argv[i], "as") == 0) {
                 op->simplificacionAlgebraica = 1;
+            } else if (strcmp(argv[i], "slots") == 0) {
+                op->reusoLugares = 1;
             } else if (strcmp(argv[i], "all") == 0) {
                 op->constantFolding = 1;
                 op->eliminacionMuerto = 1;
                 op->simplificacionAlgebraica = 1;
+                op->reusoLugares = 1;
             } else {
-                fprintf(stderr, "Error: optimizacion desconocida '%s' (cf, dce, as o all)\n", argv[i]);
+                fprintf(stderr, "Error: optimizacion desconocida '%s' (cf, dce, as, slots o all)\n", argv[i]);
                 return 0;
             }
         } else if (arg[0] == '-') {
@@ -233,6 +240,8 @@ static int etapaParse(const Opciones *op) {
 
 // Genera el IR; con -target codinter lo escribe en el .ci
 static int etapaCodigoIntermedio(const Opciones *op, ListaIR **ir) {
+    // La reutilizacion de lugares del frame se decide mientras corre el analisis semantico.
+    activarReusoLugares(op->reusoLugares);
     analizarSemantica(raiz);
     // Las optimizaciones que necesitan tipos, o que descartan codigo, van despues del semantico y solo
     // si no hubo errores: asi un programa invalido nunca pasa a ser valido por haberle sacado codigo.

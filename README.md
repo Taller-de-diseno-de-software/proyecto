@@ -26,8 +26,9 @@ gcc -o c-tds main.c ast.c optimizador.c tablaSimbolos.c analizadorSemantico.c co
 ./c-tds -opt cf programa.ctds              # constant folding sobre el AST
 ./c-tds -opt as programa.ctds              # simplificación algebraica (x + 0, x * 8, ...)
 ./c-tds -opt dce programa.ctds             # eliminación de código muerto sobre el AST
-./c-tds -opt all programa.ctds             # las tres: cf, as y dce
-./c-tds -opt cf -opt dce programa.ctds     # se pueden combinar y repetir
+./c-tds -opt slots programa.ctds           # reutilización de lugares del frame entre scopes
+./c-tds -opt all programa.ctds             # las cuatro: cf, as, dce y slots
+./c-tds -opt cf -opt dce -opt slots programa.ctds   # se pueden combinar y repetir
 ```
 
 `-opt cf` reemplaza en el AST las expresiones enteras y lógicas con todos los operandos constantes por su resultado (`2 * 3 + 1` pasa a `7`). No pliega floats, divisiones por cero ni resultados que se salgan de `int`.
@@ -37,6 +38,8 @@ gcc -o c-tds main.c ast.c optimizador.c tablaSimbolos.c analizadorSemantico.c co
 `-opt cf` actúa justo después del parseo, así que con `-target parse` el `.sint` ya muestra el árbol plegado. Ejemplo en `tests/test_optimizaciones`.
 
 `-opt as` simplifica operaciones con un operando neutro, absorbente o potencia de 2: `x + 0`, `x * 1` y `x / 1` pasan a `x`; `x * 0` y `x % 1` a `0`; `x * 2^k` a `x << k`; `x / 2^k` a `x >> k` (con corrección de signo, da lo mismo que `/`); `x && true`, `x || false`, `!!x` y `--x` a `x`; los absorbentes de `&&` y `||`; y elimina las sentencias `x = x`. Solo opera sobre enteros salvo las identidades que conservan el tipo, y no descarta nunca una expresión con llamadas o divisiones. Necesita el análisis semántico, así que actúa desde `-target codinter` (con `parse` no hace nada). Ejemplo en `tests/test_optimizaciones/as_01_simplificaciones.ctds`; cuando se combinan, el orden es `as`, `cf` y por último `dce`; el test `co_05` de código objeto verifica que el resultado no cambia.
+
+`-opt slots` reutiliza lugares del frame entre variables locales de scopes disjuntos: al declarar una variable se usa un lugar liberado por un scope ya cerrado si hay, y al cerrar el scope se liberan sus lugares. No reutiliza parámetros ni temporales. Se decide durante el análisis semántico (antes de `as`, `cf` y `dce`), así que actúa desde `-target codinter` (con `parse` no hace nada). Test en `tests/test_optimizaciones/slots_01_reuso.ctds`: además de ejecutar el programa, el runner compara el `enter` del assembly con y sin `-opt slots` y exige que el frame sea más chico.
 
 `-debug` imprime información de debugging y conserva el `.ass`.
 

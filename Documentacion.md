@@ -11,7 +11,7 @@ El proyecto implementa las etapas del compilador para el lenguaje C-TDS:
   llamadas, y decora el AST con los símbolos.
 - **Generador de código intermedio:** cuádruplas de tres direcciones.
 - **Generador de código objeto:** assembly x86-64 (AT&T, ABI System V).
-- **Optimizador:** sobre el AST (`-opt cf`, `-opt as` y `-opt dce`; `-opt all` las activa a las tres).
+- **Optimizador:** `-opt cf`, `-opt as` y `-opt dce` sobre el AST, y `-opt slots` en la tabla de símbolos; `-opt all` las activa a las cuatro.
 
 ## Día 1
 
@@ -189,7 +189,7 @@ No hubo problemas detectados durante el Día 2.
 ### Trabajo Realizado
   Empezamos la preparación para el generador de código objeto corrigiendo el código intermedio y la tabla de símbolos.
   Cortocircuito: la especificación exige que && y || no evalúen el segundo operando si el primero ya decide el resultado. Se eliminaron las instrucciones AND y OR y genCortocircuito las traduce con saltos: el resultado queda en un temporal, y el operando derecho se evalúa solo si hace falta (a && b: t = a; ifFalse t goto L; t = b; L:). Para || se niega el temporal antes del ifFalse, así no hace falta una instrucción de salto si verdadero.
-  El Simbolo ahora guarda esGlobal (se calcula al insertar, según si está en el primer nivel de la pila), offset (desplazamiento respecto de %rbp, lo asigna el generador de código objeto) y params (los símbolos de los parámetros formales de una función, en orden). El analizador semántico completa params en insertarParametros. Se necesitan para copiar %rdi, %rsi... a sus lugares en el prólogo de cada función, y para distinguir globales (van en .data/.bss) de locales (van en el stack).
+  El Simbolo ahora guarda esGlobal (se calcula al insertar, según si está en el primer nivel de la pila), offset (desplazamiento respecto de %rbp, lo asigna el generador de código objeto; con -opt slots lo asigna el análisis semántico) y params (los símbolos de los parámetros formales de una función, en orden). El analizador semántico completa params en insertarParametros. Se necesitan para copiar %rdi, %rsi... a sus lugares en el prólogo de cada función, y para distinguir globales (van en .data/.bss) de locales (van en el stack).
   Se agregó el caso ci_05_cortocircuito con llamadas con efecto sobre una global en el lado derecho, y se regeneró ci_01 porque usa && y ||.
 
 ### Problemas Detectados
@@ -223,7 +223,7 @@ Acordamos optimizaciones y las implementamos...
 Implementado en optimizador.c y optimizador.h. Se activa con `-opt cf` y se aplica sobre el AST justo después del parseo (por eso `-target parse` ya muestra el árbol plegado).
 Recorre el árbol en postorden: cuando todos los operandos de una operación son literales, calcula el resultado y reescribe el nodo en el lugar como el literal resultante (`2 * 3 + 1` pasa a `7`). Cubre aritmética y comparaciones enteras, `&&`, `||`, `!` y el signo menos.
 No pliega floats (el IR los trunca a int), divisiones o módulos por cero, ni resultados fuera del rango de `int`; tampoco combinaciones mal tipadas, así que el semántico sigue reportando esos errores. Test en tests/test_optimizaciones.
-Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (`cf`, `dce`, `as` o `all`, que activa las tres) y se puede repetir.
+Cambio en main.c: `-opt` ahora exige un nombre de optimización válido (`cf`, `dce`, `as`, `slots` o `all`, que activa las cuatro) y se puede repetir.
 Se eliminó el segundo envoltorio del literal: en la gramática `EXPR : LITERAL` ahora devuelve el nodo del literal tal cual (`$$ = $1`), así que un literal es un único nodo `LITERAL : texto` y ya no `LITERAL(LITERAL "texto")`. Se simplificaron `tipoDeLiteral`, `genLiteral` y el optimizador, y se regeneró el `.sint` del test ci_01.
 
 #### Simplificación algebraica (`-opt as`)
@@ -242,12 +242,15 @@ Elimina:
 Solo decide con condiciones constantes bien tipadas (literales y operadores, nunca variables ni llamadas), así no descarta código con efectos; `while(1)` no se toca y el semántico sigue reportando el error de tipo. El `if` que sobrevive se reescribe en el lugar como `NODO_BLOQUE` con el bloque de la rama elegida, para conservar el alcance de sus variables.
 Decisión: originalmente corría justo después del parseo, antes del semántico, y escondía errores: `return 1; a = noDeclarada;`, un tipo incompatible en un `if(false)` o una llamada inexistente en un `while(false)` pasaban a compilar porque el código con el error se descartaba. Al correr después del semántico eso no puede pasar; tests/test_optimizaciones/err_*.ctds lo verifican (tienen que seguir sin compilar con `-opt all`).
 Problemas: doble `free` en `if(false)` sin `else` (detectado con AddressSanitizer), el primer nodo de la cadena quedaba colgado al eliminarlo (se pasó a puntero a puntero) y `liberarSubarbol` liberaba el texto de los `NODO_TYPE`, que es un literal del parser.
-Test: tests/test_optimizaciones/dce_01_muerto.ctds, con correr_tests.sh (ahora también compila hasta código intermedio los casos sin `.esperado`, así corren el semántico y las tres optimizaciones).
+Test: tests/test_optimizaciones/dce_01_muerto.ctds, con correr_tests.sh (ahora también compila hasta código intermedio los casos sin `.esperado`, así corren el semántico y todas las optimizaciones).
+
+#### Reutilización de lugares del frame (`-opt slots`)
+También se activa con `-opt all`. Se decide durante el análisis semántico, así que actúa desde `-target codinter` (con `parse` no hace nada), antes de `as`, `cf` y `dce`.
+La tabla de símbolos mantiene una lista de lugares libres del frame. Al insertar una variable local se reutiliza el último lugar liberado por un scope ya cerrado; si no hay, se reserva uno nuevo (`-8(%rbp)`, `-16(%rbp)`, ...). Al cerrar un nivel se liberan los lugares de las variables declaradas en ese nivel. No se reutilizan parámetros ni temporales: el generador de código objeto los ubica después del máximo de slots usados por las variables, que queda guardado en el `Simbolo` de la función (`slotsLocales`), para no pisar los lugares reutilizados.
+Test: tests/test_optimizaciones/slots_01_reuso.ctds; además de ejecutar el programa, correr_tests.sh compara el `enter` del assembly con y sin `-opt slots` y exige que el frame sea más chico.
 
 ### Notas de optimizaciones acordadas:
 - Propagacion de constantes (idealmente en el arbol)
 - Eliminacion de codigo muerto (while(true), if(false), codigo despues de return)
 - Patrones (dividir por 2 shiftear, comerse los +0, los *1, x = x, etc)
-
-### Ejecucion de optimizaciones
-- A nivel de tabla de simbolo tener una lista de lugares reservados: al reservar una variable queremos fijarnos primero si hay espacio liberado Y SI NO HAY pide espacio nuevo. Para esto, cuando cerremos un scope, toda variable declarada en este scope se libera.
+- Reutilizacion de lugares del frame (variables de scopes disjuntos)

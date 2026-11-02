@@ -22,6 +22,56 @@ typedef struct nivel {
 
 static Nivel *topeTablaSimbolos = NULL;
 
+/*
+ * Asignacion de lugares del frame (-opt slots).
+ *
+ * Los offsets son negativos: el lugar k-esimo esta en -8*k(%rbp). `lugaresLibres`
+ * guarda los offsets que quedaron disponibles al cerrar un scope; se usa como pila
+ * (LIFO): el ultimo lugar liberado es el primero en reutilizarse.
+ */
+static int reusoLugares = 0;
+static int *lugaresLibres = NULL;
+static int cantidadLibres = 0;
+static int capacidadLibres = 0;
+static int slotsReservados = 0;
+
+void activarReusoLugares(int activo) {
+    reusoLugares = activo;
+}
+
+void reiniciarLugares(void) {
+    cantidadLibres = 0;
+    slotsReservados = 0;
+}
+
+int lugaresReservados(void) {
+    return slotsReservados;
+}
+
+// Devuelve el offset de un lugar libre o reserva uno nuevo. Solo se llama para variables locales.
+static int reservarLugar(void) {
+    if (cantidadLibres > 0) {
+        return lugaresLibres[--cantidadLibres];
+    }
+    return -BYTES_SLOT * ++slotsReservados;
+}
+
+// Devuelve un lugar a la lista. offset 0 es "sin asignar" y los parametros de pila son positivos.
+static void liberarLugar(int offset) {
+    if (offset >= 0) return;
+
+    if (cantidadLibres == capacidadLibres) {
+        capacidadLibres = capacidadLibres ? capacidadLibres * 2 : 8;
+        int *nuevos = realloc(lugaresLibres, capacidadLibres * sizeof(int));
+        if (nuevos == NULL) {
+            fprintf(stderr, "Error: sin memoria para los lugares libres del frame.\n");
+            exit(1);
+        }
+        lugaresLibres = nuevos;
+    }
+    lugaresLibres[cantidadLibres++] = offset;
+}
+
 // Convierte el texto del token de tipo ("int"/"bool"/"void") al enum correspondiente
 TipoDato tipoDesdeTexto(const char *texto) {
     if (!texto) return TIPO_INDEFINIDO;
@@ -36,6 +86,7 @@ TipoDato tipoDesdeTexto(const char *texto) {
 //Primer nivel de la tabla de simbolos
 void inicializarTablaSimbolos(void) {
     topeTablaSimbolos = NULL;
+    reiniciarLugares();
 }
 
 //Creo nuevo nivel y lo pongo en la cima de la pila
@@ -69,6 +120,14 @@ void cerrarNivel(void) {
      */
     while (actual != NULL) {
         EntradaSimbolo *siguiente = actual->siguiente;
+        Simbolo *simbolo = actual->simbolo;
+
+        // Con -opt slots, las variables locales devuelven su lugar al cerrar el scope.
+        // Los parametros (todavia sin offset) y las globales no ocupan lugares reutilizables.
+        if (reusoLugares && simbolo->flag == FLAG_VARIABLE && !simbolo->esGlobal) {
+            liberarLugar(simbolo->offset);
+        }
+
         free(actual);          // Libero solo el nodo de la lista
         actual = siguiente;
     }
@@ -107,7 +166,14 @@ Simbolo* insertarSimbolo(FlagSimbolo flag, char *nombre, TipoDato tipo) {
     memset(nuevoSimbolo->params, 0, sizeof(nuevoSimbolo->params));
     nuevoSimbolo->esGlobal = (topeTablaSimbolos->anterior == NULL); // el primer nivel de la pila es el global
     nuevoSimbolo->offset = 0;
+    nuevoSimbolo->slotsLocales = 0;
     nuevoSimbolo->esExterna = 0;
+
+    // Con -opt slots, cada variable local recibe un lugar en el frame al declararse.
+    // Si un scope anterior ya cerro y dejo lugares libres, se reutiliza uno.
+    if (reusoLugares && flag == FLAG_VARIABLE && !nuevoSimbolo->esGlobal) {
+        nuevoSimbolo->offset = reservarLugar();
+    }
 
     // Creamos el nodo para insertarlo en la lista enlazada del nivel
     EntradaSimbolo *nuevoNodo = (EntradaSimbolo *)malloc(sizeof(EntradaSimbolo));

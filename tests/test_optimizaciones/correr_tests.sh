@@ -29,6 +29,21 @@ for fuente in *.ctds; do
             echo "FALLO $base"; fallos=1
         fi
         rm -f "$base.out"
+
+        # slots_01_reuso: ademas de ejecutar, comprueba que -opt slots achica el frame.
+        # Se comparan los dos assembly: sin optimizaciones y solo con reutilizacion de lugares.
+        if [ "$base" = "slots_01_reuso" ]; then
+            $COMPILADOR -target assembly -o "$base.sin.ass" "$fuente" || fallos=1
+            $COMPILADOR -opt slots -target assembly -o "$base.con.ass" "$fuente" || fallos=1
+            sin=$(sed -n '/^main:/,/^$/s/.*enter \$\([0-9]*\).*/\1/p' "$base.sin.ass" | head -1)
+            con=$(sed -n '/^main:/,/^$/s/.*enter \$\([0-9]*\).*/\1/p' "$base.con.ass" | head -1)
+            if [ -n "$sin" ] && [ -n "$con" ] && [ "$con" -lt "$sin" ]; then
+                echo "OK    $base (frame $sin -> $con)"
+            else
+                echo "FALLO $base (frame $sin -> $con)"; fallos=1
+            fi
+            rm -f "$base.sin.ass" "$base.con.ass"
+        fi
     else
         if $COMPILADOR -opt all -target codinter -o "$base.ci" "$fuente" > /dev/null; then
             echo "OK    $base"

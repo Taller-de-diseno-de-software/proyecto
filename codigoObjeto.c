@@ -14,8 +14,6 @@
 #include "tablaSimbolos.h"
 #include "codigoObjeto.h"
 
-#define BYTES_SLOT 8
-
 /* ---- Variables globales ---- */
 
 typedef struct {
@@ -96,7 +94,8 @@ static int nuevoSlot(Frame *f) {
 }
 
 // Las locales y parametros guardan su offset en el Simbolo. Un offset 0 significa "sin asignar":
-// nunca es valido porque 0(%rbp) es el %rbp guardado.
+// nunca es valido porque 0(%rbp) es el %rbp guardado. Con -opt slots las locales ya vienen
+// asignadas por el analisis semantico; sin esa optimizacion se asignan aca.
 static void asignarVariable(Frame *f, Simbolo *s) {
     if (!s->esGlobal && s->offset == 0) {
         s->offset = nuevoSlot(f);
@@ -138,7 +137,9 @@ static void armarFrame(const Cuadrupla *enter, Frame *f) {
     f->temps = NULL;
     f->cantTemps = 0;
     f->capTemps = 0;
-    f->slots = 0;
+    // Con -opt slots las variables locales ya tienen su offset y comparten lugares entre
+    // scopes disjuntos. Los parametros y temporales se ubican despues de esos slots para no pisarlos.
+    f->slots = funcion->slotsLocales;
 
     for (int i = 0; i < funcion->numParams; i++) {
         Simbolo *p = funcion->params[i];

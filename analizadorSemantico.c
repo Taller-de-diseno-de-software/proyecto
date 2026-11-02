@@ -167,11 +167,17 @@ static void visitarMetodo(nodoAST *metodo){
 
     tipoRetornoActual = tipoDeNodo(metodo->hijos[0]);
 
+    reiniciarLugares(); // Cada funcion arma su propio frame: los lugares de la anterior no se heredan
     abrirNivel(); // Los parámetros y las variables de primer nivel comparten nivel
     int indiceParam = 0;
     insertarParametros(params, metodo->simbolo, &indiceParam);
     visitarContenidoBloque(bloque);
     cerrarNivel();
+
+    // El generador de codigo objeto arranca los parametros y temporales despues de estos slots.
+    if (metodo->simbolo != NULL) {
+        metodo->simbolo->slotsLocales = lugaresReservados();
+    }
 }
 
 static void visitarBloque(nodoAST *bloque){

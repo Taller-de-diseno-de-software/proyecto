@@ -22,6 +22,7 @@
 /*ESTRUCTURA DE LOS SIMBOLOS*/
 
 #define MAX_PARAMS 16 // Maximo de parametros formales que admite una funcion
+#define BYTES_SLOT 8  // Tamano de cada lugar del frame (variables, parametros y temporales)
 
 //Enumerado de flags
 typedef enum {
@@ -51,7 +52,8 @@ typedef struct simbolo{
     struct simbolo *params[MAX_PARAMS]; //Solo FLAG_FUNCION: simbolo de cada parametro formal, en orden (lo usa el generador de codigo objeto)
     int esExterna; //Solo FLAG_FUNCION: 1 si se declaro con extern (no tiene cuerpo, la define otra unidad)
     int esGlobal; //1 si se declaro en el nivel global (variables y funciones)
-    int offset; //Solo variables y parametros locales: desplazamiento respecto de %rbp; lo asigna el generador de codigo objeto
+    int offset; //Solo variables y parametros locales: desplazamiento respecto de %rbp; lo asigna el generador de codigo objeto (o el analisis semantico con -opt slots)
+    int slotsLocales; //Solo FLAG_FUNCION: cantidad maxima de slots de 8 bytes que usan las variables locales de la funcion (con -opt slots)
 } Simbolo;
 
 // Convierte el texto del token de tipo ("int"/"bool"/"void"/"float") al enum correspondiente
@@ -64,5 +66,16 @@ void abrirNivel(void);
 void cerrarNivel(void);
 Simbolo* insertarSimbolo(FlagSimbolo flag, char *nombre, TipoDato tipo);
 Simbolo* buscarSimbolo(char *nombre);
+
+/*
+ * Reutilizacion de lugares del frame (-opt slots).
+ * Mientras el analisis semantico recorre una funcion, insertarSimbolo le da un lugar
+ * a cada variable local. Si hay lugares liberados por scopes ya cerrados, reutiliza
+ * uno; si no, reserva el siguiente. Al cerrar un nivel se liberan los lugares de las
+ * variables declaradas en ese nivel. Los parametros y los temporales no se reutilizan.
+ */
+void activarReusoLugares(int activo);
+void reiniciarLugares(void); // Empieza una funcion nueva: vacia la lista de lugares libres
+int lugaresReservados(void); // Maximo de slots usados por las variables locales de la funcion actual
 
 #endif // TABLA_SIMBOLOS_H

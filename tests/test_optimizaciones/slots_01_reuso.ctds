@@ -1,0 +1,51 @@
+extern void printInt(int x);
+
+// Funcion con parametro y locales en scopes disjuntos: comprueba que los lugares
+// reutilizados no pisan el parametro.
+int suma(int p) {
+    int total;
+    total = p;
+
+    if (true) {
+        int a;
+        a = 10;
+        total = total + a;
+    }
+
+    if (true) {
+        int b;
+        b = 20;
+        total = total + b;
+    }
+
+    return total;
+}
+
+// Tres scopes disjuntos: a, b y c pueden compartir el mismo lugar del frame.
+// Con -opt slots el frame de main tiene que ser mas chico que sin la optimizacion.
+int main() {
+    int total;
+    total = 0;
+
+    if (true) {
+        int a;
+        a = 10;
+        total = total + a;
+    }
+
+    if (true) {
+        int b;
+        b = 20;
+        total = total + b;
+    }
+
+    if (true) {
+        int c;
+        c = 30;
+        total = total + c;
+    }
+
+    total = total + suma(1);
+    printInt(total);
+    return total;
+}
